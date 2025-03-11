@@ -5,7 +5,8 @@ import {
   connectWallet, 
   disconnectWallet, 
   initialWalletState,
-  WalletState
+  WalletState,
+  web3Modal
 } from '@/utils/wallet';
 
 interface AuthContextType {
