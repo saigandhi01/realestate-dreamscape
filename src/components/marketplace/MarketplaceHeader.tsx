@@ -1,11 +1,12 @@
 
 import { Building2, DollarSign, TrendingUp } from 'lucide-react';
 import { RevealOnScroll, FadeIn } from '@/components/ui/animations';
+import { LucideIcon } from 'lucide-react';
 
 type MarketStatProps = {
   label: string;
   value: string;
-  icon: React.ElementRef<typeof Building2 | typeof DollarSign | typeof TrendingUp>;
+  icon: LucideIcon;
 }
 
 const MarketplaceHeader = () => {
@@ -34,12 +35,11 @@ const MarketplaceHeader = () => {
             {marketStats.map((stat, index) => (
               <RevealOnScroll 
                 key={stat.label} 
-                delay={index * 0.1} 
                 className="bg-background/80 backdrop-blur-sm rounded-xl border p-4 shadow-sm"
               >
                 <div className="flex items-center space-x-3">
                   <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                    <stat.icon size={20} />
+                    {React.createElement(stat.icon, { size: 20 })}
                   </div>
                   <div>
                     <p className="text-muted-foreground text-sm">{stat.label}</p>

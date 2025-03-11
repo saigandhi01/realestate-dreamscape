@@ -168,14 +168,15 @@ export const Pulse: React.FC<{
 export const RevealOnScroll: React.FC<{
   children: React.ReactNode;
   className?: string;
-}> = ({ children, className = '' }) => {
+  delay?: number;
+}> = ({ children, className = '', delay = 0 }) => {
   return (
     <motion.div
       className={className}
       initial={{ opacity: 0, y: 50 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.7 }}
+      transition={{ duration: 0.7, delay }}
     >
       {children}
     </motion.div>
