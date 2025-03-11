@@ -13,6 +13,8 @@ interface AuthContextType {
   wallet: WalletState;
   isConnecting: boolean;
   connectWithMetamask: () => Promise<void>;
+  connectWithEmail: (email: string, password: string) => Promise<void>;
+  connectWithSocial: (provider: string) => Promise<void>;
   disconnect: () => Promise<void>;
   isLoggedIn: boolean;
   isLoginModalOpen: boolean;
@@ -62,6 +64,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const connectWithEmail = async (email: string, password: string) => {
+    setIsConnecting(true);
+    try {
+      // In a real app, this would make an API call to authenticate
+      // For demonstration, we'll simulate a successful login after a delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setIsLoggedIn(true);
+      toast({
+        title: "Email connected",
+        description: `Logged in as ${email}`,
+      });
+      closeLoginModal();
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Login failed",
+        description: "Invalid email or password",
+        variant: "destructive",
+      });
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
+  const connectWithSocial = async (provider: string) => {
+    setIsConnecting(true);
+    try {
+      // In a real app, this would redirect to OAuth flow
+      // For demonstration, we'll simulate a successful login after a delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setIsLoggedIn(true);
+      toast({
+        title: "Social login successful",
+        description: `Connected with ${provider}`,
+      });
+      closeLoginModal();
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Social login failed",
+        description: `Could not connect with ${provider}`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
   const disconnect = async () => {
     try {
       await disconnectWallet();
@@ -92,6 +144,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         wallet,
         isConnecting,
         connectWithMetamask,
+        connectWithEmail,
+        connectWithSocial,
         disconnect,
         isLoggedIn,
         isLoginModalOpen,
