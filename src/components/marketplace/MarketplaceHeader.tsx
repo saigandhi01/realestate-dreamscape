@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { Building2, DollarSign, TrendingUp } from 'lucide-react';
 import { RevealOnScroll, FadeIn } from '@/components/ui/animations';
 import { LucideIcon } from 'lucide-react';
@@ -36,6 +37,7 @@ const MarketplaceHeader = () => {
               <RevealOnScroll 
                 key={stat.label} 
                 className="bg-background/80 backdrop-blur-sm rounded-xl border p-4 shadow-sm"
+                delay={index * 0.1}
               >
                 <div className="flex items-center space-x-3">
                   <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
