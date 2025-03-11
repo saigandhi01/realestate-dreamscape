@@ -1,98 +1,105 @@
 
 import { useEffect, useState } from 'react';
-import { Search, Filter, Building2, SlidersHorizontal } from 'lucide-react';
+import { Search, Filter, Building2, SlidersHorizontal, MapPin, DollarSign, TrendingUp, Clock } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Property } from '@/components/PropertyCard';
 import PropertyCard from '@/components/PropertyCard';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { FadeIn, PageTransition, RevealOnScroll } from '@/components/ui/animations';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Marketplace = () => {
+  const { wallet, isLoggedIn } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [activeView, setActiveView] = useState('grid');
+  const [sortOption, setSortOption] = useState('default');
   
   // Scroll to top on page load
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Properties data
+  // Properties data - mimicking Lofty.ai style
   const properties: Property[] = [
     {
       id: '1',
-      name: 'Luxury Apartment Complex',
-      location: 'Miami, Florida',
-      price: 12500000,
-      tokenPrice: 100,
-      image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=2940&auto=format&fit=crop',
-      type: 'Residential',
-      investors: 342,
-      funded: 8750000,
-      target: 12500000
+      name: '2831 N Cambridge Ave, Milwaukee',
+      location: 'Milwaukee, WI',
+      price: 217500,
+      tokenPrice: 50,
+      image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop',
+      type: 'Single Family',
+      investors: 78,
+      funded: 182700,
+      target: 217500
     },
     {
       id: '2',
-      name: 'Downtown Office Building',
-      location: 'Chicago, Illinois',
-      price: 28000000,
-      tokenPrice: 250,
-      image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2940&auto=format&fit=crop',
-      type: 'Commercial',
-      investors: 513,
-      funded: 22400000,
-      target: 28000000
+      name: '1523 W Grace St, Richmond',
+      location: 'Richmond, VA',
+      price: 385000,
+      tokenPrice: 50,
+      image: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?q=80&w=2070&auto=format&fit=crop',
+      type: 'Multi-Family',
+      investors: 145,
+      funded: 290000,
+      target: 385000
     },
     {
       id: '3',
-      name: 'Waterfront Shopping Plaza',
-      location: 'Seattle, Washington',
-      price: 18750000,
-      tokenPrice: 125,
-      image: 'https://images.unsplash.com/photo-1535025639604-9a804c092faa?q=80&w=2938&auto=format&fit=crop',
-      type: 'Retail',
-      investors: 267,
-      funded: 11250000,
-      target: 18750000
+      name: '714 Ivy Green Dr, Birmingham',
+      location: 'Birmingham, AL',
+      price: 164000,
+      tokenPrice: 50,
+      image: 'https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?q=80&w=2070&auto=format&fit=crop',
+      type: 'Single Family',
+      investors: 56,
+      funded: 121000,
+      target: 164000
     },
     {
       id: '4',
-      name: 'Modern Industrial Warehouse',
-      location: 'Austin, Texas',
-      price: 8400000,
-      tokenPrice: 75,
-      image: 'https://images.unsplash.com/photo-1629760946220-5693ee4c46ac?q=80&w=2940&auto=format&fit=crop',
-      type: 'Industrial',
-      investors: 189,
-      funded: 5040000,
-      target: 8400000
+      name: '419 E 38th St, Indianapolis',
+      location: 'Indianapolis, IN',
+      price: 186500,
+      tokenPrice: 50,
+      image: 'https://images.unsplash.com/photo-1518780664697-55e3ad937233?q=80&w=2065&auto=format&fit=crop',
+      type: 'Single Family',
+      investors: 67,
+      funded: 149200,
+      target: 186500
     },
     {
       id: '5',
-      name: 'Boutique Hotel Property',
-      location: 'San Francisco, California',
-      price: 22000000,
-      tokenPrice: 200,
-      image: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?q=80&w=2940&auto=format&fit=crop',
-      type: 'Hospitality',
-      investors: 408,
-      funded: 15400000,
-      target: 22000000
+      name: '724 Lucy Ave, Memphis',
+      location: 'Memphis, TN',
+      price: 138000,
+      tokenPrice: 50,
+      image: 'https://images.unsplash.com/photo-1598228723793-52759bba239c?q=80&w=2074&auto=format&fit=crop',
+      type: 'Single Family',
+      investors: 53,
+      funded: 118000,
+      target: 138000
     },
     {
       id: '6',
-      name: 'Urban Residential Tower',
-      location: 'New York, New York',
-      price: 36000000,
-      tokenPrice: 300,
-      image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2940&auto=format&fit=crop',
-      type: 'Residential',
-      investors: 567,
-      funded: 25200000,
-      target: 36000000
+      name: '2705 Kildaire Dr, Baltimore',
+      location: 'Baltimore, MD',
+      price: 193000,
+      tokenPrice: 50,
+      image: 'https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?q=80&w=2070&auto=format&fit=crop',
+      type: 'Single Family',
+      investors: 72,
+      funded: 162000,
+      target: 193000
     }
   ];
 
@@ -105,31 +112,76 @@ const Marketplace = () => {
     return matchesSearch && matchesFilter;
   });
 
+  // Sort properties based on selected option
+  const sortedProperties = [...filteredProperties].sort((a, b) => {
+    switch (sortOption) {
+      case 'priceAsc':
+        return a.price - b.price;
+      case 'priceDesc':
+        return b.price - a.price;
+      case 'fundingDesc':
+        return (b.funded / b.target) - (a.funded / a.target);
+      case 'fundingAsc':
+        return (a.funded / a.target) - (b.funded / b.target);
+      default:
+        return 0;
+    }
+  });
+
   // Property types for filtering
   const propertyTypes = ['all', ...Array.from(new Set(properties.map(p => p.type.toLowerCase())))];
+
+  // Marketplace stats (similar to Lofty.ai)
+  const marketStats = [
+    { label: 'Properties', value: '24', icon: Building2 },
+    { label: 'Token Price', value: '$50', icon: DollarSign },
+    { label: 'Total Value', value: '$7.2M', icon: TrendingUp },
+    { label: 'Avg. Projected Return', value: '10.4%', icon: TrendingUp },
+  ];
 
   return (
     <PageTransition className="flex flex-col min-h-screen">
       <Navbar />
       
       <main className="flex-grow pt-24">
-        {/* Header Section */}
-        <section className="bg-secondary/30 py-16">
+        {/* Header Section - similar to Lofty.ai banner */}
+        <section className="bg-primary/10 py-12 md:py-16 border-b">
           <div className="container mx-auto px-6 md:px-10">
             <FadeIn>
-              <h1 className="text-3xl md:text-4xl font-display font-bold mb-4">
-                Property Marketplace
+              <h1 className="text-3xl md:text-4xl font-display font-bold mb-6">
+                Real Estate Marketplace
               </h1>
-              <p className="text-muted-foreground max-w-2xl">
-                Browse our selection of tokenized real estate properties. 
-                Filter by property type or search for specific listings.
+              <p className="text-muted-foreground max-w-3xl text-lg mb-8">
+                Browse our curated selection of tokenized real estate properties. 
+                Start building your real estate portfolio with as little as $50 per token.
               </p>
+              
+              {/* Marketplace Stats */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mt-10">
+                {marketStats.map((stat, index) => (
+                  <RevealOnScroll 
+                    key={stat.label} 
+                    delay={index * 0.1} 
+                    className="bg-background/80 backdrop-blur-sm rounded-xl border p-4 shadow-sm"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                        <stat.icon size={20} />
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground text-sm">{stat.label}</p>
+                        <p className="text-xl font-semibold">{stat.value}</p>
+                      </div>
+                    </div>
+                  </RevealOnScroll>
+                ))}
+              </div>
             </FadeIn>
           </div>
         </section>
         
-        {/* Search and Filters */}
-        <section className="py-8 border-b">
+        {/* Search and Filters - similar to Lofty.ai control bar */}
+        <section className="sticky top-0 z-10 bg-background/80 backdrop-blur-md py-4 border-b shadow-sm">
           <div className="container mx-auto px-6 md:px-10">
             <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
               {/* Search */}
@@ -144,76 +196,159 @@ const Marketplace = () => {
                 />
               </div>
               
-              {/* Filter Toggle (Mobile) */}
-              <Button 
-                variant="outline" 
-                className="md:hidden w-full"
-                onClick={() => setIsFilterOpen(!isFilterOpen)}
-              >
-                <Filter className="mr-2 h-4 w-4" />
-                Filters
-              </Button>
-              
-              {/* Filters (Desktop) */}
-              <div className="hidden md:flex items-center space-x-2">
-                <SlidersHorizontal className="h-4 w-4 text-muted-foreground mr-2" />
-                <span className="text-sm font-medium">Filter by:</span>
-                <Tabs 
-                  defaultValue="all" 
-                  value={activeFilter}
-                  onValueChange={setActiveFilter}
-                  className="w-full"
+              <div className="flex items-center gap-2 md:gap-4 w-full md:w-auto">
+                {/* Sort Options */}
+                <select 
+                  value={sortOption}
+                  onChange={(e) => setSortOption(e.target.value)}
+                  className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <TabsList>
-                    {propertyTypes.map(type => (
-                      <TabsTrigger 
-                        key={type} 
-                        value={type}
-                        className="capitalize"
-                      >
-                        {type === 'all' ? 'All Properties' : type}
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
-                </Tabs>
+                  <option value="default">Sort By</option>
+                  <option value="priceAsc">Price: Low to High</option>
+                  <option value="priceDesc">Price: High to Low</option>
+                  <option value="fundingDesc">Funding: Most</option>
+                  <option value="fundingAsc">Funding: Least</option>
+                </select>
+                
+                {/* Filter Toggle (Mobile) */}
+                <Button 
+                  variant="outline" 
+                  className="md:hidden"
+                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+                >
+                  <Filter className="mr-2 h-4 w-4" />
+                  Filters
+                </Button>
+                
+                {/* View Toggle */}
+                <div className="hidden md:flex h-10 items-center rounded-md border bg-muted p-1">
+                  <Button
+                    variant={activeView === 'grid' ? 'default' : 'ghost'}
+                    size="sm"
+                    className="h-8 rounded-sm px-2.5"
+                    onClick={() => setActiveView('grid')}
+                  >
+                    Grid
+                  </Button>
+                  <Button
+                    variant={activeView === 'list' ? 'default' : 'ghost'}
+                    size="sm"
+                    className="h-8 rounded-sm px-2.5"
+                    onClick={() => setActiveView('list')}
+                  >
+                    List
+                  </Button>
+                </div>
               </div>
             </div>
             
-            {/* Filters (Mobile) */}
-            {isFilterOpen && (
-              <div className="mt-4 md:hidden">
-                <Tabs 
-                  defaultValue="all" 
-                  value={activeFilter}
-                  onValueChange={setActiveFilter}
-                  className="w-full"
-                >
-                  <TabsList className="w-full flex overflow-x-auto">
-                    {propertyTypes.map(type => (
-                      <TabsTrigger 
-                        key={type} 
-                        value={type}
-                        className="capitalize flex-1"
-                      >
-                        {type === 'all' ? 'All' : type}
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
-                </Tabs>
-              </div>
-            )}
+            {/* Filters (Mobile & Desktop) */}
+            <div className={`mt-4 ${isFilterOpen || 'hidden md:block'}`}>
+              <Tabs 
+                defaultValue="all" 
+                value={activeFilter}
+                onValueChange={setActiveFilter}
+                className="w-full"
+              >
+                <TabsList className="w-full flex overflow-x-auto justify-start">
+                  {propertyTypes.map(type => (
+                    <TabsTrigger 
+                      key={type} 
+                      value={type}
+                      className="capitalize flex-none"
+                    >
+                      {type === 'all' ? 'All Properties' : type}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
+            </div>
           </div>
         </section>
         
-        {/* Properties Grid */}
-        <section className="py-12">
+        {/* Properties Grid/List - similar to Lofty.ai listing display */}
+        <section className="py-8 md:py-12">
           <div className="container mx-auto px-6 md:px-10">
-            {filteredProperties.length > 0 ? (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {filteredProperties.map((property, index) => (
-                  <PropertyCard key={property.id} property={property} index={index} />
-                ))}
-              </div>
+            {sortedProperties.length > 0 ? (
+              <>
+                {activeView === 'grid' ? (
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                    {sortedProperties.map((property, index) => (
+                      <PropertyCard key={property.id} property={property} index={index} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col space-y-4">
+                    {sortedProperties.map((property, index) => (
+                      <RevealOnScroll key={property.id} delay={index * 0.05}>
+                        <Card className="overflow-hidden transition-all hover:shadow-md">
+                          <div className="flex flex-col md:flex-row">
+                            <div className="md:w-1/3 h-48 md:h-auto">
+                              <img 
+                                src={property.image} 
+                                alt={property.name}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <CardContent className="flex-1 p-5">
+                              <div className="flex flex-col h-full">
+                                <div className="mb-auto">
+                                  <div className="flex justify-between items-start mb-2">
+                                    <div>
+                                      <h3 className="font-semibold text-lg line-clamp-1">{property.name}</h3>
+                                      <div className="flex items-center text-muted-foreground">
+                                        <MapPin size={14} className="mr-1" />
+                                        <span className="text-sm">{property.location}</span>
+                                      </div>
+                                    </div>
+                                    <Badge>{property.type}</Badge>
+                                  </div>
+                                  
+                                  <div className="my-4">
+                                    <div className="flex justify-between text-sm mb-1.5">
+                                      <span>${property.funded.toLocaleString()} raised</span>
+                                      <span className="font-medium">{Math.round((property.funded / property.target) * 100)}%</span>
+                                    </div>
+                                    <div className="w-full bg-muted rounded-full h-1.5">
+                                      <div 
+                                        className="bg-primary h-1.5 rounded-full" 
+                                        style={{ width: `${Math.round((property.funded / property.target) * 100)}%` }}
+                                      ></div>
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                <div className="flex items-center justify-between pt-4 border-t">
+                                  <div>
+                                    <p className="text-sm text-muted-foreground">Property Price</p>
+                                    <p className="font-semibold">${property.price.toLocaleString()}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-sm text-muted-foreground">Token Price</p>
+                                    <p className="font-semibold">${property.tokenPrice}</p>
+                                  </div>
+                                  <Button size="sm">View Property</Button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </div>
+                        </Card>
+                      </RevealOnScroll>
+                    ))}
+                  </div>
+                )}
+                
+                {/* Connection banner for non-logged in users */}
+                {!isLoggedIn && (
+                  <div className="mt-12 bg-primary/5 border rounded-xl p-6 text-center">
+                    <h3 className="text-xl font-semibold mb-2">Connect Your Wallet to Invest</h3>
+                    <p className="text-muted-foreground mb-4">
+                      To purchase property tokens, you'll need to connect your wallet first.
+                    </p>
+                    <Button className="mx-auto">Connect Wallet</Button>
+                  </div>
+                )}
+              </>
             ) : (
               <RevealOnScroll className="text-center py-16">
                 <Building2 className="mx-auto h-16 w-16 text-muted-foreground/30 mb-4" />
