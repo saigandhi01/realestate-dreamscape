@@ -1,13 +1,23 @@
 
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Wallet, LogOut, User } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { useAuth } from '@/contexts/AuthContext';
+import { truncateAddress } from '@/utils/wallet';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { wallet, connectWithMetamask, disconnect, isLoggedIn, openLoginModal } = useAuth();
   
   // Handle scroll event to change navbar appearance
   useEffect(() => {
@@ -51,7 +61,7 @@ const Navbar = () => {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-8">
+        <nav className="hidden md:flex items-center space-x-6">
           {navLinks.map((link) => (
             <Link 
               key={link.path} 
@@ -65,7 +75,46 @@ const Navbar = () => {
               {link.name}
             </Link>
           ))}
-          <Button className="ml-4 button-hover">Connect Wallet</Button>
+          
+          {isLoggedIn ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="ml-2 gap-2">
+                  <Wallet className="h-4 w-4" />
+                  {truncateAddress(wallet.address || '')}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <div className="p-2 text-sm font-medium">
+                  {wallet.networkName}
+                </div>
+                <div className="p-2 text-sm">
+                  Balance: {wallet.balance ? `${parseFloat(wallet.balance).toFixed(4)} ETH` : '0 ETH'}
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/profile" className="flex items-center cursor-pointer">
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={disconnect} className="text-destructive focus:text-destructive cursor-pointer">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Disconnect</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <div className="flex space-x-3 ml-2">
+              <Button variant="outline" onClick={openLoginModal}>
+                Sign In
+              </Button>
+              <Button onClick={openLoginModal} className="button-hover">
+                Sign Up
+              </Button>
+            </div>
+          )}
         </nav>
 
         {/* Mobile Menu Button */}
@@ -98,7 +147,29 @@ const Navbar = () => {
               {link.name}
             </Link>
           ))}
-          <Button className="mt-2 w-full">Connect Wallet</Button>
+          {isLoggedIn ? (
+            <>
+              <div className="py-2 font-medium">
+                {truncateAddress(wallet.address || '')}
+                <div className="text-sm text-muted-foreground">
+                  {wallet.networkName} • {wallet.balance ? `${parseFloat(wallet.balance).toFixed(4)} ETH` : '0 ETH'}
+                </div>
+              </div>
+              <Button variant="outline" onClick={disconnect} className="justify-start">
+                <LogOut className="mr-2 h-4 w-4" />
+                Disconnect
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="outline" onClick={openLoginModal} className="w-full justify-center">
+                Sign In
+              </Button>
+              <Button onClick={openLoginModal} className="w-full justify-center">
+                Sign Up
+              </Button>
+            </>
+          )}
         </nav>
       </div>
     </header>
