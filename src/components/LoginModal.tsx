@@ -1,11 +1,30 @@
 
-import { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Wallet, Mail, Facebook, Github } from "lucide-react";
+import { Wallet, Mail, Facebook, Github, UserPlus, LogIn } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+
+// Simulated reCAPTCHA component (in a real app, you would use a library like react-google-recaptcha)
+const ReCaptcha = ({ onVerify }: { onVerify: (token: string) => void }) => {
+  return (
+    <div className="my-4">
+      <Button 
+        type="button" 
+        variant="outline" 
+        className="w-full h-auto py-2" 
+        onClick={() => onVerify("simulated-captcha-token")}
+      >
+        Click to verify (Simulated Captcha)
+      </Button>
+    </div>
+  );
+};
 
 const LoginModal = () => {
   const { 
@@ -13,6 +32,7 @@ const LoginModal = () => {
     closeLoginModal, 
     connectWithMetamask, 
     connectWithEmail,
+    signupWithEmail,
     connectWithSocial,
     isConnecting 
   } = useAuth();
@@ -20,21 +40,70 @@ const LoginModal = () => {
   const [view, setView] = useState<"main" | "email" | "social">("main");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [captchaToken, setCaptchaToken] = useState("");
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
 
-  const handleEmailSubmit = (e: React.FormEvent) => {
+  const handleEmailLogin = (e: React.FormEvent) => {
     e.preventDefault();
     connectWithEmail(email, password);
+  };
+
+  const handleEmailSignup = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (password !== confirmPassword) {
+      toast({
+        title: "Passwords don't match",
+        description: "Please make sure your passwords match",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!agreeToTerms) {
+      toast({
+        title: "Terms agreement required",
+        description: "Please agree to the terms and conditions",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!captchaToken) {
+      toast({
+        title: "Captcha required",
+        description: "Please complete the captcha verification",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    signupWithEmail(email, password, captchaToken);
   };
 
   const resetView = () => {
     setView("main");
     setEmail("");
     setPassword("");
+    setConfirmPassword("");
+    setCaptchaToken("");
+    setAgreeToTerms(false);
+    setActiveTab("login");
   };
 
   const handleClose = () => {
     resetView();
     closeLoginModal();
+  };
+
+  const handleCaptchaVerify = (token: string) => {
+    setCaptchaToken(token);
+    toast({
+      title: "Captcha verified",
+      description: "You have successfully completed the captcha verification",
+    });
   };
 
   return (
@@ -87,30 +156,93 @@ const LoginModal = () => {
         )}
 
         {view === "email" && (
-          <form onSubmit={handleEmailSubmit} className="flex flex-col gap-4 py-4">
-            <div className="space-y-2">
-              <Input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              <Input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "login" | "signup")} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="login" className="flex items-center gap-1">
+                <LogIn className="h-4 w-4" />
+                Login
+              </TabsTrigger>
+              <TabsTrigger value="signup" className="flex items-center gap-1">
+                <UserPlus className="h-4 w-4" />
+                Sign Up
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="login">
+              <form onSubmit={handleEmailLogin} className="flex flex-col gap-4">
+                <div className="space-y-2">
+                  <Input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                  <Input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </div>
+                <Button type="submit" disabled={isConnecting}>
+                  {isConnecting ? "Connecting..." : "Login"}
+                </Button>
+              </form>
+            </TabsContent>
+            
+            <TabsContent value="signup">
+              <form onSubmit={handleEmailSignup} className="flex flex-col gap-4">
+                <div className="space-y-2">
+                  <Input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                  <Input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <Input
+                    type="password"
+                    placeholder="Confirm Password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                  />
+                </div>
+                
+                <ReCaptcha onVerify={handleCaptchaVerify} />
+                
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="terms" 
+                    checked={agreeToTerms} 
+                    onCheckedChange={(checked) => setAgreeToTerms(checked === true)}
+                  />
+                  <Label htmlFor="terms" className="text-sm leading-none">
+                    I agree to the Terms of Service and Privacy Policy
+                  </Label>
+                </div>
+                
+                <Button type="submit" disabled={isConnecting || !captchaToken || !agreeToTerms}>
+                  {isConnecting ? "Creating account..." : "Sign Up"}
+                </Button>
+              </form>
+            </TabsContent>
+            
+            <div className="mt-4">
+              <Button variant="outline" type="button" onClick={() => setView("main")} className="w-full">
+                Back
+              </Button>
             </div>
-            <Button type="submit" disabled={isConnecting}>
-              {isConnecting ? "Connecting..." : "Connect"}
-            </Button>
-            <Button variant="outline" type="button" onClick={() => setView("main")}>
-              Back
-            </Button>
-          </form>
+          </Tabs>
         )}
 
         {view === "social" && (

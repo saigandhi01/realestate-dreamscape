@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from "@/hooks/use-toast";
 import { 
@@ -14,6 +13,7 @@ interface AuthContextType {
   isConnecting: boolean;
   connectWithMetamask: () => Promise<void>;
   connectWithEmail: (email: string, password: string) => Promise<void>;
+  signupWithEmail: (email: string, password: string, captchaToken: string) => Promise<void>;
   connectWithSocial: (provider: string) => Promise<void>;
   disconnect: () => Promise<void>;
   isLoggedIn: boolean;
@@ -89,6 +89,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const signupWithEmail = async (email: string, password: string, captchaToken: string) => {
+    setIsConnecting(true);
+    try {
+      // Verify the captcha token first
+      if (!captchaToken) {
+        throw new Error("Please complete the captcha verification");
+      }
+      
+      // In a real app, this would make an API call to create a new user
+      // For demonstration, we'll simulate a successful signup after a delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setIsLoggedIn(true);
+      toast({
+        title: "Account created",
+        description: `Signed up and logged in as ${email}`,
+      });
+      closeLoginModal();
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Signup failed",
+        description: error instanceof Error ? error.message : "Could not create account",
+        variant: "destructive",
+      });
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
   const connectWithSocial = async (provider: string) => {
     setIsConnecting(true);
     try {
@@ -145,6 +175,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isConnecting,
         connectWithMetamask,
         connectWithEmail,
+        signupWithEmail,
         connectWithSocial,
         disconnect,
         isLoggedIn,
