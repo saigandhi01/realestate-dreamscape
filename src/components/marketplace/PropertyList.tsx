@@ -13,7 +13,7 @@ interface PropertyListProps {
 }
 
 const PropertyList = ({ properties, activeView }: PropertyListProps) => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, openLoginModal } = useAuth();
 
   return (
     <section className="py-8 md:py-12">
@@ -87,14 +87,44 @@ const PropertyList = ({ properties, activeView }: PropertyListProps) => {
               </div>
             )}
             
-            {/* Connection banner for non-logged in users */}
+            {/* Enhanced Connection banner for non-logged in users */}
             {!isLoggedIn && (
-              <div className="mt-12 bg-primary/5 border rounded-xl p-6 text-center">
-                <h3 className="text-xl font-semibold mb-2">Connect Your Wallet to Invest</h3>
-                <p className="text-muted-foreground mb-4">
-                  To purchase property tokens, you'll need to connect your wallet first.
-                </p>
-                <Button className="mx-auto">Connect Wallet</Button>
+              <div className="mt-12 bg-primary/5 border rounded-xl p-6">
+                <div className="text-center mb-6">
+                  <h3 className="text-xl font-semibold mb-2">Connect Your Wallet to Invest</h3>
+                  <p className="text-muted-foreground max-w-2xl mx-auto">
+                    To purchase property tokens, you'll need to connect your wallet first. 
+                    We support multiple cryptocurrencies for investment, including ETH, BTC, USDT, and USDC.
+                  </p>
+                  <Button className="mx-auto mt-4" onClick={openLoginModal}>Connect Wallet</Button>
+                </div>
+                
+                <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto mt-8">
+                  <Card>
+                    <CardContent className="pt-6">
+                      <h4 className="font-medium text-lg mb-2">How to Connect Your Wallet</h4>
+                      <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
+                        <li>Click the "Connect Wallet" button above</li>
+                        <li>Select your preferred wallet provider</li>
+                        <li>Follow the authentication steps in your wallet</li>
+                        <li>Once connected, you can browse and invest in properties</li>
+                      </ol>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardContent className="pt-6">
+                      <h4 className="font-medium text-lg mb-2">How to Purchase Property Tokens</h4>
+                      <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
+                        <li>Browse properties in the marketplace</li>
+                        <li>Select a property you're interested in</li>
+                        <li>Choose how many tokens you want to purchase</li>
+                        <li>Complete the transaction using ETH, BTC, USDT, or USDC</li>
+                        <li>Receive your property tokens in your wallet</li>
+                      </ol>
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
             )}
           </>
