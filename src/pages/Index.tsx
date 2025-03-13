@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Building, LineChart, Lock, Shield } from 'lucide-react';
@@ -8,6 +7,7 @@ import PropertyCard, { Property } from '@/components/PropertyCard';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { FadeIn, SlideUp, ZoomIn, RevealOnScroll, StaggerChildren, Float } from '@/components/ui/animations';
+import { Badge } from '@/components/ui/badge';
 
 const Index = () => {
   // Scroll to top on page load
@@ -65,21 +65,20 @@ const Index = () => {
           {/* Background Image with Overlay */}
           <div className="absolute inset-0 z-0">
             <img 
-              src="https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?q=80&w=3648&auto=format&fit=crop" 
-              alt="Modern cityscape with river"
+              src="https://images.unsplash.com/photo-1535025639604-9a804c092faa?q=80&w=2938&auto=format&fit=crop" 
+              alt="Bright modern real estate property"
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/60 to-transparent"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-background/40 to-transparent"></div>
           </div>
           
-          {/* Realistic light effect overlay */}
-          <div className="absolute inset-0 z-1 opacity-20 mix-blend-overlay bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.8),transparent_70%)]"></div>
+          {/* Enhanced light effect overlay */}
+          <div className="absolute inset-0 z-1 opacity-30 mix-blend-overlay bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.9),transparent_70%)]"></div>
           
           <div className="container mx-auto px-6 md:px-10 relative z-10 pt-20">
             <div className="max-w-2xl">
               <FadeIn delay={0.2}>
                 <Badge 
-                  label="Revolutionary"
                   className="rounded-full px-3 py-1 text-xs font-medium bg-primary/10 text-primary mb-6 inline-flex items-center backdrop-blur-sm"
                 >
                   Revolutionizing Real Estate Investment
@@ -229,12 +228,5 @@ const Index = () => {
     </div>
   );
 };
-
-// Helper Badge component
-const Badge = ({ children, label, className }: { children: React.ReactNode; label?: string; className?: string }) => (
-  <span className={className} aria-label={label}>
-    {children}
-  </span>
-);
 
 export default Index;
