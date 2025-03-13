@@ -118,13 +118,6 @@ const ERCStandards = () => {
                 </CardContent>
               </Card>
             </section>
-            
-            <section className="mb-8">
-              <h2 className="text-3xl font-bold mb-4">Conclusion</h2>
-              <p className="text-lg">
-                ERC standards play a crucial role in Ethereum-based payment methods by ensuring seamless token interactions. ERC-20 is the most common for payments, while ERC-1363 enhances direct payments. ERC-721 and ERC-1155 allow unique asset transactions, and ERC-4626 optimizes DeFi payments.
-              </p>
-            </section>
           </div>
         </div>
       </main>
