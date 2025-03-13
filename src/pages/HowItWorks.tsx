@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import Navbar from '@/components/Navbar';
 
 const HowItWorks = () => {
   const { isLoggedIn, openLoginModal } = useAuth();
@@ -12,6 +13,8 @@ const HowItWorks = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Navbar />
+      
       {/* Hero Section */}
       <section className="pt-24 pb-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
