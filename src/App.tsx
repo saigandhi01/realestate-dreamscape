@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import LoginModal from "./components/LoginModal";
 import Marketplace from "./pages/Marketplace";
 import HowItWorks from "./pages/HowItWorks";
+import ERCStandards from "./pages/ERCStandards";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/marketplace" element={<Marketplace />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
+            <Route path="/erc-standards" element={<ERCStandards />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
