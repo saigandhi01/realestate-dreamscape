@@ -65,32 +65,35 @@ const Index = () => {
           {/* Background Image with Overlay */}
           <div className="absolute inset-0 z-0">
             <img 
-              src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=2946&auto=format&fit=crop" 
-              alt="Modern building"
+              src="https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?q=80&w=3648&auto=format&fit=crop" 
+              alt="Modern cityscape with river"
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-background/95 to-background/70"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/60 to-transparent"></div>
           </div>
+          
+          {/* Realistic light effect overlay */}
+          <div className="absolute inset-0 z-1 opacity-20 mix-blend-overlay bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.8),transparent_70%)]"></div>
           
           <div className="container mx-auto px-6 md:px-10 relative z-10 pt-20">
             <div className="max-w-2xl">
               <FadeIn delay={0.2}>
                 <Badge 
                   label="Revolutionary"
-                  className="rounded-full px-3 py-1 text-xs font-medium bg-primary/10 text-primary mb-6 inline-flex items-center"
+                  className="rounded-full px-3 py-1 text-xs font-medium bg-primary/10 text-primary mb-6 inline-flex items-center backdrop-blur-sm"
                 >
                   Revolutionizing Real Estate Investment
                 </Badge>
               </FadeIn>
               
               <SlideUp delay={0.4}>
-                <h1 className="text-4xl md:text-6xl font-display font-bold leading-tight mb-6">
+                <h1 className="text-4xl md:text-6xl font-display font-bold leading-tight mb-6 drop-shadow-sm">
                   Unlock Real Estate Investments Through Tokenization
                 </h1>
               </SlideUp>
               
               <SlideUp delay={0.6}>
-                <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl">
+                <p className="text-lg md:text-xl text-foreground mb-8 max-w-xl drop-shadow-sm backdrop-blur-[2px] bg-background/5 rounded-md p-4">
                   Invest in premium properties with as little as $100. Tokenized real estate offers fractional ownership, liquidity, and blockchain security.
                 </p>
               </SlideUp>
@@ -100,7 +103,7 @@ const Index = () => {
                   <Button asChild size="lg" className="button-hover">
                     <Link to="/marketplace">Explore Properties</Link>
                   </Button>
-                  <Button asChild variant="outline" size="lg" className="button-hover">
+                  <Button asChild variant="outline" size="lg" className="button-hover backdrop-blur-sm bg-background/30">
                     <Link to="/how-it-works">Learn More</Link>
                   </Button>
                 </div>
@@ -108,12 +111,15 @@ const Index = () => {
             </div>
           </div>
           
-          {/* Floating elements for visual interest */}
+          {/* Floating elements for visual interest with improved realism */}
           <Float className="absolute bottom-[10%] right-[10%] hidden md:block" offset={15}>
-            <div className="w-40 h-40 rounded-full bg-primary/10 backdrop-blur-md"></div>
+            <div className="w-40 h-40 rounded-full bg-white/5 backdrop-blur-md border border-white/10 shadow-lg"></div>
           </Float>
-          <Float className="absolute top-[20%] right-[20%] hidden md:block" offset={10} duration={4}>
-            <div className="w-24 h-24 rounded-full bg-primary/5 backdrop-blur-sm"></div>
+          <Float className="absolute top-[20%] right-[30%] hidden md:block" offset={10} duration={4}>
+            <div className="w-24 h-24 rounded-full bg-primary/5 backdrop-blur-sm border border-primary/10 shadow-md"></div>
+          </Float>
+          <Float className="absolute bottom-[30%] left-[20%] hidden lg:block" offset={8} duration={5}>
+            <div className="w-32 h-32 rounded-full bg-white/5 backdrop-blur-md border border-white/10 shadow-lg"></div>
           </Float>
         </section>
 
