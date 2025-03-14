@@ -15,6 +15,7 @@ import Footer from '@/components/Footer';
 import { usePropertyData } from '@/hooks/usePropertyData';
 import { useAuth } from '@/contexts/AuthContext';
 import { truncateAddress } from '@/utils/wallet';
+import PropertyImageCarousel from '@/components/PropertyImageCarousel';
 
 const PropertyDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -136,12 +137,18 @@ const PropertyDetail = () => {
         {/* Hero Section */}
         <section className="relative">
           <div className="h-80 md:h-96 w-full overflow-hidden">
-            <img 
-              src={property.image} 
-              alt={property.name} 
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent"></div>
+            {property.images && property.images.length > 0 ? (
+              <PropertyImageCarousel images={property.images} />
+            ) : (
+              <>
+                <img 
+                  src={property.image} 
+                  alt={property.name} 
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent"></div>
+              </>
+            )}
           </div>
           
           <div className="container mx-auto px-6 md:px-10 relative -mt-40 pb-12">
@@ -662,4 +669,3 @@ const PropertyDetail = () => {
 };
 
 export default PropertyDetail;
-
