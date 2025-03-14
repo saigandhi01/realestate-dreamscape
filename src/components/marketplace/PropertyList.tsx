@@ -6,6 +6,7 @@ import { RevealOnScroll } from '@/components/ui/animations';
 import { Badge } from "@/components/ui/badge";
 import PropertyCard, { Property } from '@/components/PropertyCard';
 import { useAuth } from '@/contexts/AuthContext';
+import { Link } from 'react-router-dom';
 
 interface PropertyListProps {
   properties: Property[];
@@ -76,7 +77,9 @@ const PropertyList = ({ properties, activeView }: PropertyListProps) => {
                                 <p className="text-sm text-muted-foreground">Token Price</p>
                                 <p className="font-semibold">${property.tokenPrice}</p>
                               </div>
-                              <Button size="sm">View Property</Button>
+                              <Button size="sm" asChild>
+                                <Link to={`/property/${property.id}`}>View Property</Link>
+                              </Button>
                             </div>
                           </div>
                         </CardContent>
