@@ -15,6 +15,10 @@ interface PropertyImageCarouselProps {
 }
 
 const PropertyImageCarousel = ({ images }: PropertyImageCarouselProps) => {
+  if (!images || images.length === 0) {
+    return null;
+  }
+
   return (
     <Carousel className="w-full">
       <CarouselContent>

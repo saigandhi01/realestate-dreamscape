@@ -54,6 +54,7 @@ const PropertyHero = ({
           <Card className="shadow-lg border-2">
             <CardContent className="p-6 md:p-8">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Property Information Column */}
                 <div className="lg:col-span-2">
                   <h1 className="text-3xl md:text-4xl font-display font-bold mb-2">{property.name}</h1>
                   <div className="flex items-center text-muted-foreground mb-6">
@@ -116,6 +117,7 @@ const PropertyHero = ({
                   </div>
                 </div>
 
+                {/* Investment Actions Column */}
                 <div className="border-t lg:border-t-0 lg:border-l border-border pt-6 lg:pt-0 lg:pl-6">
                   <h3 className="text-lg font-semibold mb-4">Investment Actions</h3>
                   <div className="space-y-4">

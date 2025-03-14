@@ -112,6 +112,12 @@ const PropertyDetail = () => {
     // In a real app, this would trigger a download from S3, IPFS, or similar
   };
   
+  // Convert wallet state to match expected props
+  const walletProps = {
+    address: wallet.address,
+    balance: typeof wallet.balance === 'string' ? parseFloat(wallet.balance) : wallet.balance
+  };
+  
   return (
     <PageTransition className="flex flex-col min-h-screen">
       <Navbar />
@@ -121,7 +127,7 @@ const PropertyDetail = () => {
         <PropertyHero 
           property={property}
           isLoggedIn={isLoggedIn}
-          wallet={wallet}
+          wallet={walletProps}
           fundingPercentage={fundingPercentage}
           openLoginModal={openLoginModal}
           setBuyDialogOpen={setBuyDialogOpen}
@@ -167,7 +173,7 @@ const PropertyDetail = () => {
       {/* Transaction Dialogs - using PropertyTransactionDialogs component */}
       <PropertyTransactionDialogs
         property={property}
-        wallet={wallet}
+        wallet={walletProps}
         buyDialogOpen={buyDialogOpen}
         sellDialogOpen={sellDialogOpen}
         transferDialogOpen={transferDialogOpen}
