@@ -19,7 +19,7 @@ import { truncateAddress } from '@/utils/wallet';
 const PropertyDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { properties } = usePropertyData();
-  const { isLoggedIn, walletState, openLoginModal } = useAuth();
+  const { isLoggedIn, wallet, openLoginModal } = useAuth();
   
   const [buyDialogOpen, setBuyDialogOpen] = useState(false);
   const [sellDialogOpen, setSellDialogOpen] = useState(false);
@@ -252,7 +252,7 @@ const PropertyDetail = () => {
                           <ul className="space-y-2 text-sm">
                             <li className="flex justify-between">
                               <span className="text-muted-foreground">Wallet</span>
-                              <span className="font-medium">{truncateAddress(walletState.address || '')}</span>
+                              <span className="font-medium">{truncateAddress(wallet.address || '')}</span>
                             </li>
                             <li className="flex justify-between">
                               <span className="text-muted-foreground">Tokens Owned</span>
@@ -540,7 +540,7 @@ const PropertyDetail = () => {
               </div>
               <div className="flex justify-between pt-2 border-t">
                 <span className="text-sm">Your wallet balance</span>
-                <span className="text-sm font-medium">{walletState.balance ? `${walletState.balance} ETH` : 'Connect wallet'}</span>
+                <span className="text-sm font-medium">{wallet.balance ? `${wallet.balance} ETH` : 'Connect wallet'}</span>
               </div>
             </div>
           </div>
@@ -662,3 +662,4 @@ const PropertyDetail = () => {
 };
 
 export default PropertyDetail;
+
