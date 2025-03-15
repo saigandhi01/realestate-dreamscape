@@ -2,7 +2,7 @@
 import { PropertyImage } from "@/hooks/usePropertyData";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MapPin, DollarSign, ArrowRight, Send } from "lucide-react";
+import { MapPin, IndianRupee, ArrowRight, Send, Bitcoin, Wallet } from "lucide-react";
 import { Property } from "@/components/PropertyCard";
 import { SlideUp } from "@/components/ui/animations";
 import { truncateAddress } from "@/utils/wallet";
@@ -22,6 +22,9 @@ interface PropertyHeroProps {
   setTransferDialogOpen: (open: boolean) => void;
 }
 
+// INR conversion rate (1 USD = approximately 75 INR)
+const USD_TO_INR = 75;
+
 const PropertyHero = ({
   property,
   isLoggedIn,
@@ -32,6 +35,12 @@ const PropertyHero = ({
   setSellDialogOpen,
   setTransferDialogOpen,
 }: PropertyHeroProps) => {
+  // Convert prices to INR
+  const priceInINR = property.price * USD_TO_INR;
+  const tokenPriceInINR = property.tokenPrice * USD_TO_INR;
+  const fundedInINR = property.funded * USD_TO_INR;
+  const targetInINR = property.target * USD_TO_INR;
+
   return (
     <section className="relative">
       <div className="h-80 md:h-96 w-full overflow-hidden">
@@ -94,11 +103,11 @@ const PropertyHero = ({
                       <ul className="space-y-3">
                         <li className="flex justify-between">
                           <span className="text-muted-foreground">Property Value</span>
-                          <span className="font-medium">${property.price.toLocaleString()}</span>
+                          <span className="font-medium">₹{priceInINR.toLocaleString()}</span>
                         </li>
                         <li className="flex justify-between">
                           <span className="text-muted-foreground">Token Price</span>
-                          <span className="font-medium">${property.tokenPrice}</span>
+                          <span className="font-medium">₹{tokenPriceInINR}</span>
                         </li>
                         <li className="flex justify-between">
                           <span className="text-muted-foreground">Total Tokens</span>
@@ -122,7 +131,7 @@ const PropertyHero = ({
                   <h3 className="text-lg font-semibold mb-4">Investment Actions</h3>
                   <div className="space-y-4">
                     <Button className="w-full" onClick={() => isLoggedIn ? setBuyDialogOpen(true) : openLoginModal()}>
-                      <DollarSign size={16} />
+                      <Wallet size={16} />
                       Buy Tokens
                     </Button>
                     <Button className="w-full" variant="outline" onClick={() => isLoggedIn ? setSellDialogOpen(true) : openLoginModal()}>
@@ -138,7 +147,7 @@ const PropertyHero = ({
                   {/* Funding Progress */}
                   <div className="mt-8">
                     <div className="flex justify-between text-sm mb-2">
-                      <span>${property.funded.toLocaleString()} raised</span>
+                      <span>₹{fundedInINR.toLocaleString()} raised</span>
                       <span className="font-medium">{fundingPercentage}%</span>
                     </div>
                     <div className="w-full bg-muted rounded-full h-2">
@@ -148,7 +157,7 @@ const PropertyHero = ({
                       ></div>
                     </div>
                     <p className="text-xs text-muted-foreground mt-2">
-                      Target: ${property.target.toLocaleString()}
+                      Target: ₹{targetInINR.toLocaleString()}
                     </p>
                   </div>
 

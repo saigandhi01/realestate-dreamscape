@@ -17,6 +17,9 @@ import PropertyFinancialsTab from '@/components/property/PropertyFinancialsTab';
 import PropertyDocumentsTab from '@/components/property/PropertyDocumentsTab';
 import PropertyTransactionDialogs from '@/components/property/PropertyTransactionDialogs';
 
+// INR conversion rate (1 USD = approximately 75 INR)
+const USD_TO_INR = 75;
+
 const PropertyDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { properties } = usePropertyData();
@@ -88,15 +91,16 @@ const PropertyDetail = () => {
     },
   ];
   
-  // Financials data
+  // Financials data - update to INR
   const financials = {
     overview: {
-      propertyValue: property.price,
+      propertyValue: property.price * USD_TO_INR,
       tokensIssued: property.price / property.tokenPrice,
       rentalYield: 8.2,
       annualAppreciation: 5.4,
       lastDistribution: '2023-11-15',
-      nextDistribution: '2023-12-15'
+      nextDistribution: '2023-12-15',
+      currency: 'INR'
     },
     returns: {
       projectedAnnualReturn: 13.6,
