@@ -1,8 +1,7 @@
-
 import { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { 
-  MapPin, Building2, Calendar, Users, Banknote, 
+  MapPin, Building2, Calendar, Users, IndianRupee, 
   BarChart, ShieldCheck, ArrowLeft, ExternalLink 
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -13,15 +12,15 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { PageTransition, SlideUp, ZoomIn, RevealOnScroll } from '@/components/ui/animations';
 
+const USD_TO_INR = 75;
+
 const PropertyDetails = () => {
   const { id } = useParams<{ id: string }>();
   
-  // Scroll to top on page load
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Properties data (in a real app, you would fetch this based on ID)
   const properties: Property[] = [
     {
       id: '1',
@@ -97,10 +96,8 @@ const PropertyDetails = () => {
     }
   ];
 
-  // Find the property with the matching ID
   const property = properties.find(p => p.id === id);
 
-  // If property not found, show error message
   if (!property) {
     return (
       <div className="flex flex-col min-h-screen">
@@ -122,13 +119,17 @@ const PropertyDetails = () => {
   }
 
   const percentFunded = Math.round((property.funded / property.target) * 100);
+  
+  const priceInINR = property.price * USD_TO_INR;
+  const tokenPriceInINR = property.tokenPrice * USD_TO_INR;
+  const fundedInINR = property.funded * USD_TO_INR;
+  const targetInINR = property.target * USD_TO_INR;
 
   return (
     <PageTransition className="flex flex-col min-h-screen">
       <Navbar />
       
       <main className="flex-grow pt-24">
-        {/* Back to Marketplace Link */}
         <div className="container mx-auto px-6 md:px-10 py-4">
           <Button asChild variant="ghost" size="sm" className="pl-2">
             <Link to="/marketplace" className="flex items-center">
@@ -138,7 +139,6 @@ const PropertyDetails = () => {
           </Button>
         </div>
         
-        {/* Property Images */}
         <section className="container mx-auto px-6 md:px-10 mb-12">
           <ZoomIn>
             <div className="rounded-xl overflow-hidden aspect-[21/9] max-h-[500px]">
@@ -151,10 +151,8 @@ const PropertyDetails = () => {
           </ZoomIn>
         </section>
         
-        {/* Property Details */}
         <section className="container mx-auto px-6 md:px-10 mb-16">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            {/* Left Column - Property Info */}
             <div className="lg:col-span-2">
               <SlideUp>
                 <div className="mb-6">
@@ -189,11 +187,11 @@ const PropertyDetails = () => {
                       <h3 className="text-xl font-semibold mb-3">Property Description</h3>
                       <p className="text-muted-foreground">
                         This {property.type.toLowerCase()} property offers a unique investment opportunity in the heart of {property.location}. 
-                        With a total valuation of ${property.price.toLocaleString()}, this property has been tokenized to allow 
+                        With a total valuation of ₹{priceInINR.toLocaleString()}, this property has been tokenized to allow 
                         fractional ownership and is already {percentFunded}% funded by {property.investors} investors.
                       </p>
                       <p className="text-muted-foreground mt-3">
-                        Investors can purchase tokens at ${property.tokenPrice} per token, with each token representing 
+                        Investors can purchase tokens at ₹{tokenPriceInINR} per token, with each token representing 
                         a fractional ownership in the property. This investment offers both potential capital appreciation 
                         and regular dividend distributions from rental income.
                       </p>
@@ -325,20 +323,18 @@ const PropertyDetails = () => {
               </SlideUp>
             </div>
             
-            {/* Right Column - Investment Details */}
             <div>
               <SlideUp delay={0.2}>
                 <Card className="sticky top-28">
                   <CardContent className="p-6">
                     <div className="mb-6">
-                      <h3 className="text-2xl font-semibold mb-1">${property.price.toLocaleString()}</h3>
+                      <h3 className="text-2xl font-semibold mb-1">₹{priceInINR.toLocaleString()}</h3>
                       <p className="text-muted-foreground">Total Property Value</p>
                     </div>
                     
-                    {/* Funding Progress */}
                     <div className="mb-6">
                       <div className="flex justify-between text-sm mb-1.5">
-                        <span>${property.funded.toLocaleString()} raised</span>
+                        <span>₹{fundedInINR.toLocaleString()} raised</span>
                         <span className="font-medium">{percentFunded}%</span>
                       </div>
                       <div className="w-full bg-muted rounded-full h-2.5">
@@ -348,18 +344,17 @@ const PropertyDetails = () => {
                         ></div>
                       </div>
                       <div className="flex justify-between mt-2 text-sm text-muted-foreground">
-                        <span>Target: ${property.target.toLocaleString()}</span>
+                        <span>Target: ₹{targetInINR.toLocaleString()}</span>
                         <span>{property.investors} investors</span>
                       </div>
                     </div>
                     
-                    {/* Token Information */}
                     <div className="mb-6 space-y-4">
                       <div className="flex items-center">
-                        <Banknote className="h-5 w-5 text-muted-foreground mr-3" />
+                        <IndianRupee className="h-5 w-5 text-muted-foreground mr-3" />
                         <div>
                           <p className="text-sm text-muted-foreground">Token Price</p>
-                          <p className="font-semibold">${property.tokenPrice} per token</p>
+                          <p className="font-semibold">₹{tokenPriceInINR} per token</p>
                         </div>
                       </div>
                       <div className="flex items-center">

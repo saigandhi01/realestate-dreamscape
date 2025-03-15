@@ -1,6 +1,6 @@
 
 import { Link } from 'react-router-dom';
-import { Building2, MapPin, Banknote, Users } from 'lucide-react';
+import { Building2, MapPin, IndianRupee, Users } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { ZoomIn } from '@/components/ui/animations';
 
@@ -22,8 +22,16 @@ interface PropertyCardProps {
   index: number;
 }
 
+// INR conversion rate (1 USD = approximately 75 INR)
+const USD_TO_INR = 75;
+
 const PropertyCard = ({ property, index }: PropertyCardProps) => {
   const percentFunded = Math.round((property.funded / property.target) * 100);
+  
+  // Convert prices to INR
+  const priceInINR = property.price * USD_TO_INR;
+  const fundedInINR = property.funded * USD_TO_INR;
+  const tokenPriceInINR = property.tokenPrice * USD_TO_INR;
   
   return (
     <ZoomIn delay={index * 0.1} className="h-full">
@@ -61,7 +69,7 @@ const PropertyCard = ({ property, index }: PropertyCardProps) => {
           {/* Funding Progress */}
           <div className="mb-4">
             <div className="flex justify-between text-sm mb-1.5">
-              <span>${property.funded.toLocaleString()} raised</span>
+              <span>₹{fundedInINR.toLocaleString()} raised</span>
               <span className="font-medium">{percentFunded}%</span>
             </div>
             <div className="w-full bg-muted rounded-full h-1.5">
@@ -75,10 +83,10 @@ const PropertyCard = ({ property, index }: PropertyCardProps) => {
           {/* Investment Info */}
           <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
             <div className="flex items-center">
-              <Banknote size={16} className="mr-2 text-muted-foreground" />
+              <IndianRupee size={16} className="mr-2 text-muted-foreground" />
               <div>
                 <p className="text-xs text-muted-foreground">Token Price</p>
-                <p className="font-medium">${property.tokenPrice}</p>
+                <p className="font-medium">₹{tokenPriceInINR}</p>
               </div>
             </div>
             <div className="flex items-center">

@@ -1,5 +1,6 @@
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { IndianRupee } from "lucide-react";
 
 interface FinancialsData {
   overview: {
@@ -9,6 +10,7 @@ interface FinancialsData {
     annualAppreciation: number;
     lastDistribution: string;
     nextDistribution: string;
+    currency?: string;
   };
   returns: {
     projectedAnnualReturn: number;
@@ -24,6 +26,9 @@ interface PropertyFinancialsTabProps {
 }
 
 const PropertyFinancialsTab = ({ financials }: PropertyFinancialsTabProps) => {
+  // Check if currency is specified, default to INR
+  const currencySymbol = financials.overview.currency === 'USD' ? '$' : '₹';
+  
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       <Card>
@@ -35,7 +40,7 @@ const PropertyFinancialsTab = ({ financials }: PropertyFinancialsTabProps) => {
           <ul className="space-y-4">
             <li className="flex justify-between items-center pb-2 border-b border-border">
               <span className="text-muted-foreground">Property Value</span>
-              <span className="font-semibold">${financials.overview.propertyValue.toLocaleString()}</span>
+              <span className="font-semibold">{currencySymbol}{financials.overview.propertyValue.toLocaleString()}</span>
             </li>
             <li className="flex justify-between items-center pb-2 border-b border-border">
               <span className="text-muted-foreground">Total Tokens</span>
