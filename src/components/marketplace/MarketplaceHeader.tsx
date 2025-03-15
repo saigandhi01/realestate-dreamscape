@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Building2, DollarSign, TrendingUp } from 'lucide-react';
+import { Building2, DollarSign, TrendingUp, IndianRupee } from 'lucide-react';
 import { RevealOnScroll, FadeIn } from '@/components/ui/animations';
 import { LucideIcon } from 'lucide-react';
 
@@ -11,11 +11,11 @@ type MarketStatProps = {
 }
 
 const MarketplaceHeader = () => {
-  // Marketplace stats (similar to Lofty.ai)
+  // Marketplace stats (updated to INR)
   const marketStats: MarketStatProps[] = [
     { label: 'Properties', value: '24', icon: Building2 },
-    { label: 'Token Price', value: '$50', icon: DollarSign },
-    { label: 'Total Value', value: '$7.2M', icon: TrendingUp },
+    { label: 'Token Price', value: '₹3,750', icon: IndianRupee },
+    { label: 'Total Value', value: '₹540M', icon: TrendingUp },
     { label: 'Avg. Projected Return', value: '10.4%', icon: TrendingUp },
   ];
 
@@ -28,7 +28,7 @@ const MarketplaceHeader = () => {
           </h1>
           <p className="text-muted-foreground max-w-3xl text-lg mb-8">
             Browse our curated selection of tokenized real estate properties. 
-            Start building your real estate portfolio with as little as $50 per token.
+            Start building your real estate portfolio with as little as ₹3,750 per token.
           </p>
           
           {/* Marketplace Stats */}

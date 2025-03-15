@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Building, LineChart, Lock, Shield } from 'lucide-react';
@@ -8,6 +9,9 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { FadeIn, SlideUp, ZoomIn, RevealOnScroll, StaggerChildren, Float } from '@/components/ui/animations';
 import { Badge } from '@/components/ui/badge';
+
+// INR conversion rate (1 USD = approximately 75 INR)
+const USD_TO_INR = 75;
 
 const Index = () => {
   // Scroll to top on page load
@@ -20,7 +24,7 @@ const Index = () => {
     {
       id: '1',
       name: 'Luxury Apartment Complex',
-      location: 'Miami, Florida',
+      location: 'Mumbai, Maharashtra',
       price: 12500000,
       tokenPrice: 100,
       image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=2940&auto=format&fit=crop',
@@ -32,7 +36,7 @@ const Index = () => {
     {
       id: '2',
       name: 'Downtown Office Building',
-      location: 'Chicago, Illinois',
+      location: 'Delhi, India',
       price: 28000000,
       tokenPrice: 250,
       image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2940&auto=format&fit=crop',
@@ -44,7 +48,7 @@ const Index = () => {
     {
       id: '3',
       name: 'Waterfront Shopping Plaza',
-      location: 'Seattle, Washington',
+      location: 'Bangalore, Karnataka',
       price: 18750000,
       tokenPrice: 125,
       image: 'https://images.unsplash.com/photo-1535025639604-9a804c092faa?q=80&w=2938&auto=format&fit=crop',
@@ -93,7 +97,7 @@ const Index = () => {
               
               <SlideUp delay={0.6}>
                 <p className="text-lg md:text-xl text-foreground mb-8 max-w-xl drop-shadow-sm backdrop-blur-[2px] bg-background/5 rounded-md p-4">
-                  Invest in premium properties with as little as $100. Tokenized real estate offers fractional ownership, liquidity, and blockchain security.
+                  Invest in premium properties with as little as ₹7,500. Tokenized real estate offers fractional ownership, liquidity, and blockchain security.
                 </p>
               </SlideUp>
               
@@ -213,7 +217,7 @@ const Index = () => {
                 </h2>
                 <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
                   Join thousands of investors who are already benefiting from tokenized real estate. 
-                  Get started with as little as $100.
+                  Get started with as little as ₹7,500.
                 </p>
                 <Button asChild size="lg" className="button-hover">
                   <Link to="/marketplace">Explore Opportunities</Link>

@@ -1,5 +1,5 @@
 
-import { Building2, MapPin } from 'lucide-react';
+import { Building2, MapPin, IndianRupee } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { RevealOnScroll } from '@/components/ui/animations';
@@ -12,6 +12,9 @@ interface PropertyListProps {
   properties: Property[];
   activeView: string;
 }
+
+// INR conversion rate (1 USD = approximately 75 INR)
+const USD_TO_INR = 75;
 
 const PropertyList = ({ properties, activeView }: PropertyListProps) => {
   const { isLoggedIn, openLoginModal } = useAuth();
@@ -29,64 +32,72 @@ const PropertyList = ({ properties, activeView }: PropertyListProps) => {
               </div>
             ) : (
               <div className="flex flex-col space-y-4">
-                {properties.map((property, index) => (
-                  <RevealOnScroll key={property.id} className="delay-100">
-                    <Card className="overflow-hidden transition-all hover:shadow-md">
-                      <div className="flex flex-col md:flex-row">
-                        <div className="md:w-1/3 h-48 md:h-auto">
-                          <img 
-                            src={property.image} 
-                            alt={property.name}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <CardContent className="flex-1 p-5">
-                          <div className="flex flex-col h-full">
-                            <div className="mb-auto">
-                              <div className="flex justify-between items-start mb-2">
-                                <div>
-                                  <h3 className="font-semibold text-lg line-clamp-1">{property.name}</h3>
-                                  <div className="flex items-center text-muted-foreground">
-                                    <MapPin size={14} className="mr-1" />
-                                    <span className="text-sm">{property.location}</span>
+                {properties.map((property, index) => {
+                  // Convert to INR
+                  const fundedInINR = property.funded * USD_TO_INR;
+                  const priceInINR = property.price * USD_TO_INR;
+                  const tokenPriceInINR = property.tokenPrice * USD_TO_INR;
+                  const percentFunded = Math.round((property.funded / property.target) * 100);
+                  
+                  return (
+                    <RevealOnScroll key={property.id} className="delay-100">
+                      <Card className="overflow-hidden transition-all hover:shadow-md">
+                        <div className="flex flex-col md:flex-row">
+                          <div className="md:w-1/3 h-48 md:h-auto">
+                            <img 
+                              src={property.image} 
+                              alt={property.name}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <CardContent className="flex-1 p-5">
+                            <div className="flex flex-col h-full">
+                              <div className="mb-auto">
+                                <div className="flex justify-between items-start mb-2">
+                                  <div>
+                                    <h3 className="font-semibold text-lg line-clamp-1">{property.name}</h3>
+                                    <div className="flex items-center text-muted-foreground">
+                                      <MapPin size={14} className="mr-1" />
+                                      <span className="text-sm">{property.location}</span>
+                                    </div>
+                                  </div>
+                                  <Badge>{property.type}</Badge>
+                                </div>
+                                
+                                <div className="my-4">
+                                  <div className="flex justify-between text-sm mb-1.5">
+                                    <span>₹{fundedInINR.toLocaleString()} raised</span>
+                                    <span className="font-medium">{percentFunded}%</span>
+                                  </div>
+                                  <div className="w-full bg-muted rounded-full h-1.5">
+                                    <div 
+                                      className="bg-primary h-1.5 rounded-full" 
+                                      style={{ width: `${percentFunded}%` }}
+                                    ></div>
                                   </div>
                                 </div>
-                                <Badge>{property.type}</Badge>
                               </div>
                               
-                              <div className="my-4">
-                                <div className="flex justify-between text-sm mb-1.5">
-                                  <span>${property.funded.toLocaleString()} raised</span>
-                                  <span className="font-medium">{Math.round((property.funded / property.target) * 100)}%</span>
+                              <div className="flex items-center justify-between pt-4 border-t">
+                                <div>
+                                  <p className="text-sm text-muted-foreground">Property Price</p>
+                                  <p className="font-semibold">₹{priceInINR.toLocaleString()}</p>
                                 </div>
-                                <div className="w-full bg-muted rounded-full h-1.5">
-                                  <div 
-                                    className="bg-primary h-1.5 rounded-full" 
-                                    style={{ width: `${Math.round((property.funded / property.target) * 100)}%` }}
-                                  ></div>
+                                <div>
+                                  <p className="text-sm text-muted-foreground">Token Price</p>
+                                  <p className="font-semibold">₹{tokenPriceInINR}</p>
                                 </div>
+                                <Button size="sm" asChild>
+                                  <Link to={`/property/${property.id}`}>View Property</Link>
+                                </Button>
                               </div>
                             </div>
-                            
-                            <div className="flex items-center justify-between pt-4 border-t">
-                              <div>
-                                <p className="text-sm text-muted-foreground">Property Price</p>
-                                <p className="font-semibold">${property.price.toLocaleString()}</p>
-                              </div>
-                              <div>
-                                <p className="text-sm text-muted-foreground">Token Price</p>
-                                <p className="font-semibold">${property.tokenPrice}</p>
-                              </div>
-                              <Button size="sm" asChild>
-                                <Link to={`/property/${property.id}`}>View Property</Link>
-                              </Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </div>
-                    </Card>
-                  </RevealOnScroll>
-                ))}
+                          </CardContent>
+                        </div>
+                      </Card>
+                    </RevealOnScroll>
+                  );
+                })}
               </div>
             )}
             
