@@ -19,6 +19,8 @@ const PropertyImageCarousel = ({ images }: PropertyImageCarouselProps) => {
     return null;
   }
 
+  console.log("PropertyImageCarousel images:", images);
+
   return (
     <Carousel className="w-full">
       <CarouselContent>

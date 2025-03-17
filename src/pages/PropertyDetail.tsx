@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { FileText, Receipt, BarChart, Shield } from 'lucide-react';
@@ -156,6 +155,8 @@ const PropertyDetail = () => {
                     propertyName={property.name}
                     propertyLocation={property.location}
                     financials={financials}
+                    propertyImages={property.images}
+                    mainImage={property.image}
                   />
                 </TabsContent>
                 
