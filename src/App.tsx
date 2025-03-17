@@ -13,6 +13,7 @@ import HowItWorks from "./pages/HowItWorks";
 import ERCStandards from "./pages/ERCStandards";
 import PropertyDetail from "./pages/PropertyDetail";
 import CookieConsent from "./components/CookieConsent";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ function App() {
               <Route path="/property/:id" element={<PropertyDetail />} />
               <Route path="/how-it-works" element={<HowItWorks />} />
               <Route path="/erc-standards" element={<ERCStandards />} />
+              <Route path="/profile" element={<Profile />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <CookieConsent />
