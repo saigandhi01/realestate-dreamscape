@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,6 +12,7 @@ import Marketplace from "./pages/Marketplace";
 import HowItWorks from "./pages/HowItWorks";
 import ERCStandards from "./pages/ERCStandards";
 import PropertyDetail from "./pages/PropertyDetail";
+import CookieConsent from "./components/CookieConsent";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +33,7 @@ function App() {
               <Route path="/erc-standards" element={<ERCStandards />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <CookieConsent />
           </Router>
         </AuthProvider>
       </TooltipProvider>
