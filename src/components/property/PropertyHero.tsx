@@ -1,4 +1,3 @@
-
 import { PropertyImage } from "@/hooks/usePropertyData";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,7 @@ import { MapPin, IndianRupee, ArrowRight, Send, Bitcoin, Wallet } from "lucide-r
 import { Property } from "@/components/PropertyCard";
 import { SlideUp } from "@/components/ui/animations";
 import { truncateAddress } from "@/utils/wallet";
+import PropertyImageCarousel from "@/components/PropertyImageCarousel";
 
 interface PropertyHeroProps {
   property: Property & { images?: PropertyImage[] };
@@ -44,11 +44,7 @@ const PropertyHero = ({
     <section className="relative">
       <div className="h-80 md:h-96 w-full overflow-hidden">
         {property.images && property.images.length > 0 ? (
-          <img
-            src={property.images[0].url}
-            alt={property.images[0].alt || property.name}
-            className="w-full h-full object-cover"
-          />
+          <PropertyImageCarousel images={property.images} />
         ) : (
           <>
             <img

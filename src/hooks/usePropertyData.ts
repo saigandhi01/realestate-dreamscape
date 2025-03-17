@@ -46,6 +46,30 @@ export const usePropertyData = () => {
           url: 'https://images.unsplash.com/photo-1721322800607-8c38375eef04?q=80&w=1000&auto=format&fit=crop',
           type: 'inside',
           alt: 'Inside view of 2831 N Cambridge Ave'
+        },
+        {
+          id: 'img-1-5',
+          url: 'https://images.unsplash.com/photo-1493809842364-78817add7ffb?q=80&w=2070&auto=format&fit=crop',
+          type: 'inside',
+          alt: 'Living room of 2831 N Cambridge Ave'
+        },
+        {
+          id: 'img-1-6',
+          url: 'https://images.unsplash.com/photo-1560448204-603b3fc33ddc?q=80&w=2070&auto=format&fit=crop',
+          type: 'inside',
+          alt: 'Kitchen of 2831 N Cambridge Ave'
+        },
+        {
+          id: 'img-1-7',
+          url: 'https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?q=80&w=2070&auto=format&fit=crop',
+          type: 'inside',
+          alt: 'Master bedroom of 2831 N Cambridge Ave'
+        },
+        {
+          id: 'img-1-8',
+          url: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=2070&auto=format&fit=crop',
+          type: 'inside',
+          alt: 'Bathroom of 2831 N Cambridge Ave'
         }
       ]
     },

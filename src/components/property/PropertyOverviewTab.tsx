@@ -1,6 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PropertyImage } from "@/hooks/usePropertyData";
+import PropertyImageCarousel from "@/components/PropertyImageCarousel";
 
 interface PropertyOverviewTabProps {
   propertyName: string;
@@ -24,18 +25,14 @@ const PropertyOverviewTab = ({
 }: PropertyOverviewTabProps) => {
   return (
     <div className="space-y-8">
-      {/* Property Image Display - Using single image instead of carousel */}
+      {/* Property Image Display */}
       <div className="rounded-lg overflow-hidden mb-8">
-        {mainImage ? (
+        {propertyImages && propertyImages.length > 0 ? (
+          <PropertyImageCarousel images={propertyImages} />
+        ) : mainImage ? (
           <img
             src={mainImage}
             alt={propertyName}
-            className="w-full h-auto object-cover rounded-lg"
-          />
-        ) : propertyImages && propertyImages.length > 0 ? (
-          <img
-            src={propertyImages[0].url}
-            alt={propertyImages[0].alt || propertyName}
             className="w-full h-auto object-cover rounded-lg"
           />
         ) : (
@@ -45,7 +42,7 @@ const PropertyOverviewTab = ({
         )}
       </div>
 
-      {/* Property Overview Content - Moved below the image */}
+      {/* Property Overview Content - Below the image */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <Card className="md:col-span-2">
           <CardHeader>
