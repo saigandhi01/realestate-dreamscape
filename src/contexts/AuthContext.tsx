@@ -17,6 +17,10 @@ import {
 } from '@/contexts/AuthContext-extension';
 
 // Type augmentation for global window object
+interface WindowWithEthereum extends Window {
+  ethereum?: any;
+}
+
 declare global {
   interface Window {
     ethereum?: any;
