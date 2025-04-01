@@ -21,15 +21,19 @@ const queryClient = new QueryClient({
     queries: {
       retry: 1,
       refetchOnWindowFocus: false,
-      // Handle global query errors
-      onError: (error: any) => {
-        console.error("Query error:", error);
+      // Handle global query errors - using the correct structure for Tanstack Query v5+
+      meta: {
+        onError: (error: any) => {
+          console.error("Query error:", error);
+        },
       },
     },
     mutations: {
-      // Handle global mutation errors
-      onError: (error: any) => {
-        console.error("Mutation error:", error);
+      // Handle global mutation errors - using the correct structure for Tanstack Query v5+
+      meta: {
+        onError: (error: any) => {
+          console.error("Mutation error:", error);
+        },
       },
     },
   },

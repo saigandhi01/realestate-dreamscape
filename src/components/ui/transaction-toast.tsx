@@ -1,6 +1,7 @@
 
 import { CheckCircle2, AlertCircle, Info } from "lucide-react";
 import { toast as showToast } from "@/hooks/use-toast";
+import React from "react";
 
 type TransactionStatus = "success" | "error" | "pending" | "info";
 
@@ -45,7 +46,7 @@ export const transactionToast = ({
         {getIcon()}
         <span>{title}</span>
       </div>
-    ),
+    ) as React.ReactNode,
     description: (
       <div className="mt-1">
         <p>{description}</p>
@@ -60,7 +61,7 @@ export const transactionToast = ({
           </a>
         )}
       </div>
-    ),
+    ) as React.ReactNode,
     variant: getVariant(),
   });
 };

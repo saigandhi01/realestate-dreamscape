@@ -18,7 +18,7 @@ import { IndianRupee, Bitcoin, Wallet, CheckCircle2 } from "lucide-react";
 import { Property } from "@/components/PropertyCard";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { toast } from "@/hooks/use-toast";
+import { transactionToast } from "@/components/ui/transaction-toast";
 
 // INR conversion rate (1 USD = approximately 75 INR)
 const USD_TO_INR = 75;
@@ -92,11 +92,15 @@ const PropertyTransactionDialogs = ({
   const handleBuyTokens = () => {
     console.log(`Buying ${tokenAmount} tokens of property ${property.id} using ${paymentMethod}`);
     
-    // Show toast notification
-    toast({
-      title: "Transaction Successful",
+    // Generate a mock transaction hash for demo purposes
+    const mockTxHash = "0x" + Math.random().toString(16).substring(2) + Math.random().toString(16).substring(2);
+    
+    // Show transaction toast notification
+    transactionToast({
+      title: "Purchase Successful",
       description: `You have successfully purchased ${tokenAmount} tokens of ${property.name}`,
-      variant: "default",
+      status: "success",
+      txHash: mockTxHash
     });
     
     setBuyDialogOpen(false);
@@ -105,11 +109,15 @@ const PropertyTransactionDialogs = ({
   const handleSellTokens = () => {
     console.log(`Selling ${tokenAmount} tokens of property ${property.id}`);
     
-    // Show toast notification
-    toast({
+    // Generate a mock transaction hash for demo purposes
+    const mockTxHash = "0x" + Math.random().toString(16).substring(2) + Math.random().toString(16).substring(2);
+    
+    // Show transaction toast notification
+    transactionToast({
       title: "Sale Successful",
       description: `You have successfully sold ${tokenAmount} tokens of ${property.name}`,
-      variant: "default",
+      status: "success",
+      txHash: mockTxHash
     });
     
     setSellDialogOpen(false);
@@ -120,11 +128,15 @@ const PropertyTransactionDialogs = ({
       `Transferring ${tokenAmount} tokens of property ${property.id} to ${recipientAddress}`
     );
     
-    // Show toast notification
-    toast({
+    // Generate a mock transaction hash for demo purposes
+    const mockTxHash = "0x" + Math.random().toString(16).substring(2) + Math.random().toString(16).substring(2);
+    
+    // Show transaction toast notification
+    transactionToast({
       title: "Transfer Successful",
       description: `You have successfully transferred ${tokenAmount} tokens of ${property.name} to ${recipientAddress}`,
-      variant: "default",
+      status: "success", 
+      txHash: mockTxHash
     });
     
     setTransferDialogOpen(false);

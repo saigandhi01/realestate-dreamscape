@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from "@/hooks/use-toast";
 import { 
@@ -5,8 +6,22 @@ import {
   disconnectWallet, 
   initialWalletState,
   WalletState,
-  web3Modal
+  web3Modal,
+  truncateAddress
 } from '@/utils/wallet';
+import {
+  showLoginSuccessToast,
+  showLogoutToast,
+  showWalletConnectedToast,
+  showKycVerifiedToast
+} from '@/contexts/AuthContext-extension';
+
+// Type augmentation for global window object
+declare global {
+  interface Window {
+    ethereum?: any;
+  }
+}
 
 interface AuthContextType {
   wallet: WalletState;
@@ -45,10 +60,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setWallet(walletState);
       if (walletState.connected) {
         setIsLoggedIn(true);
-        toast({
-          title: "Wallet connected",
-          description: `Connected to ${walletState.networkName}`,
-        });
+        // Use the extension toast
+        if (walletState.address) {
+          showWalletConnectedToast(walletState.address);
+        }
         closeLoginModal();
       }
     } catch (error) {
@@ -71,10 +86,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       setIsLoggedIn(true);
-      toast({
-        title: "Email connected",
-        description: `Logged in as ${email}`,
-      });
+      // Use the extension toast
+      showLoginSuccessToast(email);
       closeLoginModal();
     } catch (error) {
       console.error(error);
@@ -96,10 +109,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       setIsLoggedIn(true);
-      toast({
-        title: "Social login successful",
-        description: `Connected with ${provider}`,
-      });
+      // Use the default toast for social login
+      showLoginSuccessToast(provider);
       closeLoginModal();
     } catch (error) {
       console.error(error);
@@ -118,10 +129,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await disconnectWallet();
       setWallet(initialWalletState);
       setIsLoggedIn(false);
-      toast({
-        title: "Disconnected",
-        description: "Your wallet has been disconnected",
-      });
+      // Use the extension toast
+      showLogoutToast();
     } catch (error) {
       console.error(error);
     }
