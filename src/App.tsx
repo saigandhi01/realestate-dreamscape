@@ -15,7 +15,25 @@ import PropertyDetail from "./pages/PropertyDetail";
 import CookieConsent from "./components/CookieConsent";
 import Profile from "./pages/Profile";
 
-const queryClient = new QueryClient();
+// Configure the React Query client with toast error handling
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+      // Handle global query errors
+      onError: (error: any) => {
+        console.error("Query error:", error);
+      },
+    },
+    mutations: {
+      // Handle global mutation errors
+      onError: (error: any) => {
+        console.error("Mutation error:", error);
+      },
+    },
+  },
+});
 
 function App() {
   return (
@@ -23,7 +41,7 @@ function App() {
       <TooltipProvider>
         <AuthProvider>
           <Toaster />
-          <Sonner />
+          <Sonner position="top-right" closeButton />
           <Router>
             <LoginModal />
             <Routes>

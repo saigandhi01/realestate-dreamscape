@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,10 +14,11 @@ import {
   TabsList, 
   TabsTrigger 
 } from "@/components/ui/tabs";
-import { IndianRupee, Bitcoin, Wallet } from "lucide-react";
+import { IndianRupee, Bitcoin, Wallet, CheckCircle2 } from "lucide-react";
 import { Property } from "@/components/PropertyCard";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { toast } from "@/hooks/use-toast";
 
 // INR conversion rate (1 USD = approximately 75 INR)
 const USD_TO_INR = 75;
@@ -91,11 +91,27 @@ const PropertyTransactionDialogs = ({
 
   const handleBuyTokens = () => {
     console.log(`Buying ${tokenAmount} tokens of property ${property.id} using ${paymentMethod}`);
+    
+    // Show toast notification
+    toast({
+      title: "Transaction Successful",
+      description: `You have successfully purchased ${tokenAmount} tokens of ${property.name}`,
+      variant: "default",
+    });
+    
     setBuyDialogOpen(false);
   };
 
   const handleSellTokens = () => {
     console.log(`Selling ${tokenAmount} tokens of property ${property.id}`);
+    
+    // Show toast notification
+    toast({
+      title: "Sale Successful",
+      description: `You have successfully sold ${tokenAmount} tokens of ${property.name}`,
+      variant: "default",
+    });
+    
     setSellDialogOpen(false);
   };
 
@@ -103,6 +119,14 @@ const PropertyTransactionDialogs = ({
     console.log(
       `Transferring ${tokenAmount} tokens of property ${property.id} to ${recipientAddress}`
     );
+    
+    // Show toast notification
+    toast({
+      title: "Transfer Successful",
+      description: `You have successfully transferred ${tokenAmount} tokens of ${property.name} to ${recipientAddress}`,
+      variant: "default",
+    });
+    
     setTransferDialogOpen(false);
   };
 
