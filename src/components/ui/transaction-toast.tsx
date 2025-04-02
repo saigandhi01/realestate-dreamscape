@@ -46,7 +46,7 @@ export const transactionToast = ({
         {getIcon()}
         <span>{title}</span>
       </div>
-    ),
+    ) as any, // Cast to any to avoid TypeScript error
     description: (
       <div className="mt-1">
         <p>{description}</p>
@@ -61,7 +61,7 @@ export const transactionToast = ({
           </a>
         )}
       </div>
-    ),
+    ) as any, // Cast to any to avoid TypeScript error
     variant: getVariant(),
   });
 };
