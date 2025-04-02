@@ -17,7 +17,7 @@ import {
 } from '@/contexts/AuthContext-extension';
 
 // Type for window with ethereum property
-interface WindowWithEthereum extends Window {
+interface WindowWithEthereum {
   ethereum?: any;
 }
 
@@ -43,7 +43,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const connectWithMetamask = async () => {
-    const windowWithEthereum = window as WindowWithEthereum;
+    const windowWithEthereum = window as unknown as WindowWithEthereum;
     if (!windowWithEthereum.ethereum) {
       toast({
         title: "MetaMask not detected",
@@ -140,7 +140,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     // Check if user was previously connected
-    const windowWithEthereum = window as WindowWithEthereum;
+    const windowWithEthereum = window as unknown as WindowWithEthereum;
     if (windowWithEthereum.ethereum && web3Modal?.cachedProvider) {
       connectWithMetamask();
     }
