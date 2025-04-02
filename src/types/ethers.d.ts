@@ -5,6 +5,14 @@ declare module 'ethers' {
       constructor(address: string, abi: any, signerOrProvider: any);
       // Add common contract methods
       connect(signerOrProvider: any): Contract;
+      // Add property-specific methods
+      propertyDetails(tokenId: number): Promise<{
+        name: string;
+        location: string;
+        price: any;
+        area: any;
+      }>;
+      tokenURI(tokenId: number): Promise<string>;
     }
     
     export namespace providers {

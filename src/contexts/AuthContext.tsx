@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from "@/hooks/use-toast";
 import { 
@@ -17,10 +16,6 @@ import {
 } from '@/contexts/AuthContext-extension';
 
 // Type augmentation for global window object
-interface WindowWithEthereum extends Window {
-  ethereum?: any;
-}
-
 declare global {
   interface Window {
     ethereum?: any;
