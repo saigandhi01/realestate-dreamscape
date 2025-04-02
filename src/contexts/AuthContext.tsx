@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from "@/hooks/use-toast";
 import { 
@@ -15,8 +16,8 @@ import {
   showKycVerifiedToast
 } from '@/contexts/AuthContext-extension';
 
-// Type for window.ethereum - removing the conflicting declaration
-interface EthereumWindow extends Window {
+// Type for window with ethereum property
+interface WindowWithEthereum extends Window {
   ethereum?: any;
 }
 
@@ -42,7 +43,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const connectWithMetamask = async () => {
-    if (!(window as EthereumWindow).ethereum) {
+    const windowWithEthereum = window as WindowWithEthereum;
+    if (!windowWithEthereum.ethereum) {
       toast({
         title: "MetaMask not detected",
         description: "Please install MetaMask browser extension to connect",
@@ -138,7 +140,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     // Check if user was previously connected
-    if (window.ethereum && web3Modal?.cachedProvider) {
+    const windowWithEthereum = window as WindowWithEthereum;
+    if (windowWithEthereum.ethereum && web3Modal?.cachedProvider) {
       connectWithMetamask();
     }
   }, []);
