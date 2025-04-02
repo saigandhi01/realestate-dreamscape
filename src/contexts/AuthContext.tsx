@@ -15,11 +15,9 @@ import {
   showKycVerifiedToast
 } from '@/contexts/AuthContext-extension';
 
-// Type augmentation for global window object
-declare global {
-  interface Window {
-    ethereum?: any;
-  }
+// Type for window.ethereum - removing the conflicting declaration
+interface EthereumWindow extends Window {
+  ethereum?: any;
 }
 
 interface AuthContextType {
@@ -44,7 +42,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const connectWithMetamask = async () => {
-    if (!window.ethereum) {
+    if (!(window as EthereumWindow).ethereum) {
       toast({
         title: "MetaMask not detected",
         description: "Please install MetaMask browser extension to connect",
