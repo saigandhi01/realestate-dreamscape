@@ -7,9 +7,13 @@ if (typeof window !== 'undefined') {
   web3Modal = new Web3Modal({
     network: "mainnet",
     cacheProvider: true,
-    providerOptions: {},
+    providerOptions: {
+      // Add provider options here when implementing specific wallet integrations
+    },
   });
 }
+
+export type WalletType = 'metamask' | 'coinbase' | 'trustwallet' | 'phantom' | null;
 
 export type WalletState = {
   address: string | null;
@@ -19,6 +23,7 @@ export type WalletState = {
   signer: ethers.Signer | null;
   balance: string | null;
   networkName: string | null;
+  walletType: WalletType;
 };
 
 export const initialWalletState: WalletState = {
@@ -29,9 +34,10 @@ export const initialWalletState: WalletState = {
   signer: null,
   balance: null,
   networkName: null,
+  walletType: null,
 };
 
-export const connectWallet = async (): Promise<WalletState> => {
+export const connectWallet = async (walletType: WalletType = 'metamask'): Promise<WalletState> => {
   try {
     const instance = await web3Modal.connect();
     const provider = new ethers.providers.Web3Provider(instance);
@@ -72,7 +78,8 @@ export const connectWallet = async (): Promise<WalletState> => {
       provider,
       signer,
       balance,
-      networkName
+      networkName,
+      walletType
     };
   } catch (error) {
     console.error("Error connecting to wallet:", error);
@@ -89,3 +96,22 @@ export const truncateAddress = (address: string): string => {
   if (!address) return '';
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 };
+
+// Utility function to check if a wallet type is available
+export const isWalletAvailable = (walletType: WalletType): boolean => {
+  const windowWithEthereum = window as unknown as { ethereum?: any; solana?: any; phantom?: any; };
+  
+  switch (walletType) {
+    case 'metamask':
+      return !!windowWithEthereum.ethereum;
+    case 'coinbase':
+      return !!windowWithEthereum.ethereum?.isCoinbaseWallet;
+    case 'trustwallet':
+      return !!windowWithEthereum.ethereum?.isTrust;
+    case 'phantom':
+      return !!windowWithEthereum.phantom || !!windowWithEthereum.solana;
+    default:
+      return false;
+  }
+};
+

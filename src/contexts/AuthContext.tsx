@@ -7,7 +7,9 @@ import {
   initialWalletState,
   WalletState,
   web3Modal,
-  truncateAddress
+  truncateAddress,
+  WalletType,
+  isWalletAvailable
 } from '@/utils/wallet';
 import {
   showLoginSuccessToast,
@@ -25,6 +27,10 @@ interface AuthContextType {
   wallet: WalletState;
   isConnecting: boolean;
   connectWithMetamask: () => Promise<void>;
+  connectWithCoinbase: () => Promise<void>;
+  connectWithTrustWallet: () => Promise<void>;
+  connectWithPhantom: () => Promise<void>;
+  connectWithWallet: (walletType: WalletType) => Promise<void>;
   connectWithEmail: (email: string, password: string) => Promise<void>;
   connectWithSocial: (provider: string) => Promise<void>;
   disconnect: () => Promise<void>;
@@ -32,6 +38,7 @@ interface AuthContextType {
   isLoginModalOpen: boolean;
   openLoginModal: () => void;
   closeLoginModal: () => void;
+  needsWalletConnection: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -41,6 +48,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isConnecting, setIsConnecting] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  
+  // Track if logged in user has not connected a wallet
+  const needsWalletConnection = isLoggedIn && !wallet.connected;
+
+  const connectWithWallet = async (walletType: WalletType) => {
+    if (!walletType || !isWalletAvailable(walletType)) {
+      toast({
+        title: `${walletType} wallet not detected`,
+        description: `Please install ${walletType} wallet extension to connect`,
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsConnecting(true);
+    try {
+      const walletState = await connectWallet(walletType);
+      setWallet(walletState);
+      if (walletState.connected) {
+        // Use the extension toast
+        if (walletState.address) {
+          showWalletConnectedToast(walletState.address);
+        }
+        closeLoginModal();
+      }
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Connection failed",
+        description: `Failed to connect to ${walletType} wallet`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsConnecting(false);
+    }
+  };
 
   const connectWithMetamask = async () => {
     const windowWithEthereum = window as unknown as WindowWithEthereum;
@@ -55,7 +98,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     setIsConnecting(true);
     try {
-      const walletState = await connectWallet();
+      const walletState = await connectWallet('metamask');
       setWallet(walletState);
       if (walletState.connected) {
         setIsLoggedIn(true);
@@ -76,6 +119,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsConnecting(false);
     }
   };
+
+  const connectWithCoinbase = () => connectWithWallet('coinbase');
+  const connectWithTrustWallet = () => connectWithWallet('trustwallet');
+  const connectWithPhantom = () => connectWithWallet('phantom');
 
   const connectWithEmail = async (email: string, password: string) => {
     setIsConnecting(true);
@@ -152,6 +199,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         wallet,
         isConnecting,
         connectWithMetamask,
+        connectWithCoinbase,
+        connectWithTrustWallet,
+        connectWithPhantom,
+        connectWithWallet,
         connectWithEmail,
         connectWithSocial,
         disconnect,
@@ -159,6 +210,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoginModalOpen,
         openLoginModal,
         closeLoginModal,
+        needsWalletConnection,
       }}
     >
       {children}
@@ -173,3 +225,4 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
+

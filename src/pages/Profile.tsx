@@ -12,9 +12,10 @@ import { toast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
+import WalletConnectionSection from '@/components/WalletConnectionSection';
 
 const Profile = () => {
-  const { isLoggedIn, wallet, disconnect } = useAuth();
+  const { isLoggedIn, wallet, disconnect, needsWalletConnection } = useAuth();
   const navigate = useNavigate();
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -112,6 +113,12 @@ const Profile = () => {
   return (
     <div className="container max-w-6xl py-10">
       <h1 className="text-3xl font-bold mb-8">My Profile</h1>
+      
+      {needsWalletConnection && (
+        <div className="mb-8">
+          <WalletConnectionSection />
+        </div>
+      )}
       
       <Tabs defaultValue="personal" className="w-full space-y-8">
         <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:w-auto">
@@ -239,6 +246,34 @@ const Profile = () => {
                 </div>
 
                 <Separator />
+
+                {/* Wallet Information */}
+                {wallet.connected && (
+                  <>
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium flex items-center gap-2">
+                        <Wallet className="h-5 w-5" /> 
+                        Wallet Information
+                      </h3>
+                      <div className="bg-muted p-4 rounded-lg">
+                        <div className="flex justify-between items-center mb-2">
+                          <p className="font-medium">Wallet Address</p>
+                          <p className="text-sm font-mono">{wallet.address}</p>
+                        </div>
+                        <div className="flex justify-between items-center mb-2">
+                          <p className="font-medium">Network</p>
+                          <p className="text-sm">{wallet.networkName}</p>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <p className="font-medium">Balance</p>
+                          <p className="text-sm">{wallet.balance ? `${parseFloat(wallet.balance).toFixed(4)} ETH` : '0 ETH'}</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <Separator />
+                  </>
+                )}
 
                 {/* KYC Verification */}
                 <div>
