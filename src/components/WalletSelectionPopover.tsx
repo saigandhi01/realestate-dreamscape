@@ -46,15 +46,15 @@ const WalletSelectionPopover = ({
           <h3 className="font-medium text-sm pb-2 border-b">Select a wallet</h3>
           <div className="grid gap-2">
             <Button 
-              variant="ghost" 
+              variant="outline" 
               onClick={() => handleWalletConnection('metamask')} 
               disabled={isConnecting || !isMetaMaskAvailable}
-              className="flex justify-start items-center gap-2 h-auto py-3 w-full"
+              className="flex justify-start items-center gap-3 h-auto py-3 w-full hover:bg-accent"
             >
               <img 
-                src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" 
+                src="/lovable-uploads/fdce60cd-89da-4466-baa1-704d73d7d732.png" 
                 alt="MetaMask" 
-                className="h-5 w-5" 
+                className="h-6 w-6 object-contain" 
               />
               <div className="text-left">
                 <p className="font-medium text-sm">MetaMask</p>
@@ -62,15 +62,15 @@ const WalletSelectionPopover = ({
             </Button>
             
             <Button 
-              variant="ghost" 
+              variant="outline" 
               onClick={() => handleWalletConnection('coinbase')} 
               disabled={isConnecting || !isCoinbaseWalletAvailable}
-              className="flex justify-start items-center gap-2 h-auto py-3 w-full"
+              className="flex justify-start items-center gap-3 h-auto py-3 w-full hover:bg-accent"
             >
               <img 
-                src="https://static.coingecko.com/s/coinbase-wallet-f64d0a2ae5a0a601cef3bc0d35d8872e5f37880b2b9a78b9e1c5e922c9c9581c.png" 
+                src="https://www.coinbase.com/assets/images/icon-coinbase-wallet.svg" 
                 alt="Coinbase Wallet" 
-                className="h-5 w-5" 
+                className="h-6 w-6 object-contain" 
               />
               <div className="text-left">
                 <p className="font-medium text-sm">Coinbase Wallet</p>
@@ -78,15 +78,15 @@ const WalletSelectionPopover = ({
             </Button>
             
             <Button 
-              variant="ghost" 
+              variant="outline" 
               onClick={() => handleWalletConnection('trustwallet')} 
               disabled={isConnecting || !isTrustWalletAvailable}
-              className="flex justify-start items-center gap-2 h-auto py-3 w-full"
+              className="flex justify-start items-center gap-3 h-auto py-3 w-full hover:bg-accent"
             >
               <img 
-                src="https://trustwallet.com/assets/images/favicon.png" 
+                src="https://trustwallet.com/assets/images/media/assets/trust_platform.svg" 
                 alt="Trust Wallet" 
-                className="h-5 w-5" 
+                className="h-6 w-6 object-contain" 
               />
               <div className="text-left">
                 <p className="font-medium text-sm">Trust Wallet</p>
@@ -94,15 +94,15 @@ const WalletSelectionPopover = ({
             </Button>
             
             <Button 
-              variant="ghost" 
+              variant="outline" 
               onClick={() => handleWalletConnection('phantom')} 
               disabled={isConnecting || !isPhantomWalletAvailable}
-              className="flex justify-start items-center gap-2 h-auto py-3 w-full"
+              className="flex justify-start items-center gap-3 h-auto py-3 w-full hover:bg-accent"
             >
               <img 
                 src="https://phantom.app/img/phantom-logo.svg" 
                 alt="Phantom" 
-                className="h-5 w-5" 
+                className="h-6 w-6 object-contain" 
               />
               <div className="text-left">
                 <p className="font-medium text-sm">Phantom</p>

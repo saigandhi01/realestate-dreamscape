@@ -19,6 +19,22 @@ const WalletConnectionSection = () => {
   const anyWalletAvailable = isMetaMaskAvailable || isCoinbaseWalletAvailable || 
                             isTrustWalletAvailable || isPhantomWalletAvailable;
 
+  // Get wallet logo based on wallet type
+  const getWalletLogo = () => {
+    switch (wallet.walletType) {
+      case 'metamask':
+        return "/lovable-uploads/fdce60cd-89da-4466-baa1-704d73d7d732.png";
+      case 'coinbase':
+        return "https://www.coinbase.com/assets/images/icon-coinbase-wallet.svg";
+      case 'trustwallet':
+        return "https://trustwallet.com/assets/images/media/assets/trust_platform.svg";
+      case 'phantom':
+        return "https://phantom.app/img/phantom-logo.svg";
+      default:
+        return null;
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -36,15 +52,21 @@ const WalletConnectionSection = () => {
         {wallet.connected ? (
           <div className="space-y-4">
             <div className="bg-muted p-4 rounded-lg">
-              <p className="font-medium">Connected Wallet</p>
+              <div className="flex items-center gap-2 mb-2">
+                {getWalletLogo() && (
+                  <img 
+                    src={getWalletLogo()} 
+                    alt={`${wallet.walletType} logo`} 
+                    className="h-5 w-5 object-contain" 
+                  />
+                )}
+                <p className="font-medium">{wallet.walletType} Wallet</p>
+              </div>
               <p className="text-sm text-muted-foreground mb-2">
                 {wallet.address} ({wallet.networkName})
               </p>
               <p className="text-sm font-medium">
                 Balance: {wallet.balance ? `${parseFloat(wallet.balance).toFixed(4)} ETH` : '0 ETH'}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Wallet Type: {wallet.walletType || 'Unknown'}
               </p>
             </div>
             
@@ -79,13 +101,17 @@ const WalletConnectionSection = () => {
             {!anyWalletAvailable && (
               <div className="text-sm text-center text-muted-foreground mt-4">
                 <p>Don't have a wallet?</p>
-                <div className="flex gap-2 justify-center mt-2">
+                <div className="flex flex-wrap gap-2 justify-center mt-2">
                   <a href="https://metamask.io/download/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                     Install MetaMask
                   </a>
                   <span>|</span>
                   <a href="https://www.coinbase.com/wallet" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                     Install Coinbase Wallet
+                  </a>
+                  <span>|</span>
+                  <a href="https://trustwallet.com/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                    Install Trust Wallet
                   </a>
                 </div>
               </div>
