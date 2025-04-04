@@ -5,18 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
 import { Wallet, AlertTriangle } from 'lucide-react';
 import { isWalletAvailable } from '@/utils/wallet';
+import WalletSelectionPopover from './WalletSelectionPopover';
 
 const WalletConnectionSection = () => {
-  const { 
-    connectWithMetamask, 
-    connectWithCoinbase, 
-    connectWithTrustWallet, 
-    connectWithPhantom,
-    isConnecting, 
-    wallet 
-  } = useAuth();
+  const { wallet } = useAuth();
 
-  // Check which wallets are available in the browser
+  // Check if any wallet is available
   const isMetaMaskAvailable = isWalletAvailable('metamask');
   const isCoinbaseWalletAvailable = isWalletAvailable('coinbase');
   const isTrustWalletAvailable = isWalletAvailable('trustwallet');
@@ -63,82 +57,8 @@ const WalletConnectionSection = () => {
               </div>
             )}
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <Button 
-                variant="outline" 
-                onClick={connectWithMetamask} 
-                disabled={isConnecting || !isMetaMaskAvailable}
-                className="flex justify-start items-center gap-2 h-auto py-3"
-              >
-                <img 
-                  src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" 
-                  alt="MetaMask" 
-                  className="h-6 w-6" 
-                />
-                <div className="text-left">
-                  <p className="font-medium">MetaMask</p>
-                  <p className="text-xs text-muted-foreground">
-                    {isMetaMaskAvailable ? "Connect to your MetaMask wallet" : "Install MetaMask extension"}
-                  </p>
-                </div>
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                onClick={connectWithCoinbase} 
-                disabled={isConnecting || !isCoinbaseWalletAvailable}
-                className="flex justify-start items-center gap-2 h-auto py-3"
-              >
-                <img 
-                  src="https://static.coingecko.com/s/coinbase-wallet-f64d0a2ae5a0a601cef3bc0d35d8872e5f37880b2b9a78b9e1c5e922c9c9581c.png" 
-                  alt="Coinbase Wallet" 
-                  className="h-6 w-6" 
-                />
-                <div className="text-left">
-                  <p className="font-medium">Coinbase Wallet</p>
-                  <p className="text-xs text-muted-foreground">
-                    {isCoinbaseWalletAvailable ? "Connect to your Coinbase wallet" : "Install Coinbase Wallet extension"}
-                  </p>
-                </div>
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                onClick={connectWithTrustWallet} 
-                disabled={isConnecting || !isTrustWalletAvailable}
-                className="flex justify-start items-center gap-2 h-auto py-3"
-              >
-                <img 
-                  src="https://trustwallet.com/assets/images/favicon.png" 
-                  alt="Trust Wallet" 
-                  className="h-6 w-6" 
-                />
-                <div className="text-left">
-                  <p className="font-medium">Trust Wallet</p>
-                  <p className="text-xs text-muted-foreground">
-                    {isTrustWalletAvailable ? "Connect to your Trust wallet" : "Install Trust Wallet extension"}
-                  </p>
-                </div>
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                onClick={connectWithPhantom} 
-                disabled={isConnecting || !isPhantomWalletAvailable}
-                className="flex justify-start items-center gap-2 h-auto py-3"
-              >
-                <img 
-                  src="https://phantom.app/img/phantom-logo.svg" 
-                  alt="Phantom" 
-                  className="h-6 w-6" 
-                />
-                <div className="text-left">
-                  <p className="font-medium">Phantom (Solana)</p>
-                  <p className="text-xs text-muted-foreground">
-                    {isPhantomWalletAvailable ? "Connect to your Phantom wallet" : "Install Phantom extension"}
-                  </p>
-                </div>
-              </Button>
+            <div className="flex justify-center">
+              <WalletSelectionPopover triggerText="Connect your wallet" variant="default" />
             </div>
             
             {!anyWalletAvailable && (

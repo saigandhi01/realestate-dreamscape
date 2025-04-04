@@ -5,16 +5,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { Wallet, Mail, Facebook, Github } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { isWalletAvailable } from "@/utils/wallet";
+import WalletSelectionPopover from "./WalletSelectionPopover";
 
 const LoginModal = () => {
   const { 
     isLoginModalOpen, 
     closeLoginModal, 
-    connectWithMetamask,
-    connectWithCoinbase,
-    connectWithTrustWallet,
-    connectWithPhantom,
     connectWithEmail,
     connectWithSocial,
     isConnecting 
@@ -23,12 +19,6 @@ const LoginModal = () => {
   const [view, setView] = useState<"main" | "email" | "social" | "wallet">("main");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  // Check wallet availability
-  const isMetaMaskAvailable = isWalletAvailable('metamask');
-  const isCoinbaseWalletAvailable = isWalletAvailable('coinbase');
-  const isTrustWalletAvailable = isWalletAvailable('trustwallet');
-  const isPhantomWalletAvailable = isWalletAvailable('phantom');
 
   const handleEmailLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,13 +48,7 @@ const LoginModal = () => {
 
         {view === "main" && (
           <div className="flex flex-col gap-4 py-4">
-            <Button 
-              onClick={() => setView("wallet")} 
-              className="flex items-center justify-center gap-2"
-            >
-              <Wallet className="h-5 w-5" />
-              Connect with Wallet
-            </Button>
+            <WalletSelectionPopover triggerText="Connect with Wallet" variant="default" />
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t" />
@@ -90,90 +74,6 @@ const LoginModal = () => {
             >
               <Facebook className="h-5 w-5" />
               Connect with Social
-            </Button>
-          </div>
-        )}
-
-        {view === "wallet" && (
-          <div className="flex flex-col gap-4 py-4">
-            <Button 
-              variant="outline" 
-              onClick={connectWithMetamask} 
-              disabled={isConnecting || !isMetaMaskAvailable}
-              className="flex justify-start items-center gap-2 h-auto py-3"
-            >
-              <img 
-                src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" 
-                alt="MetaMask" 
-                className="h-6 w-6" 
-              />
-              <div className="text-left">
-                <p className="font-medium">MetaMask</p>
-                <p className="text-xs text-muted-foreground">
-                  {isMetaMaskAvailable ? "Connect to your MetaMask wallet" : "Install MetaMask extension"}
-                </p>
-              </div>
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              onClick={connectWithCoinbase} 
-              disabled={isConnecting || !isCoinbaseWalletAvailable}
-              className="flex justify-start items-center gap-2 h-auto py-3"
-            >
-              <img 
-                src="https://static.coingecko.com/s/coinbase-wallet-f64d0a2ae5a0a601cef3bc0d35d8872e5f37880b2b9a78b9e1c5e922c9c9581c.png" 
-                alt="Coinbase Wallet" 
-                className="h-6 w-6" 
-              />
-              <div className="text-left">
-                <p className="font-medium">Coinbase Wallet</p>
-                <p className="text-xs text-muted-foreground">
-                  {isCoinbaseWalletAvailable ? "Connect to your Coinbase wallet" : "Install Coinbase Wallet extension"}
-                </p>
-              </div>
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              onClick={connectWithTrustWallet} 
-              disabled={isConnecting || !isTrustWalletAvailable}
-              className="flex justify-start items-center gap-2 h-auto py-3"
-            >
-              <img 
-                src="https://trustwallet.com/assets/images/favicon.png" 
-                alt="Trust Wallet" 
-                className="h-6 w-6" 
-              />
-              <div className="text-left">
-                <p className="font-medium">Trust Wallet</p>
-                <p className="text-xs text-muted-foreground">
-                  {isTrustWalletAvailable ? "Connect to your Trust wallet" : "Install Trust Wallet extension"}
-                </p>
-              </div>
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              onClick={connectWithPhantom} 
-              disabled={isConnecting || !isPhantomWalletAvailable}
-              className="flex justify-start items-center gap-2 h-auto py-3"
-            >
-              <img 
-                src="https://phantom.app/img/phantom-logo.svg" 
-                alt="Phantom" 
-                className="h-6 w-6" 
-              />
-              <div className="text-left">
-                <p className="font-medium">Phantom (Solana)</p>
-                <p className="text-xs text-muted-foreground">
-                  {isPhantomWalletAvailable ? "Connect to your Phantom wallet" : "Install Phantom extension"}
-                </p>
-              </div>
-            </Button>
-            
-            <Button variant="outline" type="button" onClick={() => setView("main")}>
-              Back
             </Button>
           </div>
         )}
