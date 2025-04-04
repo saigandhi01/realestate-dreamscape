@@ -23,13 +23,13 @@ const WalletConnectionSection = () => {
   const getWalletLogo = () => {
     switch (wallet.walletType) {
       case 'metamask':
-        return "/lovable-uploads/fdce60cd-89da-4466-baa1-704d73d7d732.png";
+        return "https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/metamask-fox.svg";
       case 'coinbase':
-        return "https://www.coinbase.com/img/coinbase-icon.svg";
+        return "https://uploads-ssl.webflow.com/62146153fce32cc0ae204bb0/62146153fce32cd3ee204bec_coinbase-wallet-logo.svg";
       case 'trustwallet':
-        return "https://trustwallet.com/assets/images/favicon.png";
+        return "https://trustwallet.com/assets/images/media/assets/trust_platform_logo.svg";
       case 'phantom':
-        return "https://phantom.app/img/phantom-logo-mono.svg";
+        return "https://phantom.app/icons/phantom-icon-1.svg";
       default:
         return null;
     }

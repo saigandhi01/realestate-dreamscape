@@ -52,7 +52,7 @@ const WalletSelectionPopover = ({
               className="flex justify-start items-center gap-3 h-auto py-3 w-full hover:bg-accent"
             >
               <img 
-                src="/lovable-uploads/fdce60cd-89da-4466-baa1-704d73d7d732.png" 
+                src="https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/metamask-fox.svg" 
                 alt="MetaMask" 
                 className="h-6 w-6 object-contain" 
               />
@@ -69,7 +69,7 @@ const WalletSelectionPopover = ({
               className="flex justify-start items-center gap-3 h-auto py-3 w-full hover:bg-accent"
             >
               <img 
-                src="https://www.coinbase.com/img/coinbase-icon.svg" 
+                src="https://uploads-ssl.webflow.com/62146153fce32cc0ae204bb0/62146153fce32cd3ee204bec_coinbase-wallet-logo.svg" 
                 alt="Coinbase Wallet" 
                 className="h-6 w-6 object-contain" 
               />
@@ -86,7 +86,7 @@ const WalletSelectionPopover = ({
               className="flex justify-start items-center gap-3 h-auto py-3 w-full hover:bg-accent"
             >
               <img 
-                src="https://trustwallet.com/assets/images/favicon.png" 
+                src="https://trustwallet.com/assets/images/media/assets/trust_platform_logo.svg" 
                 alt="Trust Wallet" 
                 className="h-6 w-6 object-contain" 
               />
@@ -103,7 +103,7 @@ const WalletSelectionPopover = ({
               className="flex justify-start items-center gap-3 h-auto py-3 w-full hover:bg-accent"
             >
               <img 
-                src="https://phantom.app/img/phantom-logo-mono.svg" 
+                src="https://phantom.app/icons/phantom-icon-1.svg" 
                 alt="Phantom" 
                 className="h-6 w-6 object-contain" 
               />
