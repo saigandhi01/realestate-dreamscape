@@ -25,11 +25,11 @@ const WalletConnectionSection = () => {
       case 'metamask':
         return "/lovable-uploads/fdce60cd-89da-4466-baa1-704d73d7d732.png";
       case 'coinbase':
-        return "https://www.coinbase.com/assets/images/icon-coinbase-wallet.svg";
+        return "https://www.coinbase.com/img/coinbase-icon.svg";
       case 'trustwallet':
-        return "https://trustwallet.com/assets/images/media/assets/trust_platform.svg";
+        return "https://trustwallet.com/assets/images/favicon.png";
       case 'phantom':
-        return "https://phantom.app/img/phantom-logo.svg";
+        return "https://phantom.app/img/phantom-logo-mono.svg";
       default:
         return null;
     }

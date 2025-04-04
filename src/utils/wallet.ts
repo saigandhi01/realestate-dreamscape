@@ -56,6 +56,8 @@ export const connectWallet = async (walletType: WalletType = 'metamask'): Promis
           provider = windowWithEthereum.ethereum;
           // Request account access
           await provider.request({ method: 'eth_requestAccounts' });
+        } else {
+          throw new Error('MetaMask not available');
         }
         break;
       case 'coinbase':
@@ -64,6 +66,8 @@ export const connectWallet = async (walletType: WalletType = 'metamask'): Promis
           provider = windowWithEthereum.ethereum;
           // Request account access
           await provider.request({ method: 'eth_requestAccounts' });
+        } else {
+          throw new Error('Coinbase Wallet not available');
         }
         break;
       case 'trustwallet':
@@ -72,21 +76,37 @@ export const connectWallet = async (walletType: WalletType = 'metamask'): Promis
           provider = windowWithEthereum.ethereum;
           // Request account access
           await provider.request({ method: 'eth_requestAccounts' });
+        } else {
+          throw new Error('Trust Wallet not available');
         }
         break;
       case 'phantom':
         // For Phantom wallet which is primarily for Solana
-        if (windowWithEthereum.phantom || windowWithEthereum.solana) {
+        if (windowWithEthereum.phantom?.isPhantom || windowWithEthereum.solana?.isPhantom) {
           provider = windowWithEthereum.phantom || windowWithEthereum.solana;
           // Connect to Phantom wallet
-          if (provider.isPhantom) {
-            await provider.connect();
-            
-            // For Phantom on Ethereum (if supported)
-            if (provider.isConnected && provider.request) {
-              await provider.request({ method: 'eth_requestAccounts' });
-            }
+          const response = await provider.connect();
+          
+          // For Phantom on Ethereum (if supported)
+          if (provider.isConnected && provider.request) {
+            await provider.request({ method: 'eth_requestAccounts' });
           }
+          
+          // For Solana specific connection
+          if (response.publicKey) {
+            return {
+              address: response.publicKey.toString(),
+              connected: true,
+              chainId: 0, // Solana doesn't use EVM chainId
+              provider: null, // Not an EVM provider
+              signer: null,
+              balance: "0", // Would need Solana-specific balance fetching
+              networkName: "Solana",
+              walletType: 'phantom'
+            };
+          }
+        } else {
+          throw new Error('Phantom Wallet not available');
         }
         break;
       default:
@@ -145,6 +165,8 @@ export const connectWallet = async (walletType: WalletType = 'metamask'): Promis
     // Store the wallet type in local storage for persistence
     localStorage.setItem('walletType', walletType || '');
     
+    console.log(`Successfully connected to ${walletType} wallet:`, walletState);
+    
     return walletState;
   } catch (error) {
     console.error(`Error connecting to ${walletType} wallet:`, error);
@@ -157,7 +179,9 @@ export const disconnectWallet = async (): Promise<void> => {
   localStorage.removeItem('walletType');
   
   // Clear web3modal cache
-  await web3Modal.clearCachedProvider();
+  if (web3Modal) {
+    await web3Modal.clearCachedProvider();
+  }
   
   // Reload the page to reset all connection states
   window.location.reload();
@@ -170,7 +194,16 @@ export const truncateAddress = (address: string): string => {
 
 // Utility function to check if a wallet type is available
 export const isWalletAvailable = (walletType: WalletType): boolean => {
-  const windowWithEthereum = window as unknown as { ethereum?: any; solana?: any; phantom?: any; };
+  if (typeof window === 'undefined') return false;
+  
+  const windowWithEthereum = window as unknown as { 
+    ethereum?: any; 
+    solana?: any; 
+    phantom?: any;
+  };
+  
+  // Log wallet detection attempt
+  console.log(`Checking availability of ${walletType} wallet`);
   
   switch (walletType) {
     case 'metamask':
@@ -180,7 +213,7 @@ export const isWalletAvailable = (walletType: WalletType): boolean => {
     case 'trustwallet':
       return !!windowWithEthereum.ethereum?.isTrust;
     case 'phantom':
-      return !!windowWithEthereum.phantom || !!windowWithEthereum.solana?.isPhantom;
+      return !!windowWithEthereum.phantom?.isPhantom || !!windowWithEthereum.solana?.isPhantom;
     default:
       return false;
   }

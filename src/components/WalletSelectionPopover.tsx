@@ -58,6 +58,7 @@ const WalletSelectionPopover = ({
               />
               <div className="text-left">
                 <p className="font-medium text-sm">MetaMask</p>
+                {!isMetaMaskAvailable && <p className="text-xs text-muted-foreground">Not installed</p>}
               </div>
             </Button>
             
@@ -68,12 +69,13 @@ const WalletSelectionPopover = ({
               className="flex justify-start items-center gap-3 h-auto py-3 w-full hover:bg-accent"
             >
               <img 
-                src="https://www.coinbase.com/assets/images/icon-coinbase-wallet.svg" 
+                src="https://www.coinbase.com/img/coinbase-icon.svg" 
                 alt="Coinbase Wallet" 
                 className="h-6 w-6 object-contain" 
               />
               <div className="text-left">
                 <p className="font-medium text-sm">Coinbase Wallet</p>
+                {!isCoinbaseWalletAvailable && <p className="text-xs text-muted-foreground">Not installed</p>}
               </div>
             </Button>
             
@@ -84,12 +86,13 @@ const WalletSelectionPopover = ({
               className="flex justify-start items-center gap-3 h-auto py-3 w-full hover:bg-accent"
             >
               <img 
-                src="https://trustwallet.com/assets/images/media/assets/trust_platform.svg" 
+                src="https://trustwallet.com/assets/images/favicon.png" 
                 alt="Trust Wallet" 
                 className="h-6 w-6 object-contain" 
               />
               <div className="text-left">
                 <p className="font-medium text-sm">Trust Wallet</p>
+                {!isTrustWalletAvailable && <p className="text-xs text-muted-foreground">Not installed</p>}
               </div>
             </Button>
             
@@ -100,12 +103,13 @@ const WalletSelectionPopover = ({
               className="flex justify-start items-center gap-3 h-auto py-3 w-full hover:bg-accent"
             >
               <img 
-                src="https://phantom.app/img/phantom-logo.svg" 
+                src="https://phantom.app/img/phantom-logo-mono.svg" 
                 alt="Phantom" 
                 className="h-6 w-6 object-contain" 
               />
               <div className="text-left">
                 <p className="font-medium text-sm">Phantom</p>
+                {!isPhantomWalletAvailable && <p className="text-xs text-muted-foreground">Not installed</p>}
               </div>
             </Button>
           </div>
