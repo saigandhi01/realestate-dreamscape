@@ -8,7 +8,7 @@ import { isWalletAvailable } from '@/utils/wallet';
 import WalletSelectionPopover from './WalletSelectionPopover';
 
 const WalletConnectionSection = () => {
-  const { wallet } = useAuth();
+  const { wallet, disconnect } = useAuth();
 
   // Check if any wallet is available
   const isMetaMaskAvailable = isWalletAvailable('metamask');
@@ -34,14 +34,29 @@ const WalletConnectionSection = () => {
       </CardHeader>
       <CardContent>
         {wallet.connected ? (
-          <div className="bg-muted p-4 rounded-lg">
-            <p className="font-medium">Connected Wallet</p>
-            <p className="text-sm text-muted-foreground mb-2">
-              {wallet.address} ({wallet.networkName})
-            </p>
-            <p className="text-sm font-medium">
-              Balance: {wallet.balance ? `${parseFloat(wallet.balance).toFixed(4)} ETH` : '0 ETH'}
-            </p>
+          <div className="space-y-4">
+            <div className="bg-muted p-4 rounded-lg">
+              <p className="font-medium">Connected Wallet</p>
+              <p className="text-sm text-muted-foreground mb-2">
+                {wallet.address} ({wallet.networkName})
+              </p>
+              <p className="text-sm font-medium">
+                Balance: {wallet.balance ? `${parseFloat(wallet.balance).toFixed(4)} ETH` : '0 ETH'}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Wallet Type: {wallet.walletType || 'Unknown'}
+              </p>
+            </div>
+            
+            <div className="flex justify-between gap-2">
+              <Button variant="outline" onClick={disconnect} className="w-1/2">
+                Disconnect
+              </Button>
+              <WalletSelectionPopover 
+                triggerText="Change Wallet" 
+                variant="secondary" 
+              />
+            </div>
           </div>
         ) : (
           <div className="space-y-4">

@@ -8,7 +8,7 @@ import {
   PopoverTrigger 
 } from '@/components/ui/popover';
 import { Wallet } from 'lucide-react';
-import { isWalletAvailable } from '@/utils/wallet';
+import { isWalletAvailable, WalletType } from '@/utils/wallet';
 
 interface WalletSelectionPopoverProps {
   triggerText?: string;
@@ -19,19 +19,19 @@ const WalletSelectionPopover = ({
   triggerText = "Connect Wallet", 
   variant = "default" 
 }: WalletSelectionPopoverProps) => {
-  const { 
-    connectWithMetamask, 
-    connectWithCoinbase, 
-    connectWithTrustWallet, 
-    connectWithPhantom,
-    isConnecting
-  } = useAuth();
+  const { connectWithWallet, isConnecting } = useAuth();
 
   // Check wallet availability
   const isMetaMaskAvailable = isWalletAvailable('metamask');
   const isCoinbaseWalletAvailable = isWalletAvailable('coinbase');
   const isTrustWalletAvailable = isWalletAvailable('trustwallet');
   const isPhantomWalletAvailable = isWalletAvailable('phantom');
+
+  const handleWalletConnection = (walletType: WalletType) => {
+    if (walletType) {
+      connectWithWallet(walletType);
+    }
+  };
 
   return (
     <Popover>
@@ -47,7 +47,7 @@ const WalletSelectionPopover = ({
           <div className="grid gap-2">
             <Button 
               variant="ghost" 
-              onClick={connectWithMetamask} 
+              onClick={() => handleWalletConnection('metamask')} 
               disabled={isConnecting || !isMetaMaskAvailable}
               className="flex justify-start items-center gap-2 h-auto py-3 w-full"
             >
@@ -63,7 +63,7 @@ const WalletSelectionPopover = ({
             
             <Button 
               variant="ghost" 
-              onClick={connectWithCoinbase} 
+              onClick={() => handleWalletConnection('coinbase')} 
               disabled={isConnecting || !isCoinbaseWalletAvailable}
               className="flex justify-start items-center gap-2 h-auto py-3 w-full"
             >
@@ -79,7 +79,7 @@ const WalletSelectionPopover = ({
             
             <Button 
               variant="ghost" 
-              onClick={connectWithTrustWallet} 
+              onClick={() => handleWalletConnection('trustwallet')} 
               disabled={isConnecting || !isTrustWalletAvailable}
               className="flex justify-start items-center gap-2 h-auto py-3 w-full"
             >
@@ -95,7 +95,7 @@ const WalletSelectionPopover = ({
             
             <Button 
               variant="ghost" 
-              onClick={connectWithPhantom} 
+              onClick={() => handleWalletConnection('phantom')} 
               disabled={isConnecting || !isPhantomWalletAvailable}
               className="flex justify-start items-center gap-2 h-auto py-3 w-full"
             >

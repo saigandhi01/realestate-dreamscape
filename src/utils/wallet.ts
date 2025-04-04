@@ -39,13 +39,58 @@ export const initialWalletState: WalletState = {
 
 export const connectWallet = async (walletType: WalletType = 'metamask'): Promise<WalletState> => {
   try {
-    const instance = await web3Modal.connect();
-    const provider = new ethers.providers.Web3Provider(instance);
-    const signer = provider.getSigner();
+    // Get the window object with ethereum providers
+    const windowWithEthereum = window as unknown as { 
+      ethereum?: any; 
+      solana?: any; 
+      phantom?: any;
+    };
+    
+    // Get the specific provider based on the wallet type
+    let provider;
+    
+    switch (walletType) {
+      case 'metamask':
+        // Ensure MetaMask is selected if multiple wallets are available
+        if (windowWithEthereum.ethereum?.isMetaMask) {
+          provider = windowWithEthereum.ethereum;
+        }
+        break;
+      case 'coinbase':
+        // Ensure Coinbase Wallet is selected
+        if (windowWithEthereum.ethereum?.isCoinbaseWallet) {
+          provider = windowWithEthereum.ethereum;
+        }
+        break;
+      case 'trustwallet':
+        // Ensure Trust Wallet is selected
+        if (windowWithEthereum.ethereum?.isTrust) {
+          provider = windowWithEthereum.ethereum;
+        }
+        break;
+      case 'phantom':
+        // For Phantom wallet which is primarily for Solana
+        if (windowWithEthereum.phantom || windowWithEthereum.solana) {
+          provider = windowWithEthereum.phantom || windowWithEthereum.solana;
+          // This is a simplified example - actual Solana/Phantom integration would differ
+          // For now, we'll mock it to work like other wallets for consistency
+        }
+        break;
+      default:
+        // Use web3Modal as fallback for other wallet types or if specific provider not found
+        provider = await web3Modal.connect();
+    }
+    
+    if (!provider) {
+      throw new Error(`${walletType} wallet not available or not selected`);
+    }
+    
+    const ethersProvider = new ethers.providers.Web3Provider(provider);
+    const signer = ethersProvider.getSigner();
     const address = await signer.getAddress();
-    const network = await provider.getNetwork();
+    const network = await ethersProvider.getNetwork();
     const balance = ethers.utils.formatEther(
-      await provider.getBalance(address)
+      await ethersProvider.getBalance(address)
     );
     
     const networkNames: Record<number, string> = {
@@ -62,12 +107,12 @@ export const connectWallet = async (walletType: WalletType = 'metamask'): Promis
     const networkName = networkNames[network.chainId] || `Chain ID: ${network.chainId}`;
     
     // Subscribe to accounts change
-    instance.on("accountsChanged", (accounts: string[]) => {
+    provider.on("accountsChanged", (accounts: string[]) => {
       window.location.reload();
     });
     
     // Subscribe to chainId change
-    instance.on("chainChanged", (chainId: number) => {
+    provider.on("chainChanged", (chainId: number) => {
       window.location.reload();
     });
     
@@ -75,14 +120,14 @@ export const connectWallet = async (walletType: WalletType = 'metamask'): Promis
       address,
       connected: true,
       chainId: network.chainId,
-      provider,
+      provider: ethersProvider,
       signer,
       balance,
       networkName,
       walletType
     };
   } catch (error) {
-    console.error("Error connecting to wallet:", error);
+    console.error(`Error connecting to ${walletType} wallet:`, error);
     return initialWalletState;
   }
 };
@@ -103,7 +148,7 @@ export const isWalletAvailable = (walletType: WalletType): boolean => {
   
   switch (walletType) {
     case 'metamask':
-      return !!windowWithEthereum.ethereum;
+      return !!windowWithEthereum.ethereum?.isMetaMask;
     case 'coinbase':
       return !!windowWithEthereum.ethereum?.isCoinbaseWallet;
     case 'trustwallet':
@@ -114,4 +159,3 @@ export const isWalletAvailable = (walletType: WalletType): boolean => {
       return false;
   }
 };
-
