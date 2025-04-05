@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { User, ShieldCheck, Mail, Phone, Upload, Edit2, Briefcase, ArrowLeftRight, Wallet, TrendingUp, DollarSign, Share, ChevronRight, Building, Home, BarChart2, PieChart } from 'lucide-react';
+import { User, ShieldCheck, Mail, Phone, Upload, Edit2, Briefcase, ArrowLeftRight, Wallet, TrendingUp, DollarSign, Share, ChevronRight, Building, Home, BarChart2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -32,7 +31,7 @@ import {
   YAxis, 
   CartesianGrid, 
   ResponsiveContainer, 
-  PieChart, 
+  PieChart as RechartsPieChart, 
   Pie, 
   Cell,
   Tooltip
@@ -51,14 +50,12 @@ const Profile = () => {
     kycStatus: 'pending' // can be 'pending', 'verified', or 'failed'
   });
 
-  // Sample portfolio data
   const [portfolio] = useState([
     { id: 1, name: 'Property NYC Downtown', value: '$125,000', tokens: '5,000', ownership: '12.5%', type: 'residential', progress: 87 },
     { id: 2, name: 'Miami Beach Villa', value: '$87,500', tokens: '3,500', ownership: '7.8%', type: 'vacation', progress: 62 },
     { id: 3, name: 'Chicago Office Complex', value: '$62,000', tokens: '2,480', ownership: '6.2%', type: 'commercial', progress: 45 },
   ]);
 
-  // Sample transaction data
   const [transactions] = useState([
     { id: 1, date: '2023-05-15', type: 'buy', property: 'Property NYC Downtown', amount: '$25,000', tokens: '1,000' },
     { id: 2, date: '2023-06-22', type: 'sell', property: 'San Francisco Loft', amount: '$18,000', tokens: '720' },
@@ -66,7 +63,6 @@ const Profile = () => {
     { id: 4, date: '2023-09-10', type: 'buy', property: 'Chicago Office Complex', amount: '$30,000', tokens: '1,200' },
   ]);
 
-  // Sample investment performance data
   const [investmentData] = useState({
     totalInvested: '$304,500',
     currentValue: '$362,350',
@@ -75,7 +71,6 @@ const Profile = () => {
     monthlyIncome: '$2,120'
   });
 
-  // Chart data for investment performance
   const [performanceData] = useState([
     { month: 'Jan', value: 120000, prev: 100000 },
     { month: 'Feb', value: 150000, prev: 110000 },
@@ -88,7 +83,6 @@ const Profile = () => {
     { month: 'Sep', value: 362350, prev: 304500 },
   ]);
 
-  // Portfolio distribution chart data
   const [portfolioDistribution] = useState([
     { name: 'Residential', value: 45 },
     { name: 'Commercial', value: 30 },
@@ -97,7 +91,6 @@ const Profile = () => {
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28'];
 
-  // Redirect if not logged in
   React.useEffect(() => {
     if (!isLoggedIn) {
       navigate('/');
@@ -169,7 +162,6 @@ const Profile = () => {
     }
   };
 
-  // Chart config for the performance line chart
   const chartConfig = {
     value: {
       label: "Current Value",
@@ -206,10 +198,8 @@ const Profile = () => {
             <TabsTrigger value="investment">Investment Performance</TabsTrigger>
           </TabsList>
 
-          {/* Personal Info Tab */}
           <TabsContent value="personal" className="space-y-8">
             <div className="grid gap-8 md:grid-cols-3">
-              {/* Left column - Profile picture and basic info */}
               <Card className="md:col-span-1 bg-card/70 backdrop-blur-sm border-primary/10 shadow-lg">
                 <CardHeader>
                   <CardTitle>Profile Picture</CardTitle>
@@ -243,7 +233,6 @@ const Profile = () => {
                 </CardContent>
               </Card>
 
-              {/* Right column - User information */}
               <Card className="md:col-span-2 bg-card/70 backdrop-blur-sm border-primary/10 shadow-lg">
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>
@@ -261,7 +250,6 @@ const Profile = () => {
                   )}
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {/* Name section */}
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="firstName">First Name</Label>
@@ -289,7 +277,6 @@ const Profile = () => {
 
                   <Separator />
 
-                  {/* Contact information */}
                   <div className="space-y-4">
                     <h3 className="text-lg font-medium">Contact Information</h3>
                     
@@ -325,7 +312,6 @@ const Profile = () => {
 
                   <Separator />
 
-                  {/* Wallet Information */}
                   {wallet.connected && (
                     <>
                       <div className="space-y-4">
@@ -353,7 +339,6 @@ const Profile = () => {
                     </>
                   )}
 
-                  {/* KYC Verification */}
                   <div>
                     <h3 className="text-lg font-medium mb-4">KYC Verification</h3>
                     <div className="bg-muted p-4 rounded-lg flex items-center justify-between">
@@ -393,7 +378,6 @@ const Profile = () => {
             </div>
           </TabsContent>
 
-          {/* Portfolio Tab */}
           <TabsContent value="portfolio">
             <Card className="bg-card/70 backdrop-blur-sm border-primary/10 shadow-lg overflow-hidden">
               <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 border-b border-primary/10">
@@ -417,7 +401,7 @@ const Profile = () => {
                     <h3 className="text-lg font-medium mb-4">Portfolio Distribution</h3>
                     <div className="h-64">
                       <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
+                        <RechartsPieChart>
                           <Pie
                             data={portfolioDistribution}
                             cx="50%"
@@ -433,7 +417,7 @@ const Profile = () => {
                             ))}
                           </Pie>
                           <Tooltip />
-                        </PieChart>
+                        </RechartsPieChart>
                       </ResponsiveContainer>
                     </div>
                   </div>
@@ -500,7 +484,6 @@ const Profile = () => {
             </Card>
           </TabsContent>
 
-          {/* Transactions Tab */}
           <TabsContent value="transactions">
             <Card className="bg-card/70 backdrop-blur-sm border-primary/10 shadow-lg">
               <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 border-b border-primary/10">
@@ -590,7 +573,6 @@ const Profile = () => {
             </Card>
           </TabsContent>
 
-          {/* Investment Performance Tab */}
           <TabsContent value="investment">
             <Card className="bg-card/70 backdrop-blur-sm border-primary/10 shadow-lg">
               <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 border-b border-primary/10">
@@ -608,7 +590,7 @@ const Profile = () => {
                       <BarChart2 className="h-4 w-4" /> Chart View
                     </Button>
                     <Button variant="outline" size="sm" className="gap-1">
-                      <PieChart className="h-4 w-4" /> Comparison View
+                      <BarChart2 className="h-4 w-4" /> Comparison View
                     </Button>
                   </div>
                 </div>
@@ -646,7 +628,6 @@ const Profile = () => {
                   </Card>
                 </div>
                 
-                {/* Performance Chart */}
                 <div className="mb-8">
                   <h3 className="text-lg font-medium mb-4">Investment Growth Over Time</h3>
                   <div className="h-72 w-full">
