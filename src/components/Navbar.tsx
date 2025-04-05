@@ -5,7 +5,6 @@ import { Menu, X, Wallet, LogOut, User } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
 import { truncateAddress } from '@/utils/wallet';
-import WalletSelectionPopover from '@/components/WalletSelectionPopover';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,7 +17,7 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const { wallet, disconnect, isLoggedIn, openLoginModal } = useAuth();
+  const { wallet, disconnect, isLoggedIn } = useAuth();
   
   // Handle scroll event to change navbar appearance
   useEffect(() => {
@@ -77,7 +76,7 @@ const Navbar = () => {
             </Link>
           ))}
           
-          {isLoggedIn ? (
+          {isLoggedIn && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="ml-2 gap-2">
@@ -106,20 +105,6 @@ const Navbar = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          ) : (
-            <div className="flex space-x-3 ml-2">
-              <Button variant="outline" onClick={openLoginModal}>
-                Sign In
-              </Button>
-              {wallet.connected ? (
-                <Button variant="outline" onClick={disconnect} className="gap-2">
-                  <Wallet className="h-4 w-4" />
-                  Disconnect
-                </Button>
-              ) : (
-                <WalletSelectionPopover triggerText="Connect Wallet" />
-              )}
-            </div>
           )}
         </nav>
 
@@ -153,7 +138,7 @@ const Navbar = () => {
               {link.name}
             </Link>
           ))}
-          {isLoggedIn ? (
+          {isLoggedIn && (
             <>
               <div className="py-2 font-medium">
                 {truncateAddress(wallet.address || '')}
@@ -169,20 +154,6 @@ const Navbar = () => {
                 <LogOut className="mr-2 h-4 w-4" />
                 Disconnect
               </Button>
-            </>
-          ) : (
-            <>
-              <Button variant="outline" onClick={openLoginModal} className="w-full justify-center">
-                Sign In
-              </Button>
-              {wallet.connected ? (
-                <Button variant="outline" onClick={disconnect} className="w-full justify-center gap-2">
-                  <Wallet className="h-4 w-4" />
-                  Disconnect
-                </Button>
-              ) : (
-                <WalletSelectionPopover triggerText="Connect Wallet" variant="default" />
-              )}
             </>
           )}
         </nav>
