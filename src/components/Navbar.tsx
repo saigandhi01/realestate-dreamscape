@@ -161,6 +161,10 @@ const Navbar = () => {
                   {wallet.networkName} • {wallet.balance ? `${parseFloat(wallet.balance).toFixed(4)} ETH` : '0 ETH'}
                 </div>
               </div>
+              <Link to="/profile" className="flex items-center py-2 font-medium text-foreground/70 hover:text-foreground">
+                <User className="mr-2 h-4 w-4" />
+                Profile
+              </Link>
               <Button variant="outline" onClick={disconnect} className="justify-start">
                 <LogOut className="mr-2 h-4 w-4" />
                 Disconnect
