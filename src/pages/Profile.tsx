@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { User, ShieldCheck, Mail, Phone, Upload, Edit2, Briefcase, ArrowLeftRight, Wallet, TrendingUp, DollarSign, Share, ChevronRight, Building, Home, BarChart2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { toast } from '@/hooks/use-toast';
+import { transactionToast } from '@/components/ui/transaction-toast';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
@@ -91,23 +92,66 @@ const Profile = () => {
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28'];
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
   React.useEffect(() => {
     if (!isLoggedIn) {
       navigate('/');
     }
   }, [isLoggedIn, navigate]);
 
+  const handleUploadButtonClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setIsUploading(true);
+      
+      if (file.size > 5 * 1024 * 1024) {
+        transactionToast({
+          title: "Upload failed",
+          description: "Image size should be less than 5MB.",
+          status: "error"
+        });
+        setIsUploading(false);
+        return;
+      }
+      
+      if (!file.type.startsWith('image/')) {
+        transactionToast({
+          title: "Upload failed",
+          description: "Only image files are allowed.",
+          status: "error"
+        });
+        setIsUploading(false);
+        return;
+      }
+      
       const reader = new FileReader();
       reader.onload = () => {
         setProfileImage(reader.result as string);
-        toast({
+        setIsUploading(false);
+        transactionToast({
           title: "Profile image updated",
-          description: "Your profile picture has been changed successfully.",
+          description: "Your profile picture has been uploaded successfully.",
+          status: "success"
         });
       };
+      
+      reader.onerror = () => {
+        setIsUploading(false);
+        transactionToast({
+          title: "Upload failed",
+          description: "Failed to read the image file. Please try again.",
+          status: "error"
+        });
+      };
+      
       reader.readAsDataURL(file);
     }
   };
@@ -216,13 +260,26 @@ const Profile = () => {
                   </Avatar>
                   
                   <div className="w-full">
-                    <Label htmlFor="picture-upload" className="w-full">
-                      <Button variant="outline" className="w-full mt-2 gap-2">
-                        <Upload size={16} />
-                        Upload Photo
-                      </Button>
-                    </Label>
+                    <Button 
+                      variant="outline" 
+                      className="w-full mt-2 gap-2"
+                      onClick={handleUploadButtonClick}
+                      disabled={isUploading}
+                    >
+                      {isUploading ? (
+                        <span className="flex items-center gap-2">
+                          <span className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full"></span>
+                          Uploading...
+                        </span>
+                      ) : (
+                        <>
+                          <Upload size={16} />
+                          Upload Photo
+                        </>
+                      )}
+                    </Button>
                     <input
+                      ref={fileInputRef}
                       id="picture-upload"
                       type="file"
                       accept="image/*"
