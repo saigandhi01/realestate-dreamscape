@@ -5,6 +5,7 @@ import { Menu, X, Wallet, LogOut, User } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
 import { truncateAddress } from '@/utils/wallet';
+import WalletSelectionPopover from '@/components/WalletSelectionPopover';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,7 +18,7 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const { wallet, disconnect, isLoggedIn } = useAuth();
+  const { wallet, disconnect, isLoggedIn, openLoginModal } = useAuth();
   
   // Handle scroll event to change navbar appearance
   useEffect(() => {
@@ -76,7 +77,7 @@ const Navbar = () => {
             </Link>
           ))}
           
-          {isLoggedIn && (
+          {isLoggedIn ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="ml-2 gap-2">
@@ -105,6 +106,10 @@ const Navbar = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+          ) : (
+            <Button variant="outline" onClick={openLoginModal} className="ml-2">
+              Sign In
+            </Button>
           )}
         </nav>
 
@@ -138,7 +143,7 @@ const Navbar = () => {
               {link.name}
             </Link>
           ))}
-          {isLoggedIn && (
+          {isLoggedIn ? (
             <>
               <div className="py-2 font-medium">
                 {truncateAddress(wallet.address || '')}
@@ -155,6 +160,10 @@ const Navbar = () => {
                 Disconnect
               </Button>
             </>
+          ) : (
+            <Button variant="outline" onClick={openLoginModal} className="w-full justify-center">
+              Sign In
+            </Button>
           )}
         </nav>
       </div>

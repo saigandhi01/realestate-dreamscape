@@ -33,6 +33,34 @@ const WalletSelectionPopover = ({
     }
   };
 
+  // Wallet configs with updated icon URLs
+  const wallets = [
+    {
+      name: "MetaMask",
+      type: "metamask" as WalletType,
+      icon: "https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg",
+      available: isMetaMaskAvailable
+    },
+    {
+      name: "Coinbase Wallet",
+      type: "coinbase" as WalletType,
+      icon: "https://seeklogo.com/images/C/coinbase-wallet-logo-D486C3685A-seeklogo.com.png",
+      available: isCoinbaseWalletAvailable
+    },
+    {
+      name: "Trust Wallet",
+      type: "trustwallet" as WalletType,
+      icon: "https://trustwallet.com/assets/images/favicon.svg",
+      available: isTrustWalletAvailable
+    },
+    {
+      name: "Phantom",
+      type: "phantom" as WalletType,
+      icon: "https://phantom.app/img/logo.svg",
+      available: isPhantomWalletAvailable
+    }
+  ];
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -45,73 +73,25 @@ const WalletSelectionPopover = ({
         <div className="grid gap-2 p-4">
           <h3 className="font-medium text-sm pb-2 border-b">Select a wallet</h3>
           <div className="grid gap-2">
-            <Button 
-              variant="outline" 
-              onClick={() => handleWalletConnection('metamask')} 
-              disabled={isConnecting || !isMetaMaskAvailable}
-              className="flex justify-start items-center gap-3 h-auto py-3 w-full hover:bg-accent"
-            >
-              <img 
-                src="https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/metamask-fox.svg" 
-                alt="MetaMask" 
-                className="h-6 w-6 object-contain" 
-              />
-              <div className="text-left">
-                <p className="font-medium text-sm">MetaMask</p>
-                {!isMetaMaskAvailable && <p className="text-xs text-muted-foreground">Not installed</p>}
-              </div>
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              onClick={() => handleWalletConnection('coinbase')} 
-              disabled={isConnecting || !isCoinbaseWalletAvailable}
-              className="flex justify-start items-center gap-3 h-auto py-3 w-full hover:bg-accent"
-            >
-              <img 
-                src="https://uploads-ssl.webflow.com/62146153fce32cc0ae204bb0/62146153fce32cd3ee204bec_coinbase-wallet-logo.svg" 
-                alt="Coinbase Wallet" 
-                className="h-6 w-6 object-contain" 
-              />
-              <div className="text-left">
-                <p className="font-medium text-sm">Coinbase Wallet</p>
-                {!isCoinbaseWalletAvailable && <p className="text-xs text-muted-foreground">Not installed</p>}
-              </div>
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              onClick={() => handleWalletConnection('trustwallet')} 
-              disabled={isConnecting || !isTrustWalletAvailable}
-              className="flex justify-start items-center gap-3 h-auto py-3 w-full hover:bg-accent"
-            >
-              <img 
-                src="https://trustwallet.com/assets/images/media/assets/trust_platform_logo.svg" 
-                alt="Trust Wallet" 
-                className="h-6 w-6 object-contain" 
-              />
-              <div className="text-left">
-                <p className="font-medium text-sm">Trust Wallet</p>
-                {!isTrustWalletAvailable && <p className="text-xs text-muted-foreground">Not installed</p>}
-              </div>
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              onClick={() => handleWalletConnection('phantom')} 
-              disabled={isConnecting || !isPhantomWalletAvailable}
-              className="flex justify-start items-center gap-3 h-auto py-3 w-full hover:bg-accent"
-            >
-              <img 
-                src="https://phantom.app/icons/phantom-icon-1.svg" 
-                alt="Phantom" 
-                className="h-6 w-6 object-contain" 
-              />
-              <div className="text-left">
-                <p className="font-medium text-sm">Phantom</p>
-                {!isPhantomWalletAvailable && <p className="text-xs text-muted-foreground">Not installed</p>}
-              </div>
-            </Button>
+            {wallets.map((wallet) => (
+              <Button 
+                key={wallet.name}
+                variant="outline" 
+                onClick={() => handleWalletConnection(wallet.type)} 
+                disabled={isConnecting || !wallet.available}
+                className="flex justify-start items-center gap-3 h-auto py-3 w-full hover:bg-accent"
+              >
+                <img 
+                  src={wallet.icon} 
+                  alt={wallet.name} 
+                  className="h-6 w-6 object-contain" 
+                />
+                <div className="text-left">
+                  <p className="font-medium text-sm">{wallet.name}</p>
+                  {!wallet.available && <p className="text-xs text-muted-foreground">Not installed</p>}
+                </div>
+              </Button>
+            ))}
           </div>
         </div>
       </PopoverContent>

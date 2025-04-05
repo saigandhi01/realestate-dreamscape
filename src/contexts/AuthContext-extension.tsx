@@ -37,3 +37,35 @@ export const showKycVerifiedToast = () => {
     variant: "default",
   });
 };
+
+export const showAccountCreatedToast = (email: string) => {
+  toast({
+    title: "Account Created",
+    description: `Account created successfully with ${email}`,
+    variant: "default",
+  });
+};
+
+export const showOtpSentToast = (phoneNumber: string) => {
+  toast({
+    title: "OTP Sent",
+    description: `Verification code sent to ${phoneNumber}`,
+    variant: "default",
+  });
+};
+
+export const showOtpVerifiedToast = () => {
+  toast({
+    title: "Phone Verified",
+    description: "Your phone number has been verified successfully",
+    variant: "default",
+  });
+};
+
+export const showSocialConnectedToast = (provider: string) => {
+  toast({
+    title: `${provider} Connected`,
+    description: `Successfully connected with your ${provider} account`,
+    variant: "default",
+  });
+};

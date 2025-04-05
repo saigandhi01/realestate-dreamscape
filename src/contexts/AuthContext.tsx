@@ -33,6 +33,8 @@ interface AuthContextType {
   connectWithWallet: (walletType: WalletType) => Promise<void>;
   connectWithEmail: (email: string, password: string) => Promise<void>;
   connectWithSocial: (provider: string) => Promise<void>;
+  connectWithPhone: (phoneNumber: string) => Promise<void>;
+  verifyOtp: (otp: string) => Promise<void>;
   disconnect: () => Promise<void>;
   isLoggedIn: boolean;
   isLoginModalOpen: boolean;
@@ -48,6 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isConnecting, setIsConnecting] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [pendingPhoneVerification, setPendingPhoneVerification] = useState<string | null>(null);
   
   // Track if logged in user has not connected a wallet
   const needsWalletConnection = isLoggedIn && !wallet.connected;
@@ -71,6 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (walletState.address) {
           showWalletConnectedToast(walletState.address);
         }
+        setIsLoggedIn(true);
         closeLoginModal();
       }
     } catch (error) {
@@ -170,6 +174,61 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const connectWithPhone = async (phoneNumber: string) => {
+    setIsConnecting(true);
+    try {
+      // In a real app, this would send an OTP to the phone number
+      // For demonstration, we'll simulate sending an OTP
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Store the phone number for OTP verification
+      setPendingPhoneVerification(phoneNumber);
+      
+      toast({
+        title: "OTP Sent",
+        description: `A verification code has been sent to ${phoneNumber}`,
+      });
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Failed to send OTP",
+        description: "Please try again later",
+        variant: "destructive",
+      });
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
+  const verifyOtp = async (otp: string) => {
+    setIsConnecting(true);
+    try {
+      // In a real app, this would verify the OTP
+      // For demonstration, we'll simulate OTP verification
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setIsLoggedIn(true);
+      setPendingPhoneVerification(null);
+      
+      toast({
+        title: "Verification Successful",
+        description: "Your phone number has been verified",
+      });
+      
+      showLoginSuccessToast("Phone User");
+      closeLoginModal();
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "OTP Verification Failed",
+        description: "Invalid OTP. Please try again",
+        variant: "destructive",
+      });
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
   const disconnect = async () => {
     try {
       await disconnectWallet();
@@ -205,6 +264,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         connectWithWallet,
         connectWithEmail,
         connectWithSocial,
+        connectWithPhone,
+        verifyOtp,
         disconnect,
         isLoggedIn,
         isLoginModalOpen,
@@ -225,4 +286,3 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
-
