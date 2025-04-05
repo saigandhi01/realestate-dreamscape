@@ -107,9 +107,12 @@ const Navbar = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button variant="outline" onClick={openLoginModal} className="ml-2">
-              Sign In
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" onClick={openLoginModal} className="ml-2">
+                Sign In
+              </Button>
+              <WalletSelectionPopover />
+            </div>
           )}
         </nav>
 
@@ -161,9 +164,12 @@ const Navbar = () => {
               </Button>
             </>
           ) : (
-            <Button variant="outline" onClick={openLoginModal} className="w-full justify-center">
-              Sign In
-            </Button>
+            <div className="flex flex-col gap-3">
+              <Button variant="outline" onClick={openLoginModal} className="w-full justify-center">
+                Sign In
+              </Button>
+              <WalletSelectionPopover triggerText="Connect Wallet" variant="secondary" />
+            </div>
           )}
         </nav>
       </div>
