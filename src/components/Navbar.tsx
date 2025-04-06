@@ -1,6 +1,7 @@
+
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Wallet, LogOut, User } from 'lucide-react';
+import { Menu, X, Wallet, LogOut, User, UserRound } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
 import { truncateAddress } from '@/utils/wallet';
@@ -112,41 +113,46 @@ const Navbar = () => {
           ))}
           
           {isLoggedIn ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="ml-2 gap-2">
-                  {profileUrl ? (
-                    <Avatar className="h-6 w-6 mr-1">
-                      <AvatarImage src={profileUrl} alt="Profile" />
-                      <AvatarFallback>{getUserInitials()}</AvatarFallback>
-                    </Avatar>
-                  ) : (
-                    <Wallet className="h-4 w-4" />
-                  )}
-                  {truncateAddress(wallet.address || '')}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <div className="p-2 text-sm font-medium">
-                  {wallet.networkName}
-                </div>
-                <div className="p-2 text-sm">
-                  Balance: {wallet.balance ? `${parseFloat(wallet.balance).toFixed(4)} ETH` : '0 ETH'}
-                </div>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link to="/profile" className="flex items-center cursor-pointer">
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Profile</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={disconnect} className="text-destructive focus:text-destructive cursor-pointer">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Disconnect</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className="flex items-center space-x-2">
+              <Link to="/profile" className="p-2 text-primary hover:text-primary/80 transition-colors">
+                <UserRound className="h-6 w-6" />
+              </Link>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="ml-1 gap-2">
+                    {profileUrl ? (
+                      <Avatar className="h-6 w-6 mr-1">
+                        <AvatarImage src={profileUrl} alt="Profile" />
+                        <AvatarFallback>{getUserInitials()}</AvatarFallback>
+                      </Avatar>
+                    ) : (
+                      <Wallet className="h-4 w-4" />
+                    )}
+                    {truncateAddress(wallet.address || '')}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <div className="p-2 text-sm font-medium">
+                    {wallet.networkName}
+                  </div>
+                  <div className="p-2 text-sm">
+                    Balance: {wallet.balance ? `${parseFloat(wallet.balance).toFixed(4)} ETH` : '0 ETH'}
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile" className="flex items-center cursor-pointer">
+                      <User className="mr-2 h-4 w-4" />
+                      <span>Profile</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={disconnect} className="text-destructive focus:text-destructive cursor-pointer">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Disconnect</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           ) : (
             <div className="flex items-center gap-2">
               <Button variant="outline" onClick={openLoginModal} className="ml-2">
