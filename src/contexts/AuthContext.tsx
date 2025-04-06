@@ -1,288 +1,130 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { toast } from "@/hooks/use-toast";
-import { 
-  connectWallet, 
-  disconnectWallet, 
-  initialWalletState,
-  WalletState,
-  web3Modal,
-  truncateAddress,
-  WalletType,
-  isWalletAvailable
-} from '@/utils/wallet';
-import {
-  showLoginSuccessToast,
-  showLogoutToast,
-  showWalletConnectedToast,
-  showKycVerifiedToast
-} from '@/contexts/AuthContext-extension';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { Session, User } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 
-// Type for window with ethereum property
-interface WindowWithEthereum {
-  ethereum?: any;
+interface Wallet {
+  connected: boolean;
+  address: string;
+  networkName: string;
+  balance: string;
+  type: string;
 }
 
 interface AuthContextType {
-  wallet: WalletState;
-  isConnecting: boolean;
-  connectWithMetamask: () => Promise<void>;
-  connectWithCoinbase: () => Promise<void>;
-  connectWithTrustWallet: () => Promise<void>;
-  connectWithPhantom: () => Promise<void>;
-  connectWithWallet: (walletType: WalletType) => Promise<void>;
-  connectWithEmail: (email: string, password: string) => Promise<void>;
-  connectWithSocial: (provider: string) => Promise<void>;
-  connectWithPhone: (phoneNumber: string) => Promise<void>;
-  verifyOtp: (otp: string) => Promise<void>;
-  disconnect: () => Promise<void>;
   isLoggedIn: boolean;
-  isLoginModalOpen: boolean;
+  wallet: Wallet;
+  user: User | null;
+  session: Session | null;
   openLoginModal: () => void;
-  closeLoginModal: () => void;
+  disconnect: () => void;
   needsWalletConnection: boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const defaultWallet: Wallet = {
+  connected: false,
+  address: '',
+  networkName: '',
+  balance: '0',
+  type: '',
+};
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [wallet, setWallet] = useState<WalletState>(initialWalletState);
-  const [isConnecting, setIsConnecting] = useState(false);
+const AuthContext = createContext<AuthContextType>({
+  isLoggedIn: false,
+  wallet: defaultWallet,
+  user: null,
+  session: null,
+  openLoginModal: () => {},
+  disconnect: () => {},
+  needsWalletConnection: true,
+});
+
+export const useAuth = () => useContext(AuthContext);
+
+// For demo purposes, we're using this mock data
+const mockWallet: Wallet = {
+  connected: true,
+  address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+  networkName: 'Ethereum',
+  balance: '1.234',
+  type: 'metamask',
+};
+
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [wallet, setWallet] = useState<Wallet>(defaultWallet);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [pendingPhoneVerification, setPendingPhoneVerification] = useState<string | null>(null);
-  
-  // Track if logged in user has not connected a wallet
-  const needsWalletConnection = isLoggedIn && !wallet.connected;
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
 
-  const connectWithWallet = async (walletType: WalletType) => {
-    if (!walletType || !isWalletAvailable(walletType)) {
-      toast({
-        title: `${walletType} wallet not detected`,
-        description: `Please install ${walletType} wallet extension to connect`,
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setIsConnecting(true);
-    try {
-      const walletState = await connectWallet(walletType);
-      setWallet(walletState);
-      if (walletState.connected) {
-        // Use the extension toast
-        if (walletState.address) {
-          showWalletConnectedToast(walletState.address);
+  // Check for existing session on component mount
+  useEffect(() => {
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setIsLoggedIn(!!session);
+        
+        // If logged in, set wallet info
+        if (session?.user) {
+          setWallet(mockWallet);
+        } else {
+          setWallet(defaultWallet);
         }
-        setIsLoggedIn(true);
-        closeLoginModal();
       }
-    } catch (error) {
-      console.error(error);
-      toast({
-        title: "Connection failed",
-        description: `Failed to connect to ${walletType} wallet`,
-        variant: "destructive",
-      });
-    } finally {
-      setIsConnecting(false);
-    }
-  };
+    );
 
-  const connectWithMetamask = async () => {
-    const windowWithEthereum = window as unknown as WindowWithEthereum;
-    if (!windowWithEthereum.ethereum) {
-      toast({
-        title: "MetaMask not detected",
-        description: "Please install MetaMask browser extension to connect",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setIsConnecting(true);
-    try {
-      const walletState = await connectWallet('metamask');
-      setWallet(walletState);
-      if (walletState.connected) {
-        setIsLoggedIn(true);
-        // Use the extension toast
-        if (walletState.address) {
-          showWalletConnectedToast(walletState.address);
-        }
-        closeLoginModal();
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setIsLoggedIn(!!session);
+      
+      // If logged in, set wallet info
+      if (session?.user) {
+        setWallet(mockWallet);
       }
-    } catch (error) {
-      console.error(error);
-      toast({
-        title: "Connection failed",
-        description: "Failed to connect to wallet",
-        variant: "destructive",
-      });
-    } finally {
-      setIsConnecting(false);
-    }
-  };
+    });
 
-  const connectWithCoinbase = () => connectWithWallet('coinbase');
-  const connectWithTrustWallet = () => connectWithWallet('trustwallet');
-  const connectWithPhantom = () => connectWithWallet('phantom');
+    return () => subscription.unsubscribe();
+  }, []);
 
-  const connectWithEmail = async (email: string, password: string) => {
-    setIsConnecting(true);
-    try {
-      // In a real app, this would make an API call to authenticate
-      // For demonstration, we'll simulate a successful login after a delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+  const openLoginModal = () => {
+    setIsLoginModalOpen(true);
+    // For the demo, we'll just simulate a login
+    setTimeout(() => {
       setIsLoggedIn(true);
-      // Use the extension toast
-      showLoginSuccessToast(email);
-      closeLoginModal();
-    } catch (error) {
-      console.error(error);
-      toast({
-        title: "Login failed",
-        description: "Invalid email or password",
-        variant: "destructive",
-      });
-    } finally {
-      setIsConnecting(false);
-    }
-  };
-
-  const connectWithSocial = async (provider: string) => {
-    setIsConnecting(true);
-    try {
-      // In a real app, this would redirect to OAuth flow
-      // For demonstration, we'll simulate a successful login after a delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setIsLoggedIn(true);
-      // Use the default toast for social login
-      showLoginSuccessToast(provider);
-      closeLoginModal();
-    } catch (error) {
-      console.error(error);
-      toast({
-        title: "Social login failed",
-        description: `Could not connect with ${provider}`,
-        variant: "destructive",
-      });
-    } finally {
-      setIsConnecting(false);
-    }
-  };
-
-  const connectWithPhone = async (phoneNumber: string) => {
-    setIsConnecting(true);
-    try {
-      // In a real app, this would send an OTP to the phone number
-      // For demonstration, we'll simulate sending an OTP
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Store the phone number for OTP verification
-      setPendingPhoneVerification(phoneNumber);
-      
-      toast({
-        title: "OTP Sent",
-        description: `A verification code has been sent to ${phoneNumber}`,
-      });
-    } catch (error) {
-      console.error(error);
-      toast({
-        title: "Failed to send OTP",
-        description: "Please try again later",
-        variant: "destructive",
-      });
-    } finally {
-      setIsConnecting(false);
-    }
-  };
-
-  const verifyOtp = async (otp: string) => {
-    setIsConnecting(true);
-    try {
-      // In a real app, this would verify the OTP
-      // For demonstration, we'll simulate OTP verification
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setIsLoggedIn(true);
-      setPendingPhoneVerification(null);
-      
-      toast({
-        title: "Verification Successful",
-        description: "Your phone number has been verified",
-      });
-      
-      showLoginSuccessToast("Phone User");
-      closeLoginModal();
-    } catch (error) {
-      console.error(error);
-      toast({
-        title: "OTP Verification Failed",
-        description: "Invalid OTP. Please try again",
-        variant: "destructive",
-      });
-    } finally {
-      setIsConnecting(false);
-    }
+      setWallet(mockWallet);
+      setIsLoginModalOpen(false);
+    }, 1000);
   };
 
   const disconnect = async () => {
-    try {
-      await disconnectWallet();
-      setWallet(initialWalletState);
-      setIsLoggedIn(false);
-      // Use the extension toast
-      showLogoutToast();
-    } catch (error) {
-      console.error(error);
-    }
+    await supabase.auth.signOut();
+    setIsLoggedIn(false);
+    setWallet(defaultWallet);
+    setUser(null);
+    setSession(null);
   };
 
-  const openLoginModal = () => setIsLoginModalOpen(true);
-  const closeLoginModal = () => setIsLoginModalOpen(false);
-
-  useEffect(() => {
-    // Check if user was previously connected
-    const windowWithEthereum = window as unknown as WindowWithEthereum;
-    if (windowWithEthereum.ethereum && web3Modal?.cachedProvider) {
-      connectWithMetamask();
-    }
-  }, []);
+  const needsWalletConnection = isLoggedIn && !wallet.connected;
 
   return (
-    <AuthContext.Provider
-      value={{
-        wallet,
-        isConnecting,
-        connectWithMetamask,
-        connectWithCoinbase,
-        connectWithTrustWallet,
-        connectWithPhantom,
-        connectWithWallet,
-        connectWithEmail,
-        connectWithSocial,
-        connectWithPhone,
-        verifyOtp,
-        disconnect,
-        isLoggedIn,
-        isLoginModalOpen,
-        openLoginModal,
-        closeLoginModal,
-        needsWalletConnection,
-      }}
-    >
+    <AuthContext.Provider value={{ 
+      isLoggedIn, 
+      wallet, 
+      user,
+      session,
+      openLoginModal, 
+      disconnect,
+      needsWalletConnection
+    }}>
       {children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 };

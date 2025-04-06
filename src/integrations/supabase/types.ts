@@ -9,7 +9,120 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      user_investment_performance: {
+        Row: {
+          annual_yield: number
+          current_value: number
+          id: string
+          monthly_income: number
+          roi_percentage: number
+          total_invested: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          annual_yield?: number
+          current_value?: number
+          id?: string
+          monthly_income?: number
+          roi_percentage?: number
+          total_invested?: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          annual_yield?: number
+          current_value?: number
+          id?: string
+          monthly_income?: number
+          roi_percentage?: number
+          total_invested?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_portfolios: {
+        Row: {
+          created_at: string | null
+          id: string
+          ownership_percentage: number
+          progress: number
+          property_id: string
+          property_name: string
+          property_type: string
+          tokens_owned: number
+          updated_at: string | null
+          user_id: string
+          value_per_token: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          ownership_percentage: number
+          progress: number
+          property_id: string
+          property_name: string
+          property_type: string
+          tokens_owned: number
+          updated_at?: string | null
+          user_id: string
+          value_per_token: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          ownership_percentage?: number
+          progress?: number
+          property_id?: string
+          property_name?: string
+          property_type?: string
+          tokens_owned?: number
+          updated_at?: string | null
+          user_id?: string
+          value_per_token?: number
+        }
+        Relationships: []
+      }
+      user_transactions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          id: string
+          property_id: string
+          property_name: string
+          recipient_address: string | null
+          tokens: number
+          transaction_hash: string
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          id?: string
+          property_id: string
+          property_name: string
+          recipient_address?: string | null
+          tokens: number
+          transaction_hash: string
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          id?: string
+          property_id?: string
+          property_name?: string
+          recipient_address?: string | null
+          tokens?: number
+          transaction_hash?: string
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -1,3 +1,5 @@
+
+import { useEffect, useState } from "react";
 import { PropertyImage } from "@/hooks/usePropertyData";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +8,8 @@ import { Property } from "@/components/PropertyCard";
 import { SlideUp } from "@/components/ui/animations";
 import { truncateAddress } from "@/utils/wallet";
 import PropertyImageCarousel from "@/components/PropertyImageCarousel";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface PropertyHeroProps {
   property: Property & { images?: PropertyImage[] };
@@ -39,6 +43,62 @@ const PropertyHero = ({
   const tokenPriceInINR = property.tokenPrice * USD_TO_INR;
   const fundedInINR = property.funded * USD_TO_INR;
   const targetInINR = property.target * USD_TO_INR;
+  
+  const { user } = useAuth();
+  const [userInvestment, setUserInvestment] = useState({
+    tokensOwned: 0,
+    ownership: 0
+  });
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Fetch user's investment in this property
+  useEffect(() => {
+    const fetchUserInvestment = async () => {
+      if (!isLoggedIn || !user?.id || !property.id) return;
+      
+      setIsLoading(true);
+      try {
+        const { data } = await supabase
+          .from('user_portfolios')
+          .select('tokens_owned, ownership_percentage')
+          .eq('user_id', user.id)
+          .eq('property_id', property.id)
+          .maybeSingle();
+          
+        if (data) {
+          setUserInvestment({
+            tokensOwned: data.tokens_owned,
+            ownership: data.ownership_percentage
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching user investment:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchUserInvestment();
+    
+    // Set up real-time subscription for updates
+    if (isLoggedIn && user?.id && property.id) {
+      const portfolioChannel = supabase
+        .channel('property-investment')
+        .on('postgres_changes', {
+          event: '*',
+          schema: 'public',
+          table: 'user_portfolios',
+          filter: `user_id=eq.${user.id} AND property_id=eq.${property.id}`
+        }, () => {
+          fetchUserInvestment();
+        })
+        .subscribe();
+        
+      return () => {
+        supabase.removeChannel(portfolioChannel);
+      };
+    }
+  }, [isLoggedIn, user?.id, property.id]);
 
   return (
     <section className="relative">
@@ -130,15 +190,15 @@ const PropertyHero = ({
                   <h3 className="text-lg font-semibold mb-4">Investment Actions</h3>
                   <div className="space-y-4">
                     <Button className="w-full" onClick={() => isLoggedIn ? setBuyDialogOpen(true) : openLoginModal()}>
-                      <Wallet size={16} />
+                      <Wallet size={16} className="mr-2" />
                       Buy Tokens
                     </Button>
                     <Button className="w-full" variant="outline" onClick={() => isLoggedIn ? setSellDialogOpen(true) : openLoginModal()}>
-                      <ArrowRight size={16} />
+                      <ArrowRight size={16} className="mr-2" />
                       Sell Tokens
                     </Button>
                     <Button className="w-full" variant="outline" onClick={() => isLoggedIn ? setTransferDialogOpen(true) : openLoginModal()}>
-                      <Send size={16} />
+                      <Send size={16} className="mr-2" />
                       Transfer Tokens
                     </Button>
                   </div>
@@ -164,20 +224,26 @@ const PropertyHero = ({
                   {isLoggedIn && (
                     <div className="mt-8 p-4 bg-muted/50 rounded-lg">
                       <h4 className="font-medium mb-2">Your Investment</h4>
-                      <ul className="space-y-2 text-sm">
-                        <li className="flex justify-between">
-                          <span className="text-muted-foreground">Wallet</span>
-                          <span className="font-medium">{truncateAddress(wallet.address || '')}</span>
-                        </li>
-                        <li className="flex justify-between">
-                          <span className="text-muted-foreground">Tokens Owned</span>
-                          <span className="font-medium">0</span>
-                        </li>
-                        <li className="flex justify-between">
-                          <span className="text-muted-foreground">Ownership</span>
-                          <span className="font-medium">0.00%</span>
-                        </li>
-                      </ul>
+                      {isLoading ? (
+                        <div className="flex justify-center py-2">
+                          <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full"></div>
+                        </div>
+                      ) : (
+                        <ul className="space-y-2 text-sm">
+                          <li className="flex justify-between">
+                            <span className="text-muted-foreground">Wallet</span>
+                            <span className="font-medium">{truncateAddress(wallet.address || '')}</span>
+                          </li>
+                          <li className="flex justify-between">
+                            <span className="text-muted-foreground">Tokens Owned</span>
+                            <span className="font-medium">{userInvestment.tokensOwned || 0}</span>
+                          </li>
+                          <li className="flex justify-between">
+                            <span className="text-muted-foreground">Ownership</span>
+                            <span className="font-medium">{userInvestment.ownership ? userInvestment.ownership.toFixed(2) : '0.00'}%</span>
+                          </li>
+                        </ul>
+                      )}
                     </div>
                   )}
                 </div>
