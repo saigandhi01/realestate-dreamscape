@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Wallet, LogOut, User } from 'lucide-react';
@@ -46,7 +45,7 @@ const Navbar = () => {
           const { data } = await supabase
             .storage
             .from('profile-photos')
-            .getPublicUrl(`${wallet.address.toLowerCase()}`);
+            .getPublicUrl(wallet.address.toLowerCase());
           
           if (data?.publicUrl) {
             // Add timestamp to bust cache

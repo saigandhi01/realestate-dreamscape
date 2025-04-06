@@ -1,7 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { User, ShieldCheck, Mail, Phone, Upload, Edit2, Briefcase, ArrowLeftRight, Wallet, TrendingUp, DollarSign, Share, ChevronRight, Building, Home, BarChart2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
@@ -37,12 +37,15 @@ import {
   Cell,
   Tooltip
 } from 'recharts';
+import { uploadProfilePhoto } from '@/utils/profile';
+import { supabase } from "@/integrations/supabase/client";
 
 const Profile = () => {
   const { isLoggedIn, wallet, disconnect, needsWalletConnection } = useAuth();
   const navigate = useNavigate();
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: 'John',
     lastName: 'Doe',
@@ -93,7 +96,6 @@ const Profile = () => {
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28'];
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isUploading, setIsUploading] = useState(false);
 
   React.useEffect(() => {
     if (!isLoggedIn) {
@@ -101,58 +103,44 @@ const Profile = () => {
     }
   }, [isLoggedIn, navigate]);
 
+  useEffect(() => {
+    const fetchProfileImage = async () => {
+      if (wallet.address) {
+        try {
+          const { data } = await supabase.storage
+            .from('profile-photos')
+            .getPublicUrl(wallet.address.toLowerCase());
+          
+          if (data?.publicUrl) {
+            setProfileImage(`${data.publicUrl}?t=${Date.now()}`);
+          }
+        } catch (error) {
+          console.error("Error fetching profile image:", error);
+        }
+      }
+    };
+
+    fetchProfileImage();
+  }, [wallet.address]);
+
   const handleUploadButtonClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
+    if (file && wallet.address) {
       setIsUploading(true);
       
-      if (file.size > 5 * 1024 * 1024) {
-        transactionToast({
-          title: "Upload failed",
-          description: "Image size should be less than 5MB.",
-          status: "error"
-        });
-        setIsUploading(false);
-        return;
+      const result = await uploadProfilePhoto(file, wallet.address);
+      
+      if (result) {
+        setProfileImage(`${result}?t=${Date.now()}`);
       }
       
-      if (!file.type.startsWith('image/')) {
-        transactionToast({
-          title: "Upload failed",
-          description: "Only image files are allowed.",
-          status: "error"
-        });
-        setIsUploading(false);
-        return;
-      }
-      
-      const reader = new FileReader();
-      reader.onload = () => {
-        setProfileImage(reader.result as string);
-        setIsUploading(false);
-        transactionToast({
-          title: "Profile image updated",
-          description: "Your profile picture has been uploaded successfully.",
-          status: "success"
-        });
-      };
-      
-      reader.onerror = () => {
-        setIsUploading(false);
-        transactionToast({
-          title: "Upload failed",
-          description: "Failed to read the image file. Please try again.",
-          status: "error"
-        });
-      };
-      
-      reader.readAsDataURL(file);
+      setIsUploading(false);
     }
   };
 
