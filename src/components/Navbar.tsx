@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Wallet, LogOut, User, UserRound } from 'lucide-react';
@@ -23,7 +22,6 @@ const Navbar = () => {
   const location = useLocation();
   const { wallet, disconnect, isLoggedIn, openLoginModal } = useAuth();
   
-  // Handle scroll event to change navbar appearance
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 10) {
@@ -37,10 +35,8 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
   
-  // Fetch user profile image if logged in
   useEffect(() => {
     if (isLoggedIn && wallet.address) {
-      // Try to get profile image from storage using wallet address as key
       const fetchProfileImage = async () => {
         try {
           const { data } = await supabase
@@ -49,7 +45,6 @@ const Navbar = () => {
             .getPublicUrl(wallet.address.toLowerCase());
           
           if (data?.publicUrl) {
-            // Add timestamp to bust cache
             setProfileUrl(`${data.publicUrl}?t=${Date.now()}`);
           }
         } catch (error) {
@@ -60,13 +55,11 @@ const Navbar = () => {
       fetchProfileImage();
     }
   }, [isLoggedIn, wallet.address]);
-
-  // Close mobile menu when changing routes
+  
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
   
-  // Navigation links
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'Marketplace', path: '/marketplace' },
@@ -74,7 +67,6 @@ const Navbar = () => {
     { name: 'ERC Standards', path: '/erc-standards' },
   ];
 
-  // Get the user initials for avatar fallback
   const getUserInitials = () => {
     if (wallet.address) {
       return wallet.address.substring(2, 4).toUpperCase();
@@ -89,14 +81,12 @@ const Navbar = () => {
       }`}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* Logo */}
         <Link to="/" className="flex items-center">
           <span className="font-display text-2xl font-bold text-primary">
             TokenEstate
           </span>
         </Link>
 
-        {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-6">
           {navLinks.map((link) => (
             <Link 
@@ -163,7 +153,6 @@ const Navbar = () => {
           )}
         </nav>
 
-        {/* Mobile Menu Button */}
         <button 
           className="md:hidden focus:outline-none"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -173,7 +162,6 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* Mobile Navigation */}
       <div 
         className={`md:hidden absolute top-full left-0 w-full bg-background shadow-md transition-transform duration-300 ease-in-out ${
           isMobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-[-10px] opacity-0 pointer-events-none'
@@ -195,6 +183,10 @@ const Navbar = () => {
           ))}
           {isLoggedIn ? (
             <>
+              <Link to="/profile" className="flex items-center py-2 font-medium text-primary hover:text-primary/80">
+                <UserRound className="mr-2 h-5 w-5" />
+                Profile
+              </Link>
               <div className="py-2 font-medium">
                 <div className="flex items-center gap-2">
                   {profileUrl ? (
@@ -209,10 +201,6 @@ const Navbar = () => {
                   {wallet.networkName} • {wallet.balance ? `${parseFloat(wallet.balance).toFixed(4)} ETH` : '0 ETH'}
                 </div>
               </div>
-              <Link to="/profile" className="flex items-center py-2 font-medium text-foreground/70 hover:text-foreground">
-                <User className="mr-2 h-4 w-4" />
-                Profile
-              </Link>
               <Button variant="outline" onClick={disconnect} className="justify-start">
                 <LogOut className="mr-2 h-4 w-4" />
                 Disconnect
