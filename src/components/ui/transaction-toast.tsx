@@ -65,3 +65,20 @@ export const transactionToast = ({
     variant: getVariant(),
   });
 };
+
+// Profile-related toasts
+export const showProfileUpdateToast = (message: string) => {
+  transactionToast({
+    title: "Profile Updated",
+    description: message,
+    status: "success",
+  });
+};
+
+export const showProfileErrorToast = (error: string) => {
+  transactionToast({
+    title: "Profile Update Failed",
+    description: error,
+    status: "error",
+  });
+};

@@ -13,10 +13,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { supabase } from "@/integrations/supabase/client";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [profileUrl, setProfileUrl] = useState<string | null>(null);
   const location = useLocation();
   const { wallet, disconnect, isLoggedIn, openLoginModal } = useAuth();
   
@@ -33,6 +36,30 @@ const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+  
+  // Fetch user profile image if logged in
+  useEffect(() => {
+    if (isLoggedIn && wallet.address) {
+      // Try to get profile image from storage using wallet address as key
+      const fetchProfileImage = async () => {
+        try {
+          const { data } = await supabase
+            .storage
+            .from('profile-photos')
+            .getPublicUrl(`${wallet.address.toLowerCase()}`);
+          
+          if (data?.publicUrl) {
+            // Add timestamp to bust cache
+            setProfileUrl(`${data.publicUrl}?t=${Date.now()}`);
+          }
+        } catch (error) {
+          console.error("Error fetching profile image:", error);
+        }
+      };
+      
+      fetchProfileImage();
+    }
+  }, [isLoggedIn, wallet.address]);
 
   // Close mobile menu when changing routes
   useEffect(() => {
@@ -46,6 +73,14 @@ const Navbar = () => {
     { name: 'How It Works', path: '/how-it-works' },
     { name: 'ERC Standards', path: '/erc-standards' },
   ];
+
+  // Get the user initials for avatar fallback
+  const getUserInitials = () => {
+    if (wallet.address) {
+      return wallet.address.substring(2, 4).toUpperCase();
+    }
+    return "U";
+  };
 
   return (
     <header 
@@ -81,7 +116,14 @@ const Navbar = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="ml-2 gap-2">
-                  <Wallet className="h-4 w-4" />
+                  {profileUrl ? (
+                    <Avatar className="h-6 w-6 mr-1">
+                      <AvatarImage src={profileUrl} alt="Profile" />
+                      <AvatarFallback>{getUserInitials()}</AvatarFallback>
+                    </Avatar>
+                  ) : (
+                    <Wallet className="h-4 w-4" />
+                  )}
                   {truncateAddress(wallet.address || '')}
                 </Button>
               </DropdownMenuTrigger>
@@ -149,8 +191,16 @@ const Navbar = () => {
           {isLoggedIn ? (
             <>
               <div className="py-2 font-medium">
-                {truncateAddress(wallet.address || '')}
-                <div className="text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  {profileUrl ? (
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={profileUrl} alt="Profile" />
+                      <AvatarFallback>{getUserInitials()}</AvatarFallback>
+                    </Avatar>
+                  ) : null}
+                  <span>{truncateAddress(wallet.address || '')}</span>
+                </div>
+                <div className="text-sm text-muted-foreground mt-1">
                   {wallet.networkName} • {wallet.balance ? `${parseFloat(wallet.balance).toFixed(4)} ETH` : '0 ETH'}
                 </div>
               </div>
