@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { PropertyImage } from "@/hooks/usePropertyData";
 import { Card, CardContent } from "@/components/ui/card";
@@ -27,6 +26,11 @@ interface PropertyHeroProps {
 
 // INR conversion rate (1 USD = approximately 75 INR)
 const USD_TO_INR = 75;
+
+// Table names for type safety
+const Tables = {
+  portfolios: 'user_portfolios'
+} as const;
 
 const PropertyHero = ({
   property,
@@ -59,7 +63,7 @@ const PropertyHero = ({
       setIsLoading(true);
       try {
         const { data } = await supabase
-          .from('user_portfolios')
+          .from(Tables.portfolios)
           .select('tokens_owned, ownership_percentage')
           .eq('user_id', user.id)
           .eq('property_id', property.id)
@@ -87,7 +91,7 @@ const PropertyHero = ({
         .on('postgres_changes', {
           event: '*',
           schema: 'public',
-          table: 'user_portfolios',
+          table: Tables.portfolios,
           filter: `user_id=eq.${user.id} AND property_id=eq.${property.id}`
         }, () => {
           fetchUserInvestment();

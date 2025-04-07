@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,6 +33,13 @@ const CRYPTO_RATES = {
   USDT: 1,       // USDT per USD
   SOL: 0.033     // SOL per USD
 };
+
+// Table names for type safety
+const Tables = {
+  portfolios: 'user_portfolios',
+  transactions: 'user_transactions',
+  performance: 'user_investment_performance'
+} as const;
 
 interface PropertyTransactionDialogsProps {
   property: Property;
@@ -112,7 +118,7 @@ const PropertyTransactionDialogs = ({
     try {
       // First, check if user already has an investment performance record
       const { data: existingData } = await supabase
-        .from('user_investment_performance')
+        .from(Tables.performance)
         .select('*')
         .eq('user_id', user.id)
         .single();
@@ -136,7 +142,7 @@ const PropertyTransactionDialogs = ({
           : 0;
         
         await supabase
-          .from('user_investment_performance')
+          .from(Tables.performance)
           .update({
             total_invested: newTotalInvested,
             current_value: newCurrentValue,
@@ -151,7 +157,7 @@ const PropertyTransactionDialogs = ({
         const initialValue = transactionType === 'buy' ? amount : 0;
         
         await supabase
-          .from('user_investment_performance')
+          .from(Tables.performance)
           .insert({
             user_id: user.id,
             total_invested: initialValue,
@@ -190,7 +196,7 @@ const PropertyTransactionDialogs = ({
       
       // 1. First, check if user already has this property in portfolio
       const { data: existingPortfolio } = await supabase
-        .from('user_portfolios')
+        .from(Tables.portfolios)
         .select('*')
         .eq('user_id', user.id)
         .eq('property_id', property.id)
@@ -199,7 +205,7 @@ const PropertyTransactionDialogs = ({
       if (existingPortfolio) {
         // Update existing portfolio entry
         await supabase
-          .from('user_portfolios')
+          .from(Tables.portfolios)
           .update({
             tokens_owned: existingPortfolio.tokens_owned + tokenAmount,
             ownership_percentage: existingPortfolio.ownership_percentage + ownershipPercentage,
@@ -209,7 +215,7 @@ const PropertyTransactionDialogs = ({
       } else {
         // Create new portfolio entry
         await supabase
-          .from('user_portfolios')
+          .from(Tables.portfolios)
           .insert({
             user_id: user.id,
             property_id: property.id,
@@ -224,7 +230,7 @@ const PropertyTransactionDialogs = ({
       
       // 2. Record the transaction
       await supabase
-        .from('user_transactions')
+        .from(Tables.transactions)
         .insert({
           user_id: user.id,
           property_id: property.id,
@@ -282,7 +288,7 @@ const PropertyTransactionDialogs = ({
       
       // 1. Check if user has enough tokens to sell
       const { data: existingPortfolio } = await supabase
-        .from('user_portfolios')
+        .from(Tables.portfolios)
         .select('*')
         .eq('user_id', user.id)
         .eq('property_id', property.id)
@@ -299,7 +305,7 @@ const PropertyTransactionDialogs = ({
       if (newTokensOwned > 0) {
         // Update portfolio with reduced tokens
         await supabase
-          .from('user_portfolios')
+          .from(Tables.portfolios)
           .update({
             tokens_owned: newTokensOwned,
             ownership_percentage: newOwnershipPercentage,
@@ -309,14 +315,14 @@ const PropertyTransactionDialogs = ({
       } else {
         // Remove property from portfolio if no tokens left
         await supabase
-          .from('user_portfolios')
+          .from(Tables.portfolios)
           .delete()
           .eq('id', existingPortfolio.id);
       }
       
       // 3. Record the transaction
       await supabase
-        .from('user_transactions')
+        .from(Tables.transactions)
         .insert({
           user_id: user.id,
           property_id: property.id,
@@ -383,7 +389,7 @@ const PropertyTransactionDialogs = ({
       
       // 1. Check if user has enough tokens to transfer
       const { data: existingPortfolio } = await supabase
-        .from('user_portfolios')
+        .from(Tables.portfolios)
         .select('*')
         .eq('user_id', user.id)
         .eq('property_id', property.id)
@@ -400,7 +406,7 @@ const PropertyTransactionDialogs = ({
       if (newTokensOwned > 0) {
         // Update portfolio with reduced tokens
         await supabase
-          .from('user_portfolios')
+          .from(Tables.portfolios)
           .update({
             tokens_owned: newTokensOwned,
             ownership_percentage: newOwnershipPercentage,
@@ -410,14 +416,14 @@ const PropertyTransactionDialogs = ({
       } else {
         // Remove property from portfolio if no tokens left
         await supabase
-          .from('user_portfolios')
+          .from(Tables.portfolios)
           .delete()
           .eq('id', existingPortfolio.id);
       }
       
       // 3. Record the transaction
       await supabase
-        .from('user_transactions')
+        .from(Tables.transactions)
         .insert({
           user_id: user.id,
           property_id: property.id,

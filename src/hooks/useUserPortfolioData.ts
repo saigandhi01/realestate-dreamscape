@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/contexts/AuthContext';
+import { Database } from '@/types/supabase';
 
 // Define types for our data
 export interface PortfolioItem {
@@ -44,6 +45,13 @@ export const useUserPortfolioData = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
+  
+  // Type safe table names
+  const Tables = {
+    portfolios: 'user_portfolios',
+    transactions: 'user_transactions',
+    performance: 'user_investment_performance'
+  } as const;
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -58,7 +66,7 @@ export const useUserPortfolioData = () => {
       try {
         // Fetch portfolio data
         const { data: portfolioData, error: portfolioError } = await supabase
-          .from('user_portfolios')
+          .from(Tables.portfolios)
           .select('*')
           .eq('user_id', user.id);
           
@@ -67,7 +75,7 @@ export const useUserPortfolioData = () => {
         
         // Fetch transaction history
         const { data: transactionData, error: transactionError } = await supabase
-          .from('user_transactions')
+          .from(Tables.transactions)
           .select('*')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false });
@@ -77,7 +85,7 @@ export const useUserPortfolioData = () => {
         
         // Fetch investment performance
         const { data: investmentData, error: investmentError } = await supabase
-          .from('user_investment_performance')
+          .from(Tables.performance)
           .select('*')
           .eq('user_id', user.id)
           .limit(1)
@@ -101,7 +109,7 @@ export const useUserPortfolioData = () => {
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
-        table: 'user_portfolios',
+        table: Tables.portfolios,
         filter: `user_id=eq.${user?.id}`
       }, () => {
         fetchUserData();
@@ -113,7 +121,7 @@ export const useUserPortfolioData = () => {
       .on('postgres_changes', {
         event: 'INSERT',
         schema: 'public',
-        table: 'user_transactions',
+        table: Tables.transactions,
         filter: `user_id=eq.${user?.id}`
       }, () => {
         fetchUserData();
@@ -125,7 +133,7 @@ export const useUserPortfolioData = () => {
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
-        table: 'user_investment_performance',
+        table: Tables.performance,
         filter: `user_id=eq.${user?.id}`
       }, () => {
         fetchUserData();

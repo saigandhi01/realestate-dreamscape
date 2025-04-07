@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { WalletType, connectWallet, disconnectWallet, initialWalletState, WalletState } from '@/utils/wallet';
 
 interface Wallet {
   connected: boolean;
@@ -9,6 +10,7 @@ interface Wallet {
   networkName: string;
   balance: string;
   type: string;
+  walletType?: WalletType;
 }
 
 interface AuthContextType {
@@ -19,6 +21,13 @@ interface AuthContextType {
   openLoginModal: () => void;
   disconnect: () => void;
   needsWalletConnection: boolean;
+  // Add missing properties
+  isLoginModalOpen: boolean;
+  closeLoginModal: () => void;
+  connectWithEmail: (email: string, password: string) => Promise<void>;
+  connectWithSocial: (provider: string) => Promise<void>;
+  isConnecting: boolean;
+  connectWithWallet: (walletType: WalletType) => Promise<void>;
 }
 
 const defaultWallet: Wallet = {
@@ -27,6 +36,7 @@ const defaultWallet: Wallet = {
   networkName: '',
   balance: '0',
   type: '',
+  walletType: null,
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -37,6 +47,13 @@ const AuthContext = createContext<AuthContextType>({
   openLoginModal: () => {},
   disconnect: () => {},
   needsWalletConnection: true,
+  // Add default values for new properties
+  isLoginModalOpen: false,
+  closeLoginModal: () => {},
+  connectWithEmail: async () => {},
+  connectWithSocial: async () => {},
+  isConnecting: false,
+  connectWithWallet: async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -48,6 +65,7 @@ const mockWallet: Wallet = {
   networkName: 'Ethereum',
   balance: '1.234',
   type: 'metamask',
+  walletType: 'metamask',
 };
 
 interface AuthProviderProps {
@@ -58,6 +76,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [wallet, setWallet] = useState<Wallet>(defaultWallet);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
 
@@ -96,12 +115,70 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const openLoginModal = () => {
     setIsLoginModalOpen(true);
-    // For the demo, we'll just simulate a login
-    setTimeout(() => {
+  };
+
+  const closeLoginModal = () => {
+    setIsLoginModalOpen(false);
+  };
+
+  const connectWithEmail = async (email: string, password: string) => {
+    setIsConnecting(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      
+      if (error) throw error;
+      
       setIsLoggedIn(true);
       setWallet(mockWallet);
-      setIsLoginModalOpen(false);
-    }, 1000);
+      closeLoginModal();
+    } catch (error) {
+      console.error('Email login error:', error);
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
+  const connectWithSocial = async (provider: string) => {
+    setIsConnecting(true);
+    try {
+      // For the demo, we'll just simulate a login
+      setTimeout(() => {
+        setIsLoggedIn(true);
+        setWallet(mockWallet);
+        closeLoginModal();
+        setIsConnecting(false);
+      }, 1000);
+    } catch (error) {
+      console.error(`Social login error (${provider}):`, error);
+      setIsConnecting(false);
+    }
+  };
+
+  const connectWithWallet = async (walletType: WalletType) => {
+    setIsConnecting(true);
+    try {
+      const walletState = await connectWallet(walletType);
+      if (walletState.connected) {
+        const customWallet: Wallet = {
+          connected: walletState.connected,
+          address: walletState.address || '',
+          networkName: walletState.networkName || '',
+          balance: walletState.balance || '0',
+          type: walletState.walletType || '',
+          walletType: walletState.walletType,
+        };
+        setWallet(customWallet);
+        setIsLoggedIn(true);
+      }
+    } catch (error) {
+      console.error('Wallet connection error:', error);
+    } finally {
+      setIsConnecting(false);
+      closeLoginModal();
+    }
   };
 
   const disconnect = async () => {
@@ -122,7 +199,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       session,
       openLoginModal, 
       disconnect,
-      needsWalletConnection
+      needsWalletConnection,
+      isLoginModalOpen,
+      closeLoginModal,
+      connectWithEmail,
+      connectWithSocial,
+      isConnecting,
+      connectWithWallet
     }}>
       {children}
     </AuthContext.Provider>
