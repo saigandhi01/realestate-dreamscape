@@ -38,6 +38,64 @@ export interface InvestmentPerformance {
   updated_at: string;
 }
 
+// Mock data for demo user
+const DEMO_USER_ID = 'test-user-id-123456789';
+const mockPortfolio: PortfolioItem[] = [
+  {
+    id: 'portfolio-item-1',
+    property_id: 'property-1',
+    property_name: 'Luxury Villa in Miami',
+    value_per_token: 100,
+    tokens_owned: 50,
+    ownership_percentage: 5.0,
+    property_type: 'residential',
+    progress: 75
+  },
+  {
+    id: 'portfolio-item-2',
+    property_id: 'property-2',
+    property_name: 'Commercial Space in NYC',
+    value_per_token: 250,
+    tokens_owned: 20,
+    ownership_percentage: 2.5,
+    property_type: 'commercial',
+    progress: 100
+  }
+];
+
+const mockTransactions: Transaction[] = [
+  {
+    id: 'transaction-1',
+    property_id: 'property-1',
+    property_name: 'Luxury Villa in Miami',
+    transaction_type: 'buy',
+    tokens: 50,
+    amount: 5000,
+    transaction_hash: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e123456',
+    created_at: new Date(Date.now() - 3600000 * 24 * 3).toISOString() // 3 days ago
+  },
+  {
+    id: 'transaction-2',
+    property_id: 'property-2',
+    property_name: 'Commercial Space in NYC',
+    transaction_type: 'buy',
+    tokens: 20,
+    amount: 5000,
+    transaction_hash: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e789012',
+    created_at: new Date(Date.now() - 3600000 * 24 * 1).toISOString() // 1 day ago
+  }
+];
+
+const mockInvestmentPerformance: InvestmentPerformance = {
+  id: 'investment-performance-1',
+  total_invested: 10000,
+  current_value: 11250,
+  roi_percentage: 12.5,
+  annual_yield: 8.2,
+  monthly_income: 70,
+  updated_at: new Date().toISOString()
+};
+
 export const useUserPortfolioData = () => {
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -64,6 +122,17 @@ export const useUserPortfolioData = () => {
       setError(null);
       
       try {
+        // Check if using demo account
+        if (user.id === DEMO_USER_ID) {
+          // Use mock data for demo account
+          setPortfolio(mockPortfolio);
+          setTransactions(mockTransactions);
+          setInvestmentData(mockInvestmentPerformance);
+          setIsLoading(false);
+          return;
+        }
+        
+        // Regular account - fetch from database
         // Fetch portfolio data
         const { data: portfolioData, error: portfolioError } = await supabase
           .from(Tables.portfolios)

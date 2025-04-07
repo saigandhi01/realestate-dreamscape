@@ -21,13 +21,13 @@ interface AuthContextType {
   openLoginModal: () => void;
   disconnect: () => void;
   needsWalletConnection: boolean;
-  // Add missing properties
   isLoginModalOpen: boolean;
   closeLoginModal: () => void;
   connectWithEmail: (email: string, password: string) => Promise<void>;
   connectWithSocial: (provider: string) => Promise<void>;
   isConnecting: boolean;
   connectWithWallet: (walletType: WalletType) => Promise<void>;
+  useTestAccount: () => void; // New function for demo account login
 }
 
 const defaultWallet: Wallet = {
@@ -47,16 +47,26 @@ const AuthContext = createContext<AuthContextType>({
   openLoginModal: () => {},
   disconnect: () => {},
   needsWalletConnection: true,
-  // Add default values for new properties
   isLoginModalOpen: false,
   closeLoginModal: () => {},
   connectWithEmail: async () => {},
   connectWithSocial: async () => {},
   isConnecting: false,
   connectWithWallet: async () => {},
+  useTestAccount: () => {}, // Add to default context
 });
 
 export const useAuth = () => useContext(AuthContext);
+
+// Demo accounts with ETH for testing
+const testWallet: Wallet = {
+  connected: true,
+  address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+  networkName: 'Ethereum',
+  balance: '10.0', // 10 ETH for testing
+  type: 'metamask',
+  walletType: 'metamask',
+};
 
 // For demo purposes, we're using this mock data
 const mockWallet: Wallet = {
@@ -181,6 +191,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // New function to use test account with ETH
+  const useTestAccount = () => {
+    // Demo login - simulates successful authentication
+    setIsLoggedIn(true);
+    setWallet(testWallet);
+    
+    // Create a mock user object
+    const mockUser = {
+      id: 'test-user-id-123456789',
+      email: 'demo@tokenestate.test',
+      // Add other required user properties
+    } as User;
+    
+    // Create a mock session
+    const mockSession = {
+      user: mockUser,
+      access_token: 'mock-access-token',
+      refresh_token: 'mock-refresh-token',
+      // Add other required session properties
+    } as Session;
+    
+    setUser(mockUser);
+    setSession(mockSession);
+    
+    closeLoginModal();
+    
+    // Add some sample data to the database for this test user
+    // This would be handled by your backend in a real scenario
+    console.log('Demo account activated with 10 ETH balance');
+  };
+
   const disconnect = async () => {
     await supabase.auth.signOut();
     setIsLoggedIn(false);
@@ -205,7 +246,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       connectWithEmail,
       connectWithSocial,
       isConnecting,
-      connectWithWallet
+      connectWithWallet,
+      useTestAccount
     }}>
       {children}
     </AuthContext.Provider>

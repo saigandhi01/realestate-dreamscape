@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Wallet, LogOut, User, UserRound } from 'lucide-react';
+import { Menu, X, Wallet, LogOut, User, UserRound, Sparkles } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
 import { truncateAddress } from '@/utils/wallet';
@@ -14,13 +14,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [profileUrl, setProfileUrl] = useState<string | null>(null);
   const location = useLocation();
-  const { wallet, disconnect, isLoggedIn, openLoginModal } = useAuth();
+  const { wallet, disconnect, isLoggedIn, openLoginModal, useTestAccount } = useAuth();
   
   useEffect(() => {
     const handleScroll = () => {
@@ -72,6 +73,14 @@ const Navbar = () => {
       return wallet.address.substring(2, 4).toUpperCase();
     }
     return "U";
+  };
+
+  const handleUseTestAccount = () => {
+    useTestAccount();
+    toast({
+      title: "Demo Account Activated",
+      description: "You're now logged in with a demo account that has 10 ETH",
+    });
   };
 
   return (
@@ -145,6 +154,14 @@ const Navbar = () => {
             </div>
           ) : (
             <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                onClick={handleUseTestAccount} 
+                className="flex items-center gap-2 text-sm px-3 py-1 h-9 border-primary text-primary hover:bg-primary/10"
+              >
+                <Sparkles className="h-4 w-4" />
+                Demo Account
+              </Button>
               <Button variant="outline" onClick={openLoginModal} className="ml-2">
                 Sign In
               </Button>
@@ -208,6 +225,14 @@ const Navbar = () => {
             </>
           ) : (
             <div className="flex flex-col gap-3">
+              <Button 
+                variant="default" 
+                onClick={handleUseTestAccount} 
+                className="flex items-center justify-center gap-2"
+              >
+                <Sparkles className="h-4 w-4" />
+                Use Demo Account (10 ETH)
+              </Button>
               <Button variant="outline" onClick={openLoginModal} className="w-full justify-center">
                 Sign In
               </Button>

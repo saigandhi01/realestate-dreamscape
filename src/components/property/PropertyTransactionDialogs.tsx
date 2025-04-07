@@ -41,6 +41,9 @@ const Tables = {
   performance: 'user_investment_performance'
 } as const;
 
+// Demo user ID constant
+const DEMO_USER_ID = 'test-user-id-123456789';
+
 interface PropertyTransactionDialogsProps {
   property: Property;
   wallet: {
@@ -114,6 +117,13 @@ const PropertyTransactionDialogs = ({
   // Update investment performance data
   const updateInvestmentPerformance = async (amount: number, transactionType: 'buy' | 'sell' | 'transfer') => {
     if (!user?.id) return;
+    
+    // Handle demo user separately
+    if (user.id === DEMO_USER_ID) {
+      // For demo user, just show success notification without database operations
+      console.log(`Demo user ${transactionType} transaction of ${amount} completed successfully`);
+      return;
+    }
     
     try {
       // First, check if user already has an investment performance record
@@ -194,6 +204,25 @@ const PropertyTransactionDialogs = ({
       // Calculate ownership percentage
       const ownershipPercentage = calculateOwnershipPercentage();
       
+      // Handle demo user separately for faster testing
+      if (user.id === DEMO_USER_ID) {
+        // Simulate a successful transaction without database operations
+        setTimeout(() => {
+          transactionToast({
+            title: "Purchase Successful",
+            description: `You have successfully purchased ${tokenAmount} tokens of ${property.name}`,
+            status: "success",
+            txHash: txHash
+          });
+          
+          setIsProcessing(false);
+          setBuyDialogOpen(false);
+        }, 1500); // Quick 1.5 second delay for realism
+        
+        return;
+      }
+      
+      // For regular users, perform database operations
       // 1. First, check if user already has this property in portfolio
       const { data: existingPortfolio } = await supabase
         .from(Tables.portfolios)
