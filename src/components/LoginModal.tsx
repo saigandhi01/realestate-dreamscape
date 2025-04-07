@@ -93,6 +93,7 @@ const LoginModal = () => {
     toast({
       title: "Account created",
       description: "Your account has been created successfully!",
+      variant: "default", // Changed from "success" to "default"
     });
     connectWithEmail(values.email, values.password);
   };
@@ -103,6 +104,7 @@ const LoginModal = () => {
     toast({
       title: "OTP Sent",
       description: `A verification code has been sent to ${values.phoneNumber}`,
+      variant: "default", // Changed from "success" to "default"
     });
     setView("verify-otp");
   };
@@ -112,11 +114,13 @@ const LoginModal = () => {
     toast({
       title: "Verification Successful",
       description: "Your phone number has been verified",
+      variant: "default", // Changed from "success" to "default"
     });
     // Connect user with phone
     toast({
       title: "Login Successful",
       description: `Welcome back, phone user!`,
+      variant: "default", // Changed from "success" to "default"
     });
     closeLoginModal();
   };
@@ -126,7 +130,7 @@ const LoginModal = () => {
     toast({
       title: "Demo Account Activated",
       description: "You're now logged in with a demo account that has 10 ETH",
-      variant: "success"
+      variant: "default" // Changed from "success" to "default"
     });
   };
 
