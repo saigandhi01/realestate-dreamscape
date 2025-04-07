@@ -81,7 +81,14 @@ export const useUserPortfolioData = () => {
           .order('created_at', { ascending: false });
           
         if (transactionError) throw transactionError;
-        setTransactions(transactionData || []);
+        
+        // Cast the transaction_type to the expected union type
+        const typedTransactions = (transactionData || []).map(tx => ({
+          ...tx,
+          transaction_type: tx.transaction_type as 'buy' | 'sell' | 'transfer'
+        }));
+        
+        setTransactions(typedTransactions);
         
         // Fetch investment performance
         const { data: investmentData, error: investmentError } = await supabase
