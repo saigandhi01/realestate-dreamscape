@@ -9,6 +9,42 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      seller_contact_requests: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          mobile: string
+          name: string
+          newsletter_subscription: boolean
+          property_id: string
+          property_name: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          mobile: string
+          name: string
+          newsletter_subscription?: boolean
+          property_id: string
+          property_name: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          mobile?: string
+          name?: string
+          newsletter_subscription?: boolean
+          property_id?: string
+          property_name?: string
+        }
+        Relationships: []
+      }
       user_investment_performance: {
         Row: {
           annual_yield: number

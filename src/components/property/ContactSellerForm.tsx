@@ -73,15 +73,17 @@ const ContactSellerForm = ({
 
     try {
       // Save contact request to database
-      const { error } = await supabase.from("seller_contact_requests").insert({
-        property_id: propertyId,
-        property_name: propertyName,
-        name: values.name,
-        email: values.email,
-        mobile: values.mobile,
-        message: values.message,
-        newsletter_subscription: values.newsletter,
-      });
+      const { error } = await supabase
+        .from("seller_contact_requests")
+        .insert({
+          property_id: propertyId,
+          property_name: propertyName,
+          name: values.name,
+          email: values.email,
+          mobile: values.mobile,
+          message: values.message,
+          newsletter_subscription: values.newsletter,
+        });
 
       if (error) throw error;
 

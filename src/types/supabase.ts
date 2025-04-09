@@ -114,6 +114,41 @@ export interface Database {
           updated_at?: string;
         };
       };
+      seller_contact_requests: {
+        Row: {
+          id: string;
+          property_id: string;
+          property_name: string;
+          name: string;
+          email: string;
+          mobile: string;
+          message: string;
+          newsletter_subscription: boolean;
+          created_at?: string;
+        };
+        Insert: {
+          id?: string;
+          property_id: string;
+          property_name: string;
+          name: string;
+          email: string;
+          mobile: string;
+          message: string;
+          newsletter_subscription?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          property_id?: string;
+          property_name?: string;
+          name?: string;
+          email?: string;
+          mobile?: string;
+          message?: string;
+          newsletter_subscription?: boolean;
+          created_at?: string;
+        };
+      };
     };
   };
 }
