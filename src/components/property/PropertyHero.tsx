@@ -1,14 +1,16 @@
+
 import { useEffect, useState } from "react";
 import { PropertyImage } from "@/hooks/usePropertyData";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MapPin, IndianRupee, ArrowRight, Send, Bitcoin, Wallet } from "lucide-react";
+import { MapPin, IndianRupee, Send, Phone } from "lucide-react";
 import { Property } from "@/components/PropertyCard";
 import { SlideUp } from "@/components/ui/animations";
 import { truncateAddress } from "@/utils/wallet";
 import PropertyImageCarousel from "@/components/PropertyImageCarousel";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import ContactSellerForm from "./ContactSellerForm";
 
 interface PropertyHeroProps {
   property: Property & { images?: PropertyImage[] };
@@ -19,9 +21,6 @@ interface PropertyHeroProps {
   };
   fundingPercentage: number;
   openLoginModal: () => void;
-  setBuyDialogOpen: (open: boolean) => void;
-  setSellDialogOpen: (open: boolean) => void;
-  setTransferDialogOpen: (open: boolean) => void;
 }
 
 // INR conversion rate (1 USD = approximately 75 INR)
@@ -38,9 +37,6 @@ const PropertyHero = ({
   wallet,
   fundingPercentage,
   openLoginModal,
-  setBuyDialogOpen,
-  setSellDialogOpen,
-  setTransferDialogOpen,
 }: PropertyHeroProps) => {
   // Convert prices to INR
   const priceInINR = property.price * USD_TO_INR;
@@ -54,6 +50,9 @@ const PropertyHero = ({
     ownership: 0
   });
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Contact seller dialog state
+  const [contactDialogOpen, setContactDialogOpen] = useState(false);
 
   // Fetch user's investment in this property
   useEffect(() => {
@@ -189,21 +188,13 @@ const PropertyHero = ({
                   </div>
                 </div>
 
-                {/* Investment Actions Column */}
+                {/* Contact The Seller Column */}
                 <div className="border-t lg:border-t-0 lg:border-l border-border pt-6 lg:pt-0 lg:pl-6">
-                  <h3 className="text-lg font-semibold mb-4">Investment Actions</h3>
+                  <h3 className="text-lg font-semibold mb-4">Interested in this property?</h3>
                   <div className="space-y-4">
-                    <Button className="w-full" onClick={() => isLoggedIn ? setBuyDialogOpen(true) : openLoginModal()}>
-                      <Wallet size={16} className="mr-2" />
-                      Buy Tokens
-                    </Button>
-                    <Button className="w-full" variant="outline" onClick={() => isLoggedIn ? setSellDialogOpen(true) : openLoginModal()}>
-                      <ArrowRight size={16} className="mr-2" />
-                      Sell Tokens
-                    </Button>
-                    <Button className="w-full" variant="outline" onClick={() => isLoggedIn ? setTransferDialogOpen(true) : openLoginModal()}>
-                      <Send size={16} className="mr-2" />
-                      Transfer Tokens
+                    <Button className="w-full" onClick={() => setContactDialogOpen(true)}>
+                      <Phone size={16} className="mr-2" />
+                      Contact The Seller
                     </Button>
                   </div>
 
@@ -256,6 +247,14 @@ const PropertyHero = ({
           </Card>
         </SlideUp>
       </div>
+
+      {/* Contact Seller Form Dialog */}
+      <ContactSellerForm 
+        open={contactDialogOpen}
+        onOpenChange={setContactDialogOpen}
+        propertyName={property.name}
+        propertyId={property.id}
+      />
     </section>
   );
 };

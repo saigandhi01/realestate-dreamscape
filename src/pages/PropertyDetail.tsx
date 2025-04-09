@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { FileText, Receipt, BarChart, Shield } from 'lucide-react';
@@ -9,12 +10,11 @@ import Footer from '@/components/Footer';
 import { usePropertyData } from '@/hooks/usePropertyData';
 import { useAuth } from '@/contexts/AuthContext';
 
-// Import new component files
+// Import component files
 import PropertyHero from '@/components/property/PropertyHero';
 import PropertyOverviewTab from '@/components/property/PropertyOverviewTab';
 import PropertyFinancialsTab from '@/components/property/PropertyFinancialsTab';
 import PropertyDocumentsTab from '@/components/property/PropertyDocumentsTab';
-import PropertyTransactionDialogs from '@/components/property/PropertyTransactionDialogs';
 
 // INR conversion rate (1 USD = approximately 75 INR)
 const USD_TO_INR = 75;
@@ -23,10 +23,6 @@ const PropertyDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { properties } = usePropertyData();
   const { isLoggedIn, wallet, openLoginModal } = useAuth();
-  
-  const [buyDialogOpen, setBuyDialogOpen] = useState(false);
-  const [sellDialogOpen, setSellDialogOpen] = useState(false);
-  const [transferDialogOpen, setTransferDialogOpen] = useState(false);
   
   // Find the property by ID
   const property = properties.find(p => p.id === id);
@@ -126,16 +122,13 @@ const PropertyDetail = () => {
       <Navbar />
       
       <main className="flex-grow pt-24">
-        {/* Hero Section - Now using PropertyHero component */}
+        {/* Hero Section with PropertyHero component */}
         <PropertyHero 
           property={property}
           isLoggedIn={isLoggedIn}
           wallet={walletProps}
           fundingPercentage={fundingPercentage}
           openLoginModal={openLoginModal}
-          setBuyDialogOpen={setBuyDialogOpen}
-          setSellDialogOpen={setSellDialogOpen}
-          setTransferDialogOpen={setTransferDialogOpen}
         />
         
         {/* Property Details Tabs */}
@@ -149,7 +142,7 @@ const PropertyDetail = () => {
                   <TabsTrigger value="documents">Documents</TabsTrigger>
                 </TabsList>
                 
-                {/* Overview Tab - using PropertyOverviewTab component */}
+                {/* Overview Tab */}
                 <TabsContent value="overview" className="pt-2">
                   <PropertyOverviewTab 
                     propertyName={property.name}
@@ -160,12 +153,12 @@ const PropertyDetail = () => {
                   />
                 </TabsContent>
                 
-                {/* Financials Tab - using PropertyFinancialsTab component */}
+                {/* Financials Tab */}
                 <TabsContent value="financials" className="pt-2">
                   <PropertyFinancialsTab financials={financials} />
                 </TabsContent>
                 
-                {/* Documents Tab - using PropertyDocumentsTab component */}
+                {/* Documents Tab */}
                 <TabsContent value="documents" className="pt-2">
                   <PropertyDocumentsTab documents={documents} onDownload={downloadDocument} />
                 </TabsContent>
@@ -174,18 +167,6 @@ const PropertyDetail = () => {
           </div>
         </section>
       </main>
-      
-      {/* Transaction Dialogs - using PropertyTransactionDialogs component */}
-      <PropertyTransactionDialogs
-        property={property}
-        wallet={walletProps}
-        buyDialogOpen={buyDialogOpen}
-        sellDialogOpen={sellDialogOpen}
-        transferDialogOpen={transferDialogOpen}
-        setBuyDialogOpen={setBuyDialogOpen}
-        setSellDialogOpen={setSellDialogOpen}
-        setTransferDialogOpen={setTransferDialogOpen}
-      />
       
       <Footer />
     </PageTransition>
