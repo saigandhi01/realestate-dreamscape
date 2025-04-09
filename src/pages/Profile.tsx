@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
@@ -69,7 +68,6 @@ const Profile = () => {
     error 
   } = useUserPortfolioData();
 
-  // Distribute portfolio by property type
   const portfolioDistribution = React.useMemo(() => {
     if (!portfolioItems.length) return [
       { name: 'Residential', value: 45 },
@@ -81,7 +79,6 @@ const Profile = () => {
     let total = 0;
     
     portfolioItems.forEach(item => {
-      // Capitalize first letter
       const type = item.type.charAt(0).toUpperCase() + item.type.slice(1);
       typeCounts[type] = (typeCounts[type] || 0) + 1;
       total++;
@@ -244,7 +241,7 @@ const Profile = () => {
             <TabsTrigger value="investment">Investment Performance</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="personal" className="space-y-8">
+          <TabsContent value="personal" className="space-y-8 profile-tab-personal p-6 rounded-lg">
             <div className="grid gap-8 md:grid-cols-3">
               <Card className="md:col-span-1 bg-card/70 backdrop-blur-sm border-primary/10 shadow-lg">
                 <CardHeader>
@@ -437,8 +434,8 @@ const Profile = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="portfolio">
-            <Card className="bg-card/70 backdrop-blur-sm border-primary/10 shadow-lg overflow-hidden">
+          <TabsContent value="portfolio" className="profile-tab-portfolio p-6 rounded-lg">
+            <Card className="bg-card/50 backdrop-blur-sm border-primary/10 shadow-lg overflow-hidden">
               <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 border-b border-primary/10">
                 <div className="flex items-center justify-between">
                   <div>
@@ -581,8 +578,8 @@ const Profile = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="transactions">
-            <Card className="bg-card/70 backdrop-blur-sm border-primary/10 shadow-lg">
+          <TabsContent value="transactions" className="profile-tab-transactions p-6 rounded-lg">
+            <Card className="bg-card/50 backdrop-blur-sm border-primary/10 shadow-lg">
               <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 border-b border-primary/10">
                 <div className="flex items-center justify-between">
                   <div>
@@ -680,7 +677,6 @@ const Profile = () => {
                           <TableCell>{transaction.tokens}</TableCell>
                           <TableCell className="text-right">
                             <Button variant="ghost" size="sm" onClick={() => {
-                              // Open in Etherscan
                               window.open(`https://etherscan.io/tx/${transaction.hash}`, '_blank');
                             }}>
                               View
@@ -695,8 +691,8 @@ const Profile = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="investment">
-            <Card className="bg-card/70 backdrop-blur-sm border-primary/10 shadow-lg">
+          <TabsContent value="investment" className="profile-tab-investment p-6 rounded-lg">
+            <Card className="bg-card/50 backdrop-blur-sm border-primary/10 shadow-lg">
               <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 border-b border-primary/10">
                 <div className="flex items-center justify-between">
                   <div>

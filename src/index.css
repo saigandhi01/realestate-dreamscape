@@ -45,6 +45,19 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Profile tab background colors */
+    --personal-bg-from: 221 83% 96%;
+    --personal-bg-to: 210 100% 98%;
+    
+    --portfolio-bg-from: 215 100% 96%;
+    --portfolio-bg-to: 196 100% 97%;
+    
+    --transactions-bg-from: 152 100% 96%;
+    --transactions-bg-to: 180 100% 97%;
+    
+    --investment-bg-from: 260 100% 97%;
+    --investment-bg-to: 280 70% 96%;
   }
 
   .dark {
@@ -83,6 +96,19 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Profile tab background colors - dark mode */
+    --personal-bg-from: 221 30% 12%;
+    --personal-bg-to: 210 30% 15%;
+    
+    --portfolio-bg-from: 200 30% 12%;
+    --portfolio-bg-to: 196 30% 15%;
+    
+    --transactions-bg-from: 152 30% 12%;
+    --transactions-bg-to: 170 30% 15%;
+    
+    --investment-bg-from: 260 30% 12%;
+    --investment-bg-to: 280 30% 15%;
   }
 }
 
@@ -171,5 +197,22 @@
   
   .progress-bar::after {
     @apply content-[''] block h-full bg-primary animate-progress;
+  }
+
+  /* Profile tab backgrounds */
+  .profile-tab-personal {
+    @apply bg-gradient-to-br from-[hsl(var(--personal-bg-from))] to-[hsl(var(--personal-bg-to))];
+  }
+  
+  .profile-tab-portfolio {
+    @apply bg-gradient-to-br from-[hsl(var(--portfolio-bg-from))] to-[hsl(var(--portfolio-bg-to))];
+  }
+  
+  .profile-tab-transactions {
+    @apply bg-gradient-to-br from-[hsl(var(--transactions-bg-from))] to-[hsl(var(--transactions-bg-to))];
+  }
+  
+  .profile-tab-investment {
+    @apply bg-gradient-to-br from-[hsl(var(--investment-bg-from))] to-[hsl(var(--investment-bg-to))];
   }
 }
