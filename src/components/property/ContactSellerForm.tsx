@@ -131,150 +131,163 @@ const ContactSellerForm = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle className="text-xl">Contact The Seller</DialogTitle>
-          <DialogDescription>
-            Interested in this property? Fill out the form below and we'll connect you with the seller.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-[600px] md:max-w-[650px] p-0 overflow-hidden">
+        <div className="bg-gradient-to-br from-[#9b87f5] via-[#7E69AB] to-[#D946EF] p-8 pt-10 rounded-t-lg">
+          <DialogHeader className="text-white">
+            <DialogTitle className="text-2xl font-bold">Contact The Seller</DialogTitle>
+            <DialogDescription className="text-white/90 text-base mt-2">
+              Interested in this property? Fill out the form below and we'll connect you with the seller.
+            </DialogDescription>
+          </DialogHeader>
+        </div>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Full Name</FormLabel>
-                  <FormControl>
-                    <div className="flex items-center relative">
-                      <User className="absolute left-3 h-4 w-4 text-muted-foreground" />
-                      <Input placeholder="Your name" className="pl-10" {...field} />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email Address</FormLabel>
-                  <FormControl>
-                    <div className="flex items-center relative">
-                      <Mail className="absolute left-3 h-4 w-4 text-muted-foreground" />
-                      <Input placeholder="your.email@example.com" className="pl-10" {...field} />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="mobile"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Mobile Number</FormLabel>
-                  <FormControl>
-                    <div className="flex items-center relative">
-                      <Phone className="absolute left-3 h-4 w-4 text-muted-foreground" />
-                      <Input placeholder="Your mobile number" className="pl-10" {...field} />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="message"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Message</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="I'm interested in this property and would like to know more about..."
-                      className="min-h-[100px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="newsletter"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Keep me posted</FormLabel>
-                    <FormDescription>
-                      Receive news and information about TokenEstate
-                    </FormDescription>
-                  </div>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="privacyPolicy"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Privacy Policy</FormLabel>
-                    <FormDescription>
-                      I agree to TokenEstate's{" "}
-                      <a
-                        href="#"
-                        className="text-primary underline hover:text-primary/90"
-                        onClick={(e) => e.preventDefault()}
-                      >
-                        Privacy Policy
-                      </a>
-                    </FormDescription>
-                  </div>
-                </FormItem>
-              )}
-            />
-
-            <DialogFooter>
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? (
-                  <div className="flex items-center">
-                    <span className="mr-2">Sending...</span>
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
-                  </div>
-                ) : (
-                  <>
-                    <Send className="mr-2 h-4 w-4" /> Contact
-                  </>
+        <div className="p-6 pt-8">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Full Name</FormLabel>
+                    <FormControl>
+                      <div className="flex items-center relative">
+                        <User className="absolute left-3 h-4 w-4 text-muted-foreground" />
+                        <Input placeholder="Your name" className="pl-10" {...field} />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+              />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email Address</FormLabel>
+                      <FormControl>
+                        <div className="flex items-center relative">
+                          <Mail className="absolute left-3 h-4 w-4 text-muted-foreground" />
+                          <Input placeholder="your.email@example.com" className="pl-10" {...field} />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="mobile"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mobile Number</FormLabel>
+                      <FormControl>
+                        <div className="flex items-center relative">
+                          <Phone className="absolute left-3 h-4 w-4 text-muted-foreground" />
+                          <Input placeholder="Your mobile number" className="pl-10" {...field} />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="message"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Message</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="I'm interested in this property and would like to know more about..."
+                        className="min-h-[120px] resize-none"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="newsletter"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md bg-muted/30 p-4">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Keep me posted</FormLabel>
+                        <FormDescription>
+                          Receive news and information about TokenEstate
+                        </FormDescription>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="privacyPolicy"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md bg-muted/30 p-4">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Privacy Policy</FormLabel>
+                        <FormDescription>
+                          I agree to TokenEstate's{" "}
+                          <a
+                            href="#"
+                            className="text-primary underline hover:text-primary/90"
+                            onClick={(e) => e.preventDefault()}
+                          >
+                            Privacy Policy
+                          </a>
+                        </FormDescription>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <DialogFooter className="mt-6 pt-4 border-t">
+                <Button 
+                  type="submit" 
+                  className="w-full md:w-auto px-8" 
+                  disabled={isSubmitting}
+                  size="lg"
+                >
+                  {isSubmitting ? (
+                    <div className="flex items-center">
+                      <span className="mr-2">Sending...</span>
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+                    </div>
+                  ) : (
+                    <>
+                      <Send className="mr-2 h-4 w-4" /> Contact Seller
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </div>
       </DialogContent>
     </Dialog>
   );
