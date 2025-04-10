@@ -73,16 +73,18 @@ const ContactSellerForm = ({
 
     try {
       // Save contact request to database
-      // Use the direct insert method instead of specifying the table name as a parameter
-      const { error } = await supabase.schema("public").table("seller_contact_requests").insert({
-        property_id: propertyId,
-        property_name: propertyName,
-        name: values.name,
-        email: values.email,
-        mobile: values.mobile,
-        message: values.message,
-        newsletter_subscription: values.newsletter,
-      });
+      // Use the correct method to insert data into the Supabase table
+      const { error } = await supabase
+        .from("seller_contact_requests")
+        .insert({
+          property_id: propertyId,
+          property_name: propertyName,
+          name: values.name,
+          email: values.email,
+          mobile: values.mobile,
+          message: values.message,
+          newsletter_subscription: values.newsletter,
+        });
 
       if (error) throw error;
 
