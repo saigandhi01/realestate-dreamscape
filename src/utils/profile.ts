@@ -25,10 +25,13 @@ export const uploadProfilePhoto = async (
     // Ensure wallet address is lowercase to match the policy
     const normalizedWalletAddress = walletAddress.toLowerCase();
     
+    // Generate a unique filename using wallet address and timestamp to avoid conflicts
+    const filename = `${normalizedWalletAddress}-${Date.now()}`;
+    
     // Upload the file to Supabase Storage
     const { error } = await supabase.storage
       .from('profile-photos')
-      .upload(normalizedWalletAddress, file, {
+      .upload(filename, file, {
         upsert: true, // Overwrite if exists
         contentType: file.type,
       });
@@ -41,7 +44,7 @@ export const uploadProfilePhoto = async (
     // Get the public URL
     const { data } = await supabase.storage
       .from('profile-photos')
-      .getPublicUrl(normalizedWalletAddress);
+      .getPublicUrl(filename);
     
     showProfileUpdateToast("Profile photo updated successfully");
     return data.publicUrl;
