@@ -73,23 +73,35 @@ const ContactSellerForm = ({
 
     try {
       // Save contact request to database
-      const { error } = await supabase
-        .from("seller_contact_requests")
-        .insert({
-          property_id: propertyId,
-          property_name: propertyName,
-          name: values.name,
-          email: values.email,
-          mobile: values.mobile,
-          message: values.message,
-          newsletter_subscription: values.newsletter,
-        });
+      // Use the direct insert method instead of specifying the table name as a parameter
+      const { error } = await supabase.schema("public").table("seller_contact_requests").insert({
+        property_id: propertyId,
+        property_name: propertyName,
+        name: values.name,
+        email: values.email,
+        mobile: values.mobile,
+        message: values.message,
+        newsletter_subscription: values.newsletter,
+      });
 
       if (error) throw error;
 
       // Send confirmation email to user via edge function
-      // In a real implementation, you would create an edge function to send emails
-      console.log("Would send confirmation email to:", values.email);
+      try {
+        const { error: emailError } = await supabase.functions.invoke("send-contact-confirmation", {
+          body: {
+            name: values.name,
+            email: values.email,
+            propertyName: propertyName
+          }
+        });
+
+        if (emailError) {
+          console.error("Error sending confirmation email:", emailError);
+        }
+      } catch (emailErr) {
+        console.error("Failed to call edge function:", emailErr);
+      }
 
       // Show success message
       toast({
