@@ -22,22 +22,26 @@ export const uploadProfilePhoto = async (
   }
   
   try {
+    // Ensure wallet address is lowercase to match the policy
+    const normalizedWalletAddress = walletAddress.toLowerCase();
+    
     // Upload the file to Supabase Storage
     const { error } = await supabase.storage
       .from('profile-photos')
-      .upload(walletAddress.toLowerCase(), file, {
+      .upload(normalizedWalletAddress, file, {
         upsert: true, // Overwrite if exists
         contentType: file.type,
       });
     
     if (error) {
+      console.error("Storage upload error:", error);
       throw error;
     }
     
     // Get the public URL
     const { data } = await supabase.storage
       .from('profile-photos')
-      .getPublicUrl(walletAddress.toLowerCase());
+      .getPublicUrl(normalizedWalletAddress);
     
     showProfileUpdateToast("Profile photo updated successfully");
     return data.publicUrl;
