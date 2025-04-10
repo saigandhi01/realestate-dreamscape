@@ -22,18 +22,17 @@ export const uploadProfilePhoto = async (
   }
   
   try {
-    // Ensure wallet address is lowercase to match the policy
+    // Normalize the wallet address to lowercase
     const normalizedWalletAddress = walletAddress.toLowerCase();
     
-    // Generate a unique filename using wallet address and timestamp to avoid conflicts
-    const filename = `${normalizedWalletAddress}-${Date.now()}`;
-    
-    // Upload the file to Supabase Storage
-    const { error } = await supabase.storage
+    // Create a direct public upload - no RLS policies needed
+    const { data: { publicUrl }, error } = await supabase
+      .storage
       .from('profile-photos')
-      .upload(filename, file, {
-        upsert: true, // Overwrite if exists
+      .upload(`public/${normalizedWalletAddress}-${Date.now()}`, file, {
+        upsert: true,
         contentType: file.type,
+        cacheControl: '3600',
       });
     
     if (error) {
@@ -41,13 +40,8 @@ export const uploadProfilePhoto = async (
       throw error;
     }
     
-    // Get the public URL
-    const { data } = await supabase.storage
-      .from('profile-photos')
-      .getPublicUrl(filename);
-    
     showProfileUpdateToast("Profile photo updated successfully");
-    return data.publicUrl;
+    return publicUrl;
   } catch (error: any) {
     console.error("Error uploading profile photo:", error);
     showProfileErrorToast(error.message || "Failed to upload profile photo");
