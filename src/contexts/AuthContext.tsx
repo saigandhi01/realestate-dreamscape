@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -28,7 +27,7 @@ interface AuthContextType {
   connectWithSocial: (provider: string) => Promise<void>;
   isConnecting: boolean;
   connectWithWallet: (walletType: WalletType) => Promise<void>;
-  useTestAccount: () => void; // New function for demo account login
+  useTestAccount: () => void;
 }
 
 const defaultWallet: Wallet = {
@@ -54,22 +53,20 @@ const AuthContext = createContext<AuthContextType>({
   connectWithSocial: async () => {},
   isConnecting: false,
   connectWithWallet: async () => {},
-  useTestAccount: () => {}, // Add to default context
+  useTestAccount: () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
 
-// Demo accounts with ETH for testing
 const testWallet: Wallet = {
   connected: true,
   address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
   networkName: 'Ethereum',
-  balance: '10.0', // 10 ETH for testing
+  balance: '10.0',
   type: 'metamask',
   walletType: 'metamask',
 };
 
-// For demo purposes, we're using this mock data
 const mockWallet: Wallet = {
   connected: true,
   address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
@@ -92,9 +89,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Initialize auth state and set up session listener
   useEffect(() => {
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
         console.log("Auth state changed:", event, currentSession?.user?.email);
@@ -110,9 +105,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setUser(currentSession?.user ?? null);
           setIsLoggedIn(!!currentSession);
           
-          // If logged in, set wallet info
           if (currentSession?.user) {
-            // Check if it's the test account
             if (currentSession.user.email === 'demo@tokenestate.test') {
               setWallet(testWallet);
               localStorage.setItem('walletType', 'metamask');
@@ -125,7 +118,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     );
 
-    // THEN check for existing session (necessary for initial load)
     const initializeSession = async () => {
       try {
         const { data: { session: currentSession } } = await supabase.auth.getSession();
@@ -136,7 +128,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setUser(currentSession.user);
           setIsLoggedIn(true);
           
-          // Set wallet based on user
           if (currentSession.user.email === 'demo@tokenestate.test') {
             setWallet(testWallet);
             localStorage.setItem('walletType', 'metamask');
@@ -159,15 +150,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   }, []);
 
-  // Restore wallet state from localStorage if available
   useEffect(() => {
-    // If user is logged in but wallet isn't set (could happen after refresh)
     if (isInitialized && isLoggedIn && !wallet.connected) {
-      // Try to restore wallet from localStorage
       const storedWalletType = localStorage.getItem('walletType');
       
       if (storedWalletType) {
-        // If we have a stored wallet type, restore the appropriate mock wallet
         if (user?.email === 'demo@tokenestate.test') {
           setWallet(testWallet);
         } else {
@@ -195,9 +182,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       if (error) throw error;
       
-      // Session will be handled by the onAuthStateChange listener
       closeLoginModal();
-      return data;
+      return;
     } catch (error) {
       console.error('Email login error:', error);
       toast({
@@ -213,7 +199,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const connectWithSocial = async (provider: string) => {
     setIsConnecting(true);
     try {
-      // For the demo, we'll just simulate a login
       setTimeout(() => {
         setIsLoggedIn(true);
         setWallet(mockWallet);
@@ -248,10 +233,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setWallet(customWallet);
         setIsLoggedIn(true);
         
-        // Store wallet type in localStorage for persistence
         localStorage.setItem('walletType', walletType || '');
 
-        // Create a mock user and session for wallet authentication
         const mockUser = {
           id: `wallet-${walletState.address}`,
           email: `${walletState.address.substring(2, 8)}@wallet.user`,
@@ -281,19 +264,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // Function to use test account with ETH
   const useTestAccount = () => {
     try {
-      // Demo login - simulates successful authentication with Supabase
       const mockUser = {
         id: 'test-user-id-123456789',
         email: 'demo@tokenestate.test',
         aud: "authenticated",
         role: "authenticated",
-        // Add other required user properties
       } as User;
       
-      // Create a mock session
       const mockSession = {
         user: mockUser,
         access_token: `mock-token-${Date.now()}`,
@@ -305,13 +284,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsLoggedIn(true);
       setWallet(testWallet);
       
-      // Store wallet type in localStorage for persistence
       localStorage.setItem('walletType', 'metamask');
       
-      // Store authentication in localStorage for persistence
       localStorage.setItem('supabase.auth.token', JSON.stringify({
         currentSession: mockSession,
-        expiresAt: Date.now() + 3600000 // 1 hour from now
+        expiresAt: Date.now() + 3600000
       }));
       
       closeLoginModal();
@@ -333,10 +310,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const disconnect = async () => {
     try {
       await supabase.auth.signOut();
-      // Clear localStorage wallet data
       localStorage.removeItem('walletType');
-      // Auth state listener will handle the rest
-      
       setWallet(defaultWallet);
       setIsLoggedIn(false);
       setUser(null);
