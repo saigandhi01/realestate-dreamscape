@@ -14,6 +14,8 @@ import ERCStandards from "./pages/ERCStandards";
 import PropertyDetail from "./pages/PropertyDetail";
 import CookieConsent from "./components/CookieConsent";
 import Profile from "./pages/Profile";
+import { useEffect } from "react";
+import { supabase } from "./integrations/supabase/client";
 
 // Configure the React Query client with toast error handling
 const queryClient = new QueryClient({
@@ -40,6 +42,17 @@ const queryClient = new QueryClient({
 });
 
 function App() {
+  // Verify Supabase auth is configured properly
+  useEffect(() => {
+    console.log("App initialized - Checking Supabase auth configuration");
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      console.log("Initial auth check:", data.session ? "Session exists" : "No session");
+    };
+    
+    checkSession();
+  }, []);
+  
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>

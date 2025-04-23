@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { WalletType, connectWallet, disconnectWallet, initialWalletState, WalletState } from '@/utils/wallet';
+import { toast } from '@/hooks/use-toast';
 
 interface Wallet {
   connected: boolean;
@@ -89,18 +90,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Check for existing session on component mount and set up session listener
+  // Initialize auth state and set up session listener
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
+        console.log("Auth state changed:", event, currentSession?.user?.email);
+        
         if (event === 'SIGNED_OUT') {
           setSession(null);
           setUser(null);
           setIsLoggedIn(false);
           setWallet(defaultWallet);
-        } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          localStorage.removeItem('walletType');
+        } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
           setSession(currentSession);
           setUser(currentSession?.user ?? null);
           setIsLoggedIn(!!currentSession);
@@ -110,8 +115,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             // Check if it's the test account
             if (currentSession.user.email === 'demo@tokenestate.test') {
               setWallet(testWallet);
+              localStorage.setItem('walletType', 'metamask');
             } else {
               setWallet(mockWallet);
+              localStorage.setItem('walletType', 'metamask');
             }
           }
         }
@@ -120,31 +127,42 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // THEN check for existing session (necessary for initial load)
     const initializeSession = async () => {
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
-      
-      if (currentSession) {
-        setSession(currentSession);
-        setUser(currentSession.user);
-        setIsLoggedIn(true);
+      try {
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        console.log("Initial session check:", currentSession?.user?.email);
         
-        // Set wallet based on user
-        if (currentSession.user.email === 'demo@tokenestate.test') {
-          setWallet(testWallet);
-        } else {
-          setWallet(mockWallet);
+        if (currentSession) {
+          setSession(currentSession);
+          setUser(currentSession.user);
+          setIsLoggedIn(true);
+          
+          // Set wallet based on user
+          if (currentSession.user.email === 'demo@tokenestate.test') {
+            setWallet(testWallet);
+            localStorage.setItem('walletType', 'metamask');
+          } else {
+            setWallet(mockWallet);
+            localStorage.setItem('walletType', 'metamask');
+          }
         }
+      } catch (error) {
+        console.error("Error getting session:", error);
+      } finally {
+        setIsInitialized(true);
       }
     };
     
     initializeSession();
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   // Restore wallet state from localStorage if available
   useEffect(() => {
     // If user is logged in but wallet isn't set (could happen after refresh)
-    if (isLoggedIn && !wallet.connected) {
+    if (isInitialized && isLoggedIn && !wallet.connected) {
       // Try to restore wallet from localStorage
       const storedWalletType = localStorage.getItem('walletType');
       
@@ -157,7 +175,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       }
     }
-  }, [isLoggedIn, wallet.connected, user]);
+  }, [isInitialized, isLoggedIn, wallet.connected, user]);
 
   const openLoginModal = () => {
     setIsLoginModalOpen(true);
@@ -179,8 +197,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       // Session will be handled by the onAuthStateChange listener
       closeLoginModal();
+      return data;
     } catch (error) {
       console.error('Email login error:', error);
+      toast({
+        title: "Login Failed",
+        description: error.message || "Failed to login. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setIsConnecting(false);
     }
@@ -193,12 +217,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setTimeout(() => {
         setIsLoggedIn(true);
         setWallet(mockWallet);
+        localStorage.setItem('walletType', 'metamask');
         closeLoginModal();
         setIsConnecting(false);
       }, 1000);
     } catch (error) {
       console.error(`Social login error (${provider}):`, error);
       setIsConnecting(false);
+      toast({
+        title: "Login Failed",
+        description: `Failed to login with ${provider}. Please try again.`,
+        variant: "destructive"
+      });
     }
   };
 
@@ -220,51 +250,110 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         
         // Store wallet type in localStorage for persistence
         localStorage.setItem('walletType', walletType || '');
+
+        // Create a mock user and session for wallet authentication
+        const mockUser = {
+          id: `wallet-${walletState.address}`,
+          email: `${walletState.address.substring(2, 8)}@wallet.user`,
+          aud: "authenticated",
+          role: "authenticated"
+        } as User;
+        
+        const mockSession = {
+          user: mockUser,
+          access_token: `mock-token-${Date.now()}`,
+          refresh_token: `mock-refresh-${Date.now()}`
+        } as Session;
+        
+        setUser(mockUser);
+        setSession(mockSession);
       }
     } catch (error) {
       console.error('Wallet connection error:', error);
+      toast({
+        title: "Connection Failed",
+        description: "Failed to connect wallet. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setIsConnecting(false);
       closeLoginModal();
     }
   };
 
-  // New function to use test account with ETH
+  // Function to use test account with ETH
   const useTestAccount = () => {
-    // Demo login - simulates successful authentication
-    const mockUser = {
-      id: 'test-user-id-123456789',
-      email: 'demo@tokenestate.test',
-      // Add other required user properties
-    } as User;
-    
-    // Create a mock session
-    const mockSession = {
-      user: mockUser,
-      access_token: 'mock-access-token',
-      refresh_token: 'mock-refresh-token',
-      // Add other required session properties
-    } as Session;
-    
-    setUser(mockUser);
-    setSession(mockSession);
-    setIsLoggedIn(true);
-    setWallet(testWallet);
-    
-    // Store wallet type in localStorage for persistence
-    localStorage.setItem('walletType', 'metamask');
-    
-    closeLoginModal();
-    
-    // Add some sample data to the database for this test user
-    // This would be handled by your backend in a real scenario
-    console.log('Demo account activated with 10 ETH balance');
+    try {
+      // Demo login - simulates successful authentication with Supabase
+      const mockUser = {
+        id: 'test-user-id-123456789',
+        email: 'demo@tokenestate.test',
+        aud: "authenticated",
+        role: "authenticated",
+        // Add other required user properties
+      } as User;
+      
+      // Create a mock session
+      const mockSession = {
+        user: mockUser,
+        access_token: `mock-token-${Date.now()}`,
+        refresh_token: `mock-refresh-${Date.now()}`
+      } as Session;
+      
+      setUser(mockUser);
+      setSession(mockSession);
+      setIsLoggedIn(true);
+      setWallet(testWallet);
+      
+      // Store wallet type in localStorage for persistence
+      localStorage.setItem('walletType', 'metamask');
+      
+      // Store authentication in localStorage for persistence
+      localStorage.setItem('supabase.auth.token', JSON.stringify({
+        currentSession: mockSession,
+        expiresAt: Date.now() + 3600000 // 1 hour from now
+      }));
+      
+      closeLoginModal();
+      
+      toast({
+        title: "Demo Account Activated",
+        description: "You're now logged in with a demo account that has 10 ETH",
+      });
+    } catch (error) {
+      console.error('Test account error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to activate demo account. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const disconnect = async () => {
-    await supabase.auth.signOut();
-    // Auth state listener will handle the rest
-    localStorage.removeItem('walletType');
+    try {
+      await supabase.auth.signOut();
+      // Clear localStorage wallet data
+      localStorage.removeItem('walletType');
+      // Auth state listener will handle the rest
+      
+      setWallet(defaultWallet);
+      setIsLoggedIn(false);
+      setUser(null);
+      setSession(null);
+      
+      toast({
+        title: "Logged Out",
+        description: "You have been successfully logged out.",
+      });
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to log out. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const needsWalletConnection = isLoggedIn && !wallet.connected;

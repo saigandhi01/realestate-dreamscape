@@ -21,7 +21,7 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [profileUrl, setProfileUrl] = useState<string | null>(null);
   const location = useLocation();
-  const { wallet, disconnect, isLoggedIn, openLoginModal, useTestAccount } = useAuth();
+  const { wallet, disconnect, isLoggedIn, openLoginModal, useTestAccount, user } = useAuth();
   
   useEffect(() => {
     const handleScroll = () => {
@@ -54,12 +54,18 @@ const Navbar = () => {
       };
       
       fetchProfileImage();
+    } else {
+      setProfileUrl(null);
     }
   }, [isLoggedIn, wallet.address]);
   
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
+
+  useEffect(() => {
+    console.log("Navbar auth state:", { isLoggedIn, user: user?.email, walletAddress: wallet.address });
+  }, [isLoggedIn, user, wallet]);
   
   const navLinks = [
     { name: 'Home', path: '/' },
@@ -77,10 +83,6 @@ const Navbar = () => {
 
   const handleUseTestAccount = () => {
     useTestAccount();
-    toast({
-      title: "Demo Account Activated",
-      description: "You're now logged in with a demo account that has 10 ETH",
-    });
   };
 
   return (
