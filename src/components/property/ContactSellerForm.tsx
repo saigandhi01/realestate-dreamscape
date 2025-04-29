@@ -131,19 +131,19 @@ const ContactSellerForm = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] md:max-w-[650px] p-0 overflow-hidden">
-        <div className="bg-gradient-to-br from-[#9b87f5] via-[#7E69AB] to-[#D946EF] p-8 pt-10 rounded-t-lg">
+      <DialogContent className="sm:max-w-[520px] max-h-[90vh] overflow-y-auto p-0">
+        <div className="bg-gradient-to-br from-[#9b87f5] via-[#7E69AB] to-[#D946EF] p-6 pt-8 rounded-t-lg">
           <DialogHeader className="text-white">
-            <DialogTitle className="text-2xl font-bold">Contact The Seller</DialogTitle>
-            <DialogDescription className="text-white/90 text-base mt-2">
+            <DialogTitle className="text-xl font-bold">Contact The Seller</DialogTitle>
+            <DialogDescription className="text-white/90 text-sm mt-1">
               Interested in this property? Fill out the form below and we'll connect you with the seller.
             </DialogDescription>
           </DialogHeader>
         </div>
 
-        <div className="p-6 pt-8">
+        <div className="p-5 pt-6">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
                 name="name"
@@ -161,7 +161,7 @@ const ContactSellerForm = ({
                 )}
               />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="email"
@@ -206,7 +206,7 @@ const ContactSellerForm = ({
                     <FormControl>
                       <Textarea
                         placeholder="I'm interested in this property and would like to know more about..."
-                        className="min-h-[120px] resize-none"
+                        className="min-h-[100px] resize-none"
                         {...field}
                       />
                     </FormControl>
@@ -215,21 +215,21 @@ const ContactSellerForm = ({
                 )}
               />
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <FormField
                   control={form.control}
                   name="newsletter"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md bg-muted/30 p-4">
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md bg-muted/30 p-3">
                       <FormControl>
                         <Checkbox
                           checked={field.value}
                           onCheckedChange={field.onChange}
                         />
                       </FormControl>
-                      <div className="space-y-1 leading-none">
+                      <div className="space-y-0.5 leading-none">
                         <FormLabel>Keep me posted</FormLabel>
-                        <FormDescription>
+                        <FormDescription className="text-xs">
                           Receive news and information about TokenEstate
                         </FormDescription>
                       </div>
@@ -241,16 +241,16 @@ const ContactSellerForm = ({
                   control={form.control}
                   name="privacyPolicy"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md bg-muted/30 p-4">
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md bg-muted/30 p-3">
                       <FormControl>
                         <Checkbox
                           checked={field.value}
                           onCheckedChange={field.onChange}
                         />
                       </FormControl>
-                      <div className="space-y-1 leading-none">
+                      <div className="space-y-0.5 leading-none">
                         <FormLabel>Privacy Policy</FormLabel>
-                        <FormDescription>
+                        <FormDescription className="text-xs">
                           I agree to TokenEstate's{" "}
                           <a
                             href="#"
@@ -266,12 +266,21 @@ const ContactSellerForm = ({
                 />
               </div>
 
-              <DialogFooter className="mt-6 pt-4 border-t">
+              <DialogFooter className="mt-5 pt-3 border-t flex flex-row justify-end gap-2">
+                <Button 
+                  variant="outline"
+                  type="button"
+                  onClick={() => onOpenChange(false)}
+                  className="px-4"
+                  size="sm"
+                >
+                  Cancel
+                </Button>
                 <Button 
                   type="submit" 
-                  className="w-full md:w-auto px-8" 
+                  className="px-6" 
                   disabled={isSubmitting}
-                  size="lg"
+                  size="sm"
                 >
                   {isSubmitting ? (
                     <div className="flex items-center">
