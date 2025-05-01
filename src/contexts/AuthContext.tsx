@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -27,7 +28,6 @@ interface AuthContextType {
   connectWithSocial: (provider: string) => Promise<void>;
   isConnecting: boolean;
   connectWithWallet: (walletType: WalletType) => Promise<void>;
-  useTestAccount: () => void;
 }
 
 const defaultWallet: Wallet = {
@@ -53,19 +53,9 @@ const AuthContext = createContext<AuthContextType>({
   connectWithSocial: async () => {},
   isConnecting: false,
   connectWithWallet: async () => {},
-  useTestAccount: () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
-
-const testWallet: Wallet = {
-  connected: true,
-  address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
-  networkName: 'Ethereum',
-  balance: '10.0',
-  type: 'metamask',
-  walletType: 'metamask',
-};
 
 const mockWallet: Wallet = {
   connected: true,
@@ -106,13 +96,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setIsLoggedIn(!!currentSession);
           
           if (currentSession?.user) {
-            if (currentSession.user.email === 'demo@tokenestate.test') {
-              setWallet(testWallet);
-              localStorage.setItem('walletType', 'metamask');
-            } else {
-              setWallet(mockWallet);
-              localStorage.setItem('walletType', 'metamask');
-            }
+            setWallet(mockWallet);
+            localStorage.setItem('walletType', 'metamask');
           }
         }
       }
@@ -127,14 +112,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setSession(currentSession);
           setUser(currentSession.user);
           setIsLoggedIn(true);
-          
-          if (currentSession.user.email === 'demo@tokenestate.test') {
-            setWallet(testWallet);
-            localStorage.setItem('walletType', 'metamask');
-          } else {
-            setWallet(mockWallet);
-            localStorage.setItem('walletType', 'metamask');
-          }
+          setWallet(mockWallet);
+          localStorage.setItem('walletType', 'metamask');
         }
       } catch (error) {
         console.error("Error getting session:", error);
@@ -155,14 +134,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const storedWalletType = localStorage.getItem('walletType');
       
       if (storedWalletType) {
-        if (user?.email === 'demo@tokenestate.test') {
-          setWallet(testWallet);
-        } else {
-          setWallet(mockWallet);
-        }
+        setWallet(mockWallet);
       }
     }
-  }, [isInitialized, isLoggedIn, wallet.connected, user]);
+  }, [isInitialized, isLoggedIn, wallet.connected]);
 
   const openLoginModal = () => {
     setIsLoginModalOpen(true);
@@ -264,49 +239,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const useTestAccount = () => {
-    try {
-      const mockUser = {
-        id: 'test-user-id-123456789',
-        email: 'demo@tokenestate.test',
-        aud: "authenticated",
-        role: "authenticated",
-      } as User;
-      
-      const mockSession = {
-        user: mockUser,
-        access_token: `mock-token-${Date.now()}`,
-        refresh_token: `mock-refresh-${Date.now()}`
-      } as Session;
-      
-      setUser(mockUser);
-      setSession(mockSession);
-      setIsLoggedIn(true);
-      setWallet(testWallet);
-      
-      localStorage.setItem('walletType', 'metamask');
-      
-      localStorage.setItem('supabase.auth.token', JSON.stringify({
-        currentSession: mockSession,
-        expiresAt: Date.now() + 3600000
-      }));
-      
-      closeLoginModal();
-      
-      toast({
-        title: "Demo Account Activated",
-        description: "You're now logged in with a demo account that has 10 ETH",
-      });
-    } catch (error) {
-      console.error('Test account error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to activate demo account. Please try again.",
-        variant: "destructive"
-      });
-    }
-  };
-
   const disconnect = async () => {
     try {
       await supabase.auth.signOut();
@@ -346,8 +278,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       connectWithEmail,
       connectWithSocial,
       isConnecting,
-      connectWithWallet,
-      useTestAccount
+      connectWithWallet
     }}>
       {children}
     </AuthContext.Provider>

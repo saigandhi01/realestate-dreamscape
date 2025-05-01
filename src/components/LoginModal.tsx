@@ -1,9 +1,8 @@
-
 import React, { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Wallet, Mail, Phone, Facebook, Github, Twitter, LogIn, UserPlus, Sparkles } from "lucide-react";
+import { Wallet, Mail, Phone, Facebook, Github, Twitter, LogIn, UserPlus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import WalletSelectionPopover from "./WalletSelectionPopover";
@@ -44,8 +43,7 @@ const LoginModal = () => {
     closeLoginModal, 
     connectWithEmail,
     connectWithSocial,
-    isConnecting,
-    useTestAccount
+    isConnecting
   } = useAuth();
   
   const [view, setView] = useState<View>("main");
@@ -125,15 +123,6 @@ const LoginModal = () => {
     closeLoginModal();
   };
 
-  const handleUseTestAccount = () => {
-    useTestAccount();
-    toast({
-      title: "Demo Account Activated",
-      description: "You're now logged in with a demo account that has 10 ETH",
-      variant: "default" // Changed from "success" to "default"
-    });
-  };
-
   const resetView = () => {
     setView("main");
     emailSignInForm.reset();
@@ -175,27 +164,6 @@ const LoginModal = () => {
 
         {view === "main" && (
           <div className="flex flex-col gap-4 py-4">
-            {/* Demo Account Button */}
-            <Button 
-              variant="default" 
-              onClick={handleUseTestAccount}
-              className="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
-            >
-              <Sparkles className="h-5 w-5" />
-              Use Demo Account (10 ETH)
-            </Button>
-            
-            <div className="relative my-2">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with
-                </span>
-              </div>
-            </div>
-            
             <Button 
               variant="outline" 
               onClick={() => setView("email")}
