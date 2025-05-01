@@ -14,6 +14,7 @@ import ERCStandards from "./pages/ERCStandards";
 import PropertyDetail from "./pages/PropertyDetail";
 import CookieConsent from "./components/CookieConsent";
 import Profile from "./pages/Profile";
+import Admin from "./pages/Admin";
 import { useEffect } from "react";
 import { supabase } from "./integrations/supabase/client";
 
@@ -68,6 +69,7 @@ function App() {
               <Route path="/how-it-works" element={<HowItWorks />} />
               <Route path="/erc-standards" element={<ERCStandards />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/admin" element={<Admin />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <CookieConsent />
