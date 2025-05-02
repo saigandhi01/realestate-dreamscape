@@ -79,6 +79,10 @@ const LoginModal = () => {
     closeLoginModal();
   };
 
+  const handleSelectOption = (option: string) => {
+    setView(option as View);
+  };
+
   return (
     <Dialog open={isLoginModalOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
@@ -86,7 +90,7 @@ const LoginModal = () => {
         
         {view === "main" && (
           <MainLoginOptions 
-            onSelectOption={setView}
+            onSelectOption={handleSelectOption}
             onSocialLogin={connectWithSocial}
           />
         )}

@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Wallet, LogOut, User, UserRound } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
@@ -22,6 +21,7 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [profileUrl, setProfileUrl] = useState<string | null>(null);
   const location = useLocation();
+  const navigate = useNavigate();
   const { wallet, disconnect, isLoggedIn, openLoginModal, user } = useAuth();
   
   useEffect(() => {
@@ -70,7 +70,7 @@ const Navbar = () => {
   
   const navLinks = [
     { name: 'Home', path: '/' },
-    { name: 'Marketplace', path: '/marketplace' },
+    { name: 'Marketplace', path: '/marketplace', requiresAuth: true },
     { name: 'How It Works', path: '/how-it-works' },
     { name: 'ERC Standards', path: '/erc-standards' },
   ];
@@ -80,6 +80,17 @@ const Navbar = () => {
       return wallet.address.substring(2, 4).toUpperCase();
     }
     return "U";
+  };
+
+  const handleNavLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, link: { path: string; requiresAuth?: boolean }) => {
+    if (link.requiresAuth && !isLoggedIn) {
+      e.preventDefault();
+      openLoginModal();
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to access the marketplace.",
+      });
+    }
   };
 
   return (
@@ -105,6 +116,7 @@ const Navbar = () => {
                   ? 'text-primary' 
                   : 'text-foreground/70 hover:text-foreground'
               }`}
+              onClick={(e) => handleNavLinkClick(e, link)}
             >
               {link.name}
             </Link>
@@ -185,6 +197,7 @@ const Navbar = () => {
                   ? 'text-primary' 
                   : 'text-foreground/70 hover:text-foreground'
               }`}
+              onClick={(e) => handleNavLinkClick(e, link)}
             >
               {link.name}
             </Link>
