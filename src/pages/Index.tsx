@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Building, LineChart, Lock, Shield } from 'lucide-react';
@@ -9,6 +8,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { FadeIn, SlideUp, ZoomIn, RevealOnScroll, StaggerChildren, Float } from '@/components/ui/animations';
 import { Badge } from '@/components/ui/badge';
+import AIChatBox from '@/components/AIChatBox';
 
 // INR conversion rate (1 USD = approximately 75 INR)
 const USD_TO_INR = 75;
@@ -229,6 +229,9 @@ const Index = () => {
       </main>
       
       <Footer />
+      
+      {/* AI Chat Assistant */}
+      <AIChatBox />
     </div>
   );
 };
