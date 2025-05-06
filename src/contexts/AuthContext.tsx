@@ -1,17 +1,12 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { WalletType, connectWallet, disconnectWallet, initialWalletState, WalletState } from '@/utils/wallet';
 import { toast } from '@/hooks/use-toast';
+import { ethers } from 'ethers';
 
-interface Wallet {
-  connected: boolean;
-  address: string;
-  networkName: string;
-  balance: string;
+interface Wallet extends WalletState {
   type: string;
-  walletType?: WalletType;
 }
 
 interface AuthContextType {
@@ -32,11 +27,14 @@ interface AuthContextType {
 
 const defaultWallet: Wallet = {
   connected: false,
-  address: '',
-  networkName: '',
-  balance: '0',
+  address: null,
+  networkName: null,
+  balance: null,
   type: '',
   walletType: null,
+  chainId: null,
+  provider: null,
+  signer: null,
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -64,6 +62,9 @@ const mockWallet: Wallet = {
   balance: '1.234',
   type: 'metamask',
   walletType: 'metamask',
+  chainId: 1, // Ethereum Mainnet
+  provider: null, // This will be null in mock data
+  signer: null, // This will be null in mock data
 };
 
 interface AuthProviderProps {
@@ -204,6 +205,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           balance: walletState.balance || '0',
           type: walletState.walletType || '',
           walletType: walletState.walletType,
+          chainId: walletState.chainId,
+          provider: walletState.provider,
+          signer: walletState.signer,
         };
         setWallet(customWallet);
         setIsLoggedIn(true);
