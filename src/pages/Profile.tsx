@@ -2,7 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
   User, ShieldCheck, Mail, Phone, Upload, Edit2, Briefcase, ArrowLeftRight, 
-  Wallet, TrendingUp, DollarSign, Share, ChevronRight, Building, Home, BarChart2 
+  Wallet, TrendingUp, DollarSign, Share, ChevronRight, Building, Home, BarChart2,
+  Coins
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from '@/components/ui/card';
@@ -11,7 +12,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { toast } from '@/hooks/use-toast';
-import { transactionToast } from '@/components/ui/transaction-toast';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
@@ -44,6 +44,8 @@ import {
 import { uploadProfilePhoto } from '@/utils/profile';
 import { supabase } from "@/integrations/supabase/client";
 import { useUserPortfolioData } from '@/hooks/useUserPortfolioData';
+import TokensAndNFTs from '@/components/TokensAndNFTs';
+import { useUserTokens } from '@/hooks/useUserTokens';
 
 const Profile = () => {
   const { isLoggedIn, wallet, user, disconnect, needsWalletConnection } = useAuth();
@@ -67,6 +69,17 @@ const Profile = () => {
     isLoading,
     error 
   } = useUserPortfolioData();
+
+  // Add the hook to fetch tokens and NFTs
+  const {
+    tokens,
+    nfts,
+    isLoading: isLoadingTokens,
+    error: tokensError
+  } = useUserTokens({
+    wallet,
+    enabled: wallet.connected
+  });
 
   const portfolioDistribution = React.useMemo(() => {
     if (!portfolioItems.length) return [
@@ -234,11 +247,14 @@ const Profile = () => {
         )}
         
         <Tabs defaultValue="personal" className="w-full space-y-8">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:w-auto">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 lg:w-auto">
             <TabsTrigger value="personal">Personal Info</TabsTrigger>
             <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
             <TabsTrigger value="transactions">Transactions</TabsTrigger>
             <TabsTrigger value="investment">Investment Performance</TabsTrigger>
+            <TabsTrigger value="tokens" className="flex items-center gap-1">
+              <Coins className="h-4 w-4" /> Tokens & NFTs
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="personal" className="space-y-8">
@@ -879,6 +895,52 @@ const Profile = () => {
                         </Card>
                       </div>
                     </>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* New Tab for Tokens & NFTs */}
+          <TabsContent value="tokens" className="space-y-8">
+            <div className="profile-tab-tokens p-8 rounded-xl">
+              <Card className="bg-card/50 backdrop-blur-sm border-primary/10 shadow-lg">
+                <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 border-b border-primary/10">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <Coins className="h-5 w-5" /> Your Tokens & NFTs
+                      </CardTitle>
+                      <CardDescription>
+                        View all tokens and NFTs in your connected wallet
+                      </CardDescription>
+                    </div>
+                    {wallet.connected && (
+                      <div className="bg-muted rounded-full px-4 py-1 text-sm flex items-center">
+                        <span className="mr-1">Network:</span>
+                        <span className="font-medium">{wallet.networkName}</span>
+                      </div>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="p-6">
+                  {!wallet.connected ? (
+                    <div className="flex flex-col items-center justify-center p-12">
+                      <Wallet className="h-12 w-12 text-muted-foreground mb-4" />
+                      <h3 className="text-lg font-medium mb-2">No Wallet Connected</h3>
+                      <p className="text-muted-foreground text-center mb-6">
+                        Connect your wallet to view your tokens and NFTs
+                      </p>
+                      <WalletConnectionSection />
+                    </div>
+                  ) : (
+                    <TokensAndNFTs
+                      tokens={tokens}
+                      nfts={nfts}
+                      isLoading={isLoadingTokens}
+                      error={tokensError}
+                      chainId={wallet.chainId}
+                    />
                   )}
                 </CardContent>
               </Card>
