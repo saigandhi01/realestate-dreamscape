@@ -296,12 +296,12 @@ export const fetchUserTokens = async (
 ): Promise<{
   tokens: TokenBalance[];
   nfts: TokenBalance[];
-  loading: boolean;
+  loading?: boolean;
   error: string | null;
 }> => {
   try {
     if (!address) {
-      return { tokens: [], nfts: [], loading: false, error: 'No wallet address provided' };
+      return { tokens: [], nfts: [], error: 'No wallet address provided' };
     }
     
     let results: TokenBalance[] = [];
@@ -322,9 +322,9 @@ export const fetchUserTokens = async (
     const tokens = results.filter(token => token.type === 'NATIVE' || token.type === 'ERC20');
     const nfts = results.filter(token => token.type === 'ERC721' || token.type === 'ERC1155');
     
-    return { tokens, nfts, loading: false, error: null };
+    return { tokens, nfts, error: null };
   } catch (error: any) {
     console.error('Error fetching user tokens:', error);
-    return { tokens: [], nfts: [], loading: false, error: error.message || 'Failed to fetch tokens' };
+    return { tokens: [], nfts: [], error: error.message || 'Failed to fetch tokens' };
   }
 };
