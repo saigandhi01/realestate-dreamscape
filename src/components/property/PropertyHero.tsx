@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { PropertyImage } from "@/hooks/usePropertyData";
 import { Card, CardContent } from "@/components/ui/card";
