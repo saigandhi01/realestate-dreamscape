@@ -1,7 +1,7 @@
 
 import React, { Suspense, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Box, Text } from '@react-three/drei';
+import { OrbitControls, Box } from '@react-three/drei';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Home } from 'lucide-react';
 
