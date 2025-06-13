@@ -15,6 +15,7 @@ import PropertyHero from '@/components/property/PropertyHero';
 import PropertyOverviewTab from '@/components/property/PropertyOverviewTab';
 import PropertyFinancialsTab from '@/components/property/PropertyFinancialsTab';
 import PropertyDocumentsTab from '@/components/property/PropertyDocumentsTab';
+import PropertyTransactionDialogs from '@/components/property/PropertyTransactionDialogs';
 
 // INR conversion rate (1 USD = approximately 75 INR)
 const USD_TO_INR = 75;
@@ -23,6 +24,11 @@ const PropertyDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { properties } = usePropertyData();
   const { isLoggedIn, wallet, openLoginModal } = useAuth();
+  
+  // Transaction dialog states
+  const [buyDialogOpen, setBuyDialogOpen] = useState(false);
+  const [sellDialogOpen, setSellDialogOpen] = useState(false);
+  const [transferDialogOpen, setTransferDialogOpen] = useState(false);
   
   // Find the property by ID
   const property = properties.find(p => p.id === id);
@@ -131,6 +137,51 @@ const PropertyDetail = () => {
           openLoginModal={openLoginModal}
         />
         
+        {/* Transaction Action Buttons */}
+        <section className="py-6 border-b">
+          <div className="container mx-auto px-6 md:px-10">
+            <FadeIn>
+              <div className="flex flex-wrap gap-4 justify-center">
+                {isLoggedIn ? (
+                  <>
+                    <Button 
+                      onClick={() => setBuyDialogOpen(true)}
+                      className="flex-1 max-w-xs"
+                      size="lg"
+                    >
+                      Buy Tokens
+                    </Button>
+                    <Button 
+                      onClick={() => setSellDialogOpen(true)}
+                      variant="outline"
+                      className="flex-1 max-w-xs"
+                      size="lg"
+                    >
+                      Sell Tokens
+                    </Button>
+                    <Button 
+                      onClick={() => setTransferDialogOpen(true)}
+                      variant="outline"
+                      className="flex-1 max-w-xs"
+                      size="lg"
+                    >
+                      Transfer Tokens
+                    </Button>
+                  </>
+                ) : (
+                  <Button 
+                    onClick={openLoginModal}
+                    className="flex-1 max-w-md"
+                    size="lg"
+                  >
+                    Login to Start Trading
+                  </Button>
+                )}
+              </div>
+            </FadeIn>
+          </div>
+        </section>
+        
         {/* Property Details Tabs */}
         <section className="py-8">
           <div className="container mx-auto px-6 md:px-10">
@@ -167,6 +218,18 @@ const PropertyDetail = () => {
           </div>
         </section>
       </main>
+      
+      {/* Transaction Dialogs */}
+      <PropertyTransactionDialogs
+        property={property}
+        wallet={walletProps}
+        buyDialogOpen={buyDialogOpen}
+        sellDialogOpen={sellDialogOpen}
+        transferDialogOpen={transferDialogOpen}
+        setBuyDialogOpen={setBuyDialogOpen}
+        setSellDialogOpen={setSellDialogOpen}
+        setTransferDialogOpen={setTransferDialogOpen}
+      />
       
       <Footer />
     </PageTransition>
