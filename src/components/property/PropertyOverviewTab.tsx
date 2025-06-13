@@ -2,8 +2,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PropertyImage } from "@/hooks/usePropertyData";
 import PropertyImageCarousel from "@/components/PropertyImageCarousel";
-import PropertyLocationMap from "./PropertyLocationMap";
-import Property3DViewer from "./Property3DViewer";
 import PropertyDetailsCard from "./PropertyDetailsCard";
 
 interface PropertyOverviewTabProps {
@@ -31,7 +29,7 @@ const PropertyOverviewTab = ({
 
   return (
     <div className="space-y-8">
-      {/* Property Images and 3D View */}
+      {/* Property Images and Details */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Property Image Display */}
         <Card>
@@ -57,20 +55,7 @@ const PropertyOverviewTab = ({
           </CardContent>
         </Card>
 
-        {/* 3D Property View */}
-        <Property3DViewer 
-          propertyName={propertyName}
-          propertyType={propertyType}
-        />
-      </div>
-
-      {/* Location Map and Property Details */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <PropertyLocationMap 
-          propertyName={propertyName}
-          propertyLocation={propertyLocation}
-        />
-        
+        {/* Property Details */}
         <PropertyDetailsCard 
           propertyName={propertyName}
           propertyLocation={propertyLocation}
