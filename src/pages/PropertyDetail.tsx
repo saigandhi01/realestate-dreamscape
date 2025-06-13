@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { FileText, Receipt, BarChart, Shield } from 'lucide-react';
@@ -135,52 +134,10 @@ const PropertyDetail = () => {
           wallet={walletProps}
           fundingPercentage={fundingPercentage}
           openLoginModal={openLoginModal}
+          onBuyClick={() => setBuyDialogOpen(true)}
+          onSellClick={() => setSellDialogOpen(true)}
+          onTransferClick={() => setTransferDialogOpen(true)}
         />
-        
-        {/* Transaction Action Buttons */}
-        <section className="py-6 border-b">
-          <div className="container mx-auto px-6 md:px-10">
-            <FadeIn>
-              <div className="flex flex-wrap gap-4 justify-center">
-                {isLoggedIn ? (
-                  <>
-                    <Button 
-                      onClick={() => setBuyDialogOpen(true)}
-                      className="flex-1 max-w-xs"
-                      size="lg"
-                    >
-                      Buy Tokens
-                    </Button>
-                    <Button 
-                      onClick={() => setSellDialogOpen(true)}
-                      variant="outline"
-                      className="flex-1 max-w-xs"
-                      size="lg"
-                    >
-                      Sell Tokens
-                    </Button>
-                    <Button 
-                      onClick={() => setTransferDialogOpen(true)}
-                      variant="outline"
-                      className="flex-1 max-w-xs"
-                      size="lg"
-                    >
-                      Transfer Tokens
-                    </Button>
-                  </>
-                ) : (
-                  <Button 
-                    onClick={openLoginModal}
-                    className="flex-1 max-w-md"
-                    size="lg"
-                  >
-                    Login to Start Trading
-                  </Button>
-                )}
-              </div>
-            </FadeIn>
-          </div>
-        </section>
         
         {/* Property Details Tabs */}
         <section className="py-8">

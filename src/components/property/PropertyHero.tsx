@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { PropertyImage } from "@/hooks/usePropertyData";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,6 +20,9 @@ interface PropertyHeroProps {
   };
   fundingPercentage: number;
   openLoginModal: () => void;
+  onBuyClick?: () => void;
+  onSellClick?: () => void;
+  onTransferClick?: () => void;
 }
 
 // INR conversion rate (1 USD = approximately 75 INR)
@@ -37,6 +39,9 @@ const PropertyHero = ({
   wallet,
   fundingPercentage,
   openLoginModal,
+  onBuyClick,
+  onSellClick,
+  onTransferClick,
 }: PropertyHeroProps) => {
   // Convert prices to INR
   const priceInINR = property.price * USD_TO_INR;
@@ -196,6 +201,41 @@ const PropertyHero = ({
                       <Phone size={16} className="mr-2" />
                       Contact The Seller
                     </Button>
+                    
+                    {/* Transaction Buttons */}
+                    {isLoggedIn ? (
+                      <div className="space-y-2">
+                        <Button 
+                          className="w-full" 
+                          onClick={onBuyClick}
+                          variant="outline"
+                        >
+                          Buy Tokens
+                        </Button>
+                        <Button 
+                          className="w-full" 
+                          onClick={onSellClick}
+                          variant="outline"
+                        >
+                          Sell Tokens
+                        </Button>
+                        <Button 
+                          className="w-full" 
+                          onClick={onTransferClick}
+                          variant="outline"
+                        >
+                          Transfer Tokens
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button 
+                        className="w-full" 
+                        onClick={openLoginModal}
+                        variant="outline"
+                      >
+                        Login to Trade
+                      </Button>
+                    )}
                   </div>
 
                   {/* Funding Progress */}
