@@ -22,7 +22,9 @@ const House3D = () => {
   return (
     <group ref={houseRef}>
       {/* House base */}
-      <Box position={[0, 0, 0]} args={[3, 2, 2]} material-color="#8B4513" />
+      <Box position={[0, 0, 0]} args={[3, 2, 2]}>
+        <meshStandardMaterial color="#8B4513" />
+      </Box>
       
       {/* Roof */}
       <mesh position={[0, 1.5, 0]}>
@@ -31,14 +33,22 @@ const House3D = () => {
       </mesh>
       
       {/* Door */}
-      <Box position={[0, -0.5, 1.01]} args={[0.6, 1, 0.1]} material-color="#4A4A4A" />
+      <Box position={[0, -0.5, 1.01]} args={[0.6, 1, 0.1]}>
+        <meshStandardMaterial color="#4A4A4A" />
+      </Box>
       
       {/* Windows */}
-      <Box position={[-0.8, 0.2, 1.01]} args={[0.6, 0.6, 0.1]} material-color="#87CEEB" />
-      <Box position={[0.8, 0.2, 1.01]} args={[0.6, 0.6, 0.1]} material-color="#87CEEB" />
+      <Box position={[-0.8, 0.2, 1.01]} args={[0.6, 0.6, 0.1]}>
+        <meshStandardMaterial color="#87CEEB" />
+      </Box>
+      <Box position={[0.8, 0.2, 1.01]} args={[0.6, 0.6, 0.1]}>
+        <meshStandardMaterial color="#87CEEB" />
+      </Box>
       
       {/* Chimney */}
-      <Box position={[1, 2.5, -0.5]} args={[0.3, 1, 0.3]} material-color="#8B4513" />
+      <Box position={[1, 2.5, -0.5]} args={[0.3, 1, 0.3]}>
+        <meshStandardMaterial color="#8B4513" />
+      </Box>
     </group>
   );
 };
