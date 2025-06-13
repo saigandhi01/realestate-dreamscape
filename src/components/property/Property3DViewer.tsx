@@ -3,7 +3,7 @@ import React, { Suspense, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Box, Text } from '@react-three/drei';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Cube } from 'lucide-react';
+import { Home } from 'lucide-react';
 
 interface Property3DViewerProps {
   propertyName: string;
@@ -48,7 +48,7 @@ const Property3DViewer = ({ propertyName, propertyType }: Property3DViewerProps)
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center">
-          <Cube className="mr-2 h-5 w-5" />
+          <Home className="mr-2 h-5 w-5" />
           3D Property View
         </CardTitle>
       </CardHeader>
