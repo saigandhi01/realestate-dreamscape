@@ -1,9 +1,10 @@
 
 import React, { Suspense, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Box } from '@react-three/drei';
+import { OrbitControls } from '@react-three/drei';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Home } from 'lucide-react';
+import * as THREE from 'three';
 
 interface Property3DViewerProps {
   propertyName: string;
@@ -11,7 +12,7 @@ interface Property3DViewerProps {
 }
 
 const House3D = () => {
-  const houseRef = useRef<any>();
+  const houseRef = useRef<THREE.Group>(null);
 
   useFrame(() => {
     if (houseRef.current) {
@@ -22,9 +23,10 @@ const House3D = () => {
   return (
     <group ref={houseRef}>
       {/* House base */}
-      <Box position={[0, 0, 0]} args={[3, 2, 2]}>
+      <mesh position={[0, 0, 0]}>
+        <boxGeometry args={[3, 2, 2]} />
         <meshStandardMaterial color="#8B4513" />
-      </Box>
+      </mesh>
       
       {/* Roof */}
       <mesh position={[0, 1.5, 0]}>
@@ -33,22 +35,26 @@ const House3D = () => {
       </mesh>
       
       {/* Door */}
-      <Box position={[0, -0.5, 1.01]} args={[0.6, 1, 0.1]}>
+      <mesh position={[0, -0.5, 1.01]}>
+        <boxGeometry args={[0.6, 1, 0.1]} />
         <meshStandardMaterial color="#4A4A4A" />
-      </Box>
+      </mesh>
       
       {/* Windows */}
-      <Box position={[-0.8, 0.2, 1.01]} args={[0.6, 0.6, 0.1]}>
+      <mesh position={[-0.8, 0.2, 1.01]}>
+        <boxGeometry args={[0.6, 0.6, 0.1]} />
         <meshStandardMaterial color="#87CEEB" />
-      </Box>
-      <Box position={[0.8, 0.2, 1.01]} args={[0.6, 0.6, 0.1]}>
+      </mesh>
+      <mesh position={[0.8, 0.2, 1.01]}>
+        <boxGeometry args={[0.6, 0.6, 0.1]} />
         <meshStandardMaterial color="#87CEEB" />
-      </Box>
+      </mesh>
       
       {/* Chimney */}
-      <Box position={[1, 2.5, -0.5]} args={[0.3, 1, 0.3]}>
+      <mesh position={[1, 2.5, -0.5]}>
+        <boxGeometry args={[0.3, 1, 0.3]} />
         <meshStandardMaterial color="#8B4513" />
-      </Box>
+      </mesh>
     </group>
   );
 };
@@ -64,12 +70,22 @@ const Property3DViewer = ({ propertyName, propertyType }: Property3DViewerProps)
       </CardHeader>
       <CardContent>
         <div className="w-full h-64 bg-gradient-to-b from-blue-100 to-green-100 rounded-lg overflow-hidden">
-          <Canvas camera={{ position: [5, 5, 5], fov: 60 }}>
+          <Canvas 
+            camera={{ position: [5, 5, 5], fov: 60 }}
+            gl={{ antialias: true }}
+            dpr={[1, 2]}
+          >
             <Suspense fallback={null}>
               <ambientLight intensity={0.6} />
               <directionalLight position={[10, 10, 5]} intensity={1} />
               <House3D />
-              <OrbitControls enablePan={false} enableZoom={true} enableRotate={true} />
+              <OrbitControls 
+                enablePan={false} 
+                enableZoom={true} 
+                enableRotate={true}
+                maxDistance={10}
+                minDistance={3}
+              />
             </Suspense>
           </Canvas>
         </div>
