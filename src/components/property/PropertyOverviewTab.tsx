@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PropertyImage } from "@/hooks/usePropertyData";
 import PropertyImageCarousel from "@/components/PropertyImageCarousel";
 import PropertyDetailsCard from "./PropertyDetailsCard";
+import { Button } from "@/components/ui/button";
+import { ExternalLink, Shield } from "lucide-react";
 
 interface PropertyOverviewTabProps {
   propertyName: string;
@@ -26,6 +28,33 @@ const PropertyOverviewTab = ({
 }: PropertyOverviewTabProps) => {
   // Extract property type from name or default to "Single Family"
   const propertyType = propertyName.includes("Multi") ? "Multi-Family" : "Single Family";
+
+  // Mock contract address and token ID for demonstration
+  const contractAddress = "0x742d35Cc6634C0532925a3b8D4321de17b4c8973";
+  const tokenId = "12345";
+  
+  const explorerLinks = [
+    {
+      name: "Etherscan",
+      url: `https://etherscan.io/token/${contractAddress}?a=${tokenId}`,
+      icon: ExternalLink
+    },
+    {
+      name: "OpenSea",
+      url: `https://opensea.io/assets/ethereum/${contractAddress}/${tokenId}`,
+      icon: ExternalLink
+    },
+    {
+      name: "Rarible",
+      url: `https://rarible.com/token/${contractAddress}:${tokenId}`,
+      icon: ExternalLink
+    },
+    {
+      name: "LooksRare",
+      url: `https://looksrare.org/collections/${contractAddress}/${tokenId}`,
+      icon: ExternalLink
+    }
+  ];
 
   return (
     <div className="space-y-8">
@@ -62,6 +91,81 @@ const PropertyOverviewTab = ({
           propertyType={propertyType}
         />
       </div>
+
+      {/* Proof of Authenticity */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Shield className="mr-2 h-5 w-5 text-primary" />
+            Proof of Authenticity
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <p className="text-muted-foreground">
+              This property has been tokenized as an NFT on the Ethereum blockchain. You can verify the authenticity and ownership details on various blockchain explorers.
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <h4 className="font-semibold mb-2">Contract Details</h4>
+                <ul className="space-y-2 text-sm">
+                  <li className="flex justify-between">
+                    <span className="text-muted-foreground">Contract Address:</span>
+                    <code className="bg-muted px-2 py-1 rounded text-xs font-mono">
+                      {contractAddress.slice(0, 10)}...{contractAddress.slice(-8)}
+                    </code>
+                  </li>
+                  <li className="flex justify-between">
+                    <span className="text-muted-foreground">Token ID:</span>
+                    <code className="bg-muted px-2 py-1 rounded text-xs font-mono">{tokenId}</code>
+                  </li>
+                  <li className="flex justify-between">
+                    <span className="text-muted-foreground">Token Standard:</span>
+                    <span className="font-medium">ERC-1155</span>
+                  </li>
+                  <li className="flex justify-between">
+                    <span className="text-muted-foreground">Blockchain:</span>
+                    <span className="font-medium">Ethereum Mainnet</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h4 className="font-semibold mb-2">View on Explorers</h4>
+                <div className="grid grid-cols-1 gap-2">
+                  {explorerLinks.map((explorer) => (
+                    <Button
+                      key={explorer.name}
+                      variant="outline"
+                      size="sm"
+                      className="justify-between"
+                      asChild
+                    >
+                      <a
+                        href={explorer.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center"
+                      >
+                        <span>View on {explorer.name}</span>
+                        <explorer.icon className="ml-2 h-4 w-4" />
+                      </a>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 p-4 bg-muted/50 rounded-lg">
+              <p className="text-sm text-muted-foreground">
+                <Shield className="inline mr-1 h-4 w-4" />
+                <strong>Security Note:</strong> Always verify the contract address matches the official property tokenization contract before making any transactions. This ensures you're interacting with the authentic property NFT.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Property Description */}
       <Card>
