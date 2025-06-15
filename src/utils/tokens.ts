@@ -1,4 +1,3 @@
-
 import { ethers } from "ethers";
 
 // Standard ERC-20 Token ABI (minimal needed for balance check)
@@ -175,7 +174,10 @@ export const getSolanaTokenBalances = async (
   address: string
 ): Promise<TokenBalance[]> => {
   try {
+    console.log('Fetching Solana token balances for address:', address);
+    
     if (!phantomProvider || !phantomProvider.isPhantom) {
+      console.log('Phantom provider not available or not connected');
       return [];
     }
 
@@ -183,6 +185,7 @@ export const getSolanaTokenBalances = async (
     
     // Add SOL native token
     try {
+      console.log('Fetching SOL balance...');
       const response = await fetch(`https://api.mainnet-beta.solana.com`, {
         method: 'POST',
         headers: {
@@ -197,8 +200,11 @@ export const getSolanaTokenBalances = async (
       });
       
       const data = await response.json();
-      if (data.result) {
+      console.log('SOL balance response:', data);
+      
+      if (data.result && data.result.value > 0) {
         const balance = data.result.value / 1000000000; // Convert lamports to SOL
+        console.log('SOL balance found:', balance);
         tokens.push({
           type: 'SPL',
           name: 'Solana',
@@ -210,11 +216,14 @@ export const getSolanaTokenBalances = async (
           chain: 'Solana',
           logo: 'https://assets.coingecko.com/coins/images/4128/small/solana.png'
         });
+      } else {
+        console.log('No SOL balance found or balance is 0');
       }
     } catch (error) {
       console.error('Error fetching SOL balance:', error);
     }
 
+    console.log('Total Solana tokens found:', tokens.length);
     return tokens;
   } catch (error) {
     console.error('Error fetching Solana tokens:', error);
@@ -247,6 +256,13 @@ export const fetchLiveWalletTokens = async (
   error: string | null;
 }> => {
   try {
+    console.log('fetchLiveWalletTokens called with:', {
+      address,
+      chainId,
+      walletType,
+      hasProvider: !!provider
+    });
+
     if (!address) {
       return { tokens: [], nfts: [], error: 'No wallet address provided' };
     }
@@ -255,12 +271,17 @@ export const fetchLiveWalletTokens = async (
 
     // Handle Phantom wallet (Solana)
     if (walletType === 'phantom') {
+      console.log('Handling Phantom wallet...');
       const windowWithEthereum = window as any;
-      const phantomProvider = windowWithEthereum.phantom || windowWithEthereum.solana;
+      const phantomProvider = windowWithEthereum.phantom?.solana || windowWithEthereum.solana;
       
       if (phantomProvider) {
+        console.log('Phantom provider found, fetching Solana tokens...');
         const solanaTokens = await getSolanaTokenBalances(phantomProvider, address);
         tokens = [...tokens, ...solanaTokens];
+        console.log('Solana tokens fetched:', solanaTokens);
+      } else {
+        console.log('Phantom provider not found');
       }
       
       return { tokens, nfts: [], error: null };
@@ -268,17 +289,23 @@ export const fetchLiveWalletTokens = async (
 
     // Handle Ethereum-based wallets (MetaMask, Coinbase, etc.)
     if (provider && chainId) {
+      console.log('Handling EVM wallet...');
+      
       // Get native token (ETH, MATIC, etc.)
+      console.log('Fetching native token balance...');
       const nativeToken = await getNativeTokenBalance(provider, address, chainId);
       if (nativeToken) {
+        console.log('Native token found:', nativeToken);
         tokens.push(nativeToken);
       }
 
       // Get target ERC-20 tokens
       const targetTokens = TARGET_TOKENS[chainId] || [];
+      console.log('Target tokens for chain', chainId, ':', targetTokens);
       
       for (const tokenInfo of targetTokens) {
         try {
+          console.log('Fetching balance for token:', tokenInfo.symbol);
           const tokenBalance = await getERC20TokenBalance(
             provider,
             address,
@@ -287,7 +314,10 @@ export const fetchLiveWalletTokens = async (
             chainId
           );
           if (tokenBalance) {
+            console.log('Token balance found:', tokenBalance);
             tokens.push(tokenBalance);
+          } else {
+            console.log('No balance found for token:', tokenInfo.symbol);
           }
         } catch (error) {
           console.error(`Error fetching ${tokenInfo.symbol} balance:`, error);
@@ -295,9 +325,7 @@ export const fetchLiveWalletTokens = async (
       }
     }
 
-    // Note: BTC would require a separate API call since it's not directly accessible via MetaMask
-    // You'd need to use services like BlockCypher, Blockchain.info API, etc.
-
+    console.log('Total tokens found:', tokens.length);
     return { tokens, nfts: [], error: null };
   } catch (error: any) {
     console.error('Error fetching live wallet tokens:', error);
