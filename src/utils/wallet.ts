@@ -1,3 +1,4 @@
+
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
 
@@ -45,7 +46,45 @@ export const connectWallet = async (walletType: WalletType = 'metamask'): Promis
       phantom?: any;
     };
     
-    // Get the specific provider based on the wallet type
+    // Handle Phantom wallet separately since it's Solana-based
+    if (walletType === 'phantom') {
+      const phantomProvider = windowWithEthereum.phantom?.solana || windowWithEthereum.solana;
+      
+      if (phantomProvider && phantomProvider.isPhantom) {
+        console.log('Connecting to Phantom wallet...');
+        
+        try {
+          // Connect to Phantom wallet with explicit request
+          const response = await phantomProvider.connect({ onlyIfTrusted: false });
+          console.log('Phantom connection response:', response);
+          
+          if (response.publicKey) {
+            // Store the wallet type in local storage for persistence
+            localStorage.setItem('walletType', 'phantom');
+            
+            return {
+              address: response.publicKey.toString(),
+              connected: true,
+              chainId: 0, // Solana doesn't use EVM chainId
+              provider: null, // Not an EVM provider
+              signer: null,
+              balance: "0", // Would need Solana-specific balance fetching
+              networkName: "Solana",
+              walletType: 'phantom'
+            };
+          } else {
+            throw new Error('Failed to get public key from Phantom');
+          }
+        } catch (phantomError) {
+          console.error('Phantom connection error:', phantomError);
+          throw new Error(`Phantom connection failed: ${phantomError.message}`);
+        }
+      } else {
+        throw new Error('Phantom Wallet not available. Please install Phantom wallet extension.');
+      }
+    }
+    
+    // Handle EVM-based wallets (MetaMask, Coinbase, Trust Wallet)
     let provider;
     
     switch (walletType) {
@@ -79,104 +118,65 @@ export const connectWallet = async (walletType: WalletType = 'metamask'): Promis
           throw new Error('Trust Wallet not available');
         }
         break;
-      case 'phantom':
-        // For Phantom wallet - improved detection and connection
-        const phantomProvider = windowWithEthereum.phantom?.solana || windowWithEthereum.solana;
-        
-        if (phantomProvider && phantomProvider.isPhantom) {
-          console.log('Connecting to Phantom wallet...');
-          
-          try {
-            // Connect to Phantom wallet with explicit request
-            const response = await phantomProvider.connect({ onlyIfTrusted: false });
-            console.log('Phantom connection response:', response);
-            
-            if (response.publicKey) {
-              return {
-                address: response.publicKey.toString(),
-                connected: true,
-                chainId: 0, // Solana doesn't use EVM chainId
-                provider: null, // Not an EVM provider
-                signer: null,
-                balance: "0", // Would need Solana-specific balance fetching
-                networkName: "Solana",
-                walletType: 'phantom'
-              };
-            } else {
-              throw new Error('Failed to get public key from Phantom');
-            }
-          } catch (phantomError) {
-            console.error('Phantom connection error:', phantomError);
-            throw new Error(`Phantom connection failed: ${phantomError.message}`);
-          }
-        } else {
-          throw new Error('Phantom Wallet not available. Please install Phantom wallet extension.');
-        }
-        break;
       default:
-        // Use web3Modal as fallback for other wallet types or if specific provider not found
+        // Use web3Modal as fallback for other wallet types
         provider = await web3Modal.connect();
     }
     
-    if (!provider && walletType !== 'phantom') {
+    if (!provider) {
       throw new Error(`${walletType} wallet not available or not selected`);
     }
     
-    // Create ethers provider from the wallet provider (skip for phantom)
-    if (walletType !== 'phantom') {
-      const ethersProvider = new ethers.providers.Web3Provider(provider);
-      const signer = ethersProvider.getSigner();
-      const address = await signer.getAddress();
-      const network = await ethersProvider.getNetwork();
-      const balance = ethers.utils.formatEther(
-        await ethersProvider.getBalance(address)
-      );
-      
-      const networkNames: Record<number, string> = {
-        1: 'Ethereum Mainnet',
-        3: 'Ropsten',
-        4: 'Rinkeby',
-        5: 'Goerli',
-        42: 'Kovan',
-        56: 'Binance Smart Chain',
-        137: 'Polygon',
-        43114: 'Avalanche'
-      };
-      
-      const networkName = networkNames[network.chainId] || `Chain ID: ${network.chainId}`;
-      
-      // Subscribe to accounts change
-      provider.on("accountsChanged", (accounts: string[]) => {
-        window.location.reload();
-      });
-      
-      // Subscribe to chainId change
-      provider.on("chainChanged", (chainId: number) => {
-        window.location.reload();
-      });
-      
-      // Create wallet state
-      const walletState: WalletState = {
-        address,
-        connected: true,
-        chainId: network.chainId,
-        provider: ethersProvider,
-        signer,
-        balance,
-        networkName,
-        walletType
-      };
-      
-      // Store the wallet type in local storage for persistence
-      localStorage.setItem('walletType', walletType || '');
-      
-      console.log(`Successfully connected to ${walletType} wallet:`, walletState);
-      
-      return walletState;
-    }
+    // Create ethers provider from the wallet provider
+    const ethersProvider = new ethers.providers.Web3Provider(provider);
+    const signer = ethersProvider.getSigner();
+    const address = await signer.getAddress();
+    const network = await ethersProvider.getNetwork();
+    const balance = ethers.utils.formatEther(
+      await ethersProvider.getBalance(address)
+    );
     
-    // This should not be reached, but return initial state as fallback
-    return initialWalletState;
+    const networkNames: Record<number, string> = {
+      1: 'Ethereum Mainnet',
+      3: 'Ropsten',
+      4: 'Rinkeby',
+      5: 'Goerli',
+      42: 'Kovan',
+      56: 'Binance Smart Chain',
+      137: 'Polygon',
+      43114: 'Avalanche'
+    };
+    
+    const networkName = networkNames[network.chainId] || `Chain ID: ${network.chainId}`;
+    
+    // Subscribe to accounts change
+    provider.on("accountsChanged", (accounts: string[]) => {
+      window.location.reload();
+    });
+    
+    // Subscribe to chainId change
+    provider.on("chainChanged", (chainId: number) => {
+      window.location.reload();
+    });
+    
+    // Create wallet state
+    const walletState: WalletState = {
+      address,
+      connected: true,
+      chainId: network.chainId,
+      provider: ethersProvider,
+      signer,
+      balance,
+      networkName,
+      walletType
+    };
+    
+    // Store the wallet type in local storage for persistence
+    localStorage.setItem('walletType', walletType || '');
+    
+    console.log(`Successfully connected to ${walletType} wallet:`, walletState);
+    
+    return walletState;
   } catch (error) {
     console.error(`Error connecting to ${walletType} wallet:`, error);
     throw error; // Re-throw the error so the UI can handle it properly
