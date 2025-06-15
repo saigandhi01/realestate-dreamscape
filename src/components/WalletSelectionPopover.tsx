@@ -56,7 +56,7 @@ const WalletSelectionPopover = ({
     {
       name: "Phantom",
       type: "phantom" as WalletType,
-      icon: "https://phantom.app/img/logo.svg",
+      icon: "https://phantom.app/img/phantom-icon-purple.png",
       available: isPhantomWalletAvailable
     }
   ];

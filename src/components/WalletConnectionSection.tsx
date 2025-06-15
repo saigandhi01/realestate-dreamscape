@@ -29,7 +29,7 @@ const WalletConnectionSection = () => {
       case 'trustwallet':
         return "https://trustwallet.com/assets/images/media/assets/trust_platform_logo.svg";
       case 'phantom':
-        return "https://phantom.app/icons/phantom-icon-1.svg";
+        return "https://phantom.app/img/phantom-icon-purple.png";
       default:
         return null;
     }
@@ -66,7 +66,7 @@ const WalletConnectionSection = () => {
                 {wallet.address} ({wallet.networkName})
               </p>
               <p className="text-sm font-medium">
-                Balance: {wallet.balance ? `${parseFloat(wallet.balance).toFixed(4)} ETH` : '0 ETH'}
+                Balance: {wallet.balance ? `${parseFloat(wallet.balance).toFixed(4)} ${wallet.networkName === 'Solana' ? 'SOL' : 'ETH'}` : '0 ETH'}
               </p>
             </div>
             
@@ -112,6 +112,10 @@ const WalletConnectionSection = () => {
                   <span>|</span>
                   <a href="https://trustwallet.com/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                     Install Trust Wallet
+                  </a>
+                  <span>|</span>
+                  <a href="https://phantom.app/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                    Install Phantom
                   </a>
                 </div>
               </div>
