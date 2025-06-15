@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
 import { fetchLiveWalletTokens, TokenBalance } from '@/utils/tokens';
 import { WalletState } from '@/utils/wallet';
@@ -23,8 +23,8 @@ export const useUserTokens = ({ wallet, enabled = true }: UseUserTokensProps): U
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchTokens = async () => {
-    if (!wallet.address || !enabled) {
+  const fetchTokens = useCallback(async () => {
+    if (!wallet.address || !enabled || !wallet.connected) {
       return;
     }
 
@@ -59,7 +59,7 @@ export const useUserTokens = ({ wallet, enabled = true }: UseUserTokensProps): U
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [wallet.address, wallet.chainId, wallet.connected, wallet.walletType, wallet.provider, enabled]);
 
   useEffect(() => {
     if (wallet.connected && enabled && wallet.address) {
@@ -70,11 +70,11 @@ export const useUserTokens = ({ wallet, enabled = true }: UseUserTokensProps): U
       setTokens([]);
       setNfts([]);
     }
-  }, [wallet.address, wallet.chainId, wallet.connected, enabled]);
+  }, [fetchTokens]);
 
-  const refetch = async () => {
+  const refetch = useCallback(async () => {
     await fetchTokens();
-  };
+  }, [fetchTokens]);
 
   return { tokens, nfts, isLoading, error, refetch };
 };
