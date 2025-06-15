@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import { fetchUserTokens, TokenBalance } from '@/utils/tokens';
+import { fetchLiveWalletTokens, TokenBalance } from '@/utils/tokens';
 import { WalletState } from '@/utils/wallet';
 
 interface UseUserTokensProps {
@@ -32,21 +32,29 @@ export const useUserTokens = ({ wallet, enabled = true }: UseUserTokensProps): U
     setError(null);
 
     try {
+      console.log('Fetching live wallet tokens for:', {
+        address: wallet.address,
+        walletType: wallet.walletType,
+        chainId: wallet.chainId
+      });
+
       const { tokens: fetchedTokens, nfts: fetchedNfts, error: fetchError } = 
-        await fetchUserTokens(
+        await fetchLiveWalletTokens(
           wallet.address,
           wallet.provider as ethers.providers.Web3Provider,
-          wallet.chainId || 1
+          wallet.chainId || 1,
+          wallet.walletType || undefined
         );
 
       if (fetchError) {
         setError(fetchError);
       } else {
+        console.log('Fetched tokens:', fetchedTokens);
         setTokens(fetchedTokens);
         setNfts(fetchedNfts);
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch tokens');
+      setError(err.message || 'Failed to fetch live wallet tokens');
       console.error('Error in useUserTokens hook:', err);
     } finally {
       setIsLoading(false);
@@ -54,10 +62,15 @@ export const useUserTokens = ({ wallet, enabled = true }: UseUserTokensProps): U
   };
 
   useEffect(() => {
-    if (wallet.connected && enabled) {
+    if (wallet.connected && enabled && wallet.address) {
+      console.log('Wallet connected, fetching tokens...');
       fetchTokens();
+    } else {
+      // Clear tokens when wallet is disconnected
+      setTokens([]);
+      setNfts([]);
     }
-  }, [wallet.address, wallet.chainId, enabled]);
+  }, [wallet.address, wallet.chainId, wallet.connected, enabled]);
 
   const refetch = async () => {
     await fetchTokens();

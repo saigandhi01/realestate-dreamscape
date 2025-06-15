@@ -75,7 +75,8 @@ const Profile = () => {
     tokens,
     nfts,
     isLoading: isLoadingTokens,
-    error: tokensError
+    error: tokensError,
+    refetch: refetchTokens
   } = useUserTokens({
     wallet,
     enabled: wallet.connected
@@ -901,7 +902,7 @@ const Profile = () => {
             </div>
           </TabsContent>
 
-          {/* New Tab for Tokens & NFTs */}
+          {/* Updated Tab for Tokens & NFTs */}
           <TabsContent value="tokens" className="space-y-8">
             <div className="profile-tab-tokens p-8 rounded-xl">
               <Card className="bg-card/50 backdrop-blur-sm border-primary/10 shadow-lg">
@@ -909,10 +910,10 @@ const Profile = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <CardTitle className="flex items-center gap-2">
-                        <Coins className="h-5 w-5" /> Your Tokens & NFTs
+                        <Coins className="h-5 w-5" /> Your Live Wallet Tokens & NFTs
                       </CardTitle>
                       <CardDescription>
-                        View all tokens and NFTs in your connected wallet
+                        Real-time tokens from your connected {wallet.walletType} wallet
                       </CardDescription>
                     </div>
                     {wallet.connected && (
@@ -929,7 +930,7 @@ const Profile = () => {
                       <Wallet className="h-12 w-12 text-muted-foreground mb-4" />
                       <h3 className="text-lg font-medium mb-2">No Wallet Connected</h3>
                       <p className="text-muted-foreground text-center mb-6">
-                        Connect your wallet to view your tokens and NFTs
+                        Connect your MetaMask or Phantom wallet to view live token balances
                       </p>
                       <WalletConnectionSection />
                     </div>
@@ -940,6 +941,7 @@ const Profile = () => {
                       isLoading={isLoadingTokens}
                       error={tokensError}
                       chainId={wallet.chainId}
+                      onRefresh={refetchTokens}
                     />
                   )}
                 </CardContent>

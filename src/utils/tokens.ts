@@ -9,16 +9,7 @@ const ERC20_ABI = [
   "function balanceOf(address owner) view returns (uint256)"
 ];
 
-// Standard ERC-721 Token ABI (minimal needed for NFT detection)
-const ERC721_ABI = [
-  "function name() view returns (string)",
-  "function symbol() view returns (string)",
-  "function balanceOf(address owner) view returns (uint256)",
-  "function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)",
-  "function tokenURI(uint256 tokenId) view returns (string)"
-];
-
-export type TokenType = 'ERC20' | 'ERC721' | 'ERC1155' | 'NATIVE';
+export type TokenType = 'ERC20' | 'ERC721' | 'ERC1155' | 'NATIVE' | 'SPL';
 
 export interface TokenBalance {
   type: TokenType;
@@ -32,6 +23,8 @@ export interface TokenBalance {
   logo?: string;
   tokenId?: string;
   metadata?: any;
+  price?: number;
+  value?: number;
 }
 
 // Networks supported by our application
@@ -85,7 +78,26 @@ export const NETWORKS: { [chainId: number]: NetworkConfig } = {
     blockExplorerUrl: 'https://bscscan.com',
     iconUrl: 'https://assets.coingecko.com/coins/images/12591/small/binance-coin-logo.png'
   },
-  // Add more networks as needed
+};
+
+// Define the target tokens we want to display
+const TARGET_TOKENS = {
+  1: [ // Ethereum Mainnet
+    {
+      address: '0xA0b86a33E6417bab9c3f3aB3c5c5A9b7cbDB3a9F',
+      symbol: 'USDC',
+      name: 'USD Coin',
+      decimals: 6,
+      logo: 'https://assets.coingecko.com/coins/images/6319/small/USD_Coin_icon.png'
+    },
+    {
+      address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+      symbol: 'USDT',
+      name: 'Tether USD',
+      decimals: 6,
+      logo: 'https://assets.coingecko.com/coins/images/325/small/Tether.png'
+    }
+  ]
 };
 
 // Fetch Native Token Balance (ETH, MATIC, etc.)
@@ -106,7 +118,7 @@ export const getNativeTokenBalance = async (
       type: 'NATIVE',
       name: network.nativeCurrency.name,
       symbol: network.nativeCurrency.symbol,
-      address: '0x0000000000000000000000000000000000000000', // Convention for native token
+      address: '0x0000000000000000000000000000000000000000',
       balance: balance.toString(),
       formattedBalance: ethers.utils.formatUnits(balance, network.nativeCurrency.decimals),
       decimals: network.nativeCurrency.decimals,
@@ -124,18 +136,16 @@ export const getERC20TokenBalance = async (
   provider: ethers.providers.Provider,
   userAddress: string,
   tokenAddress: string,
+  tokenInfo: any,
   chainId: number
 ): Promise<TokenBalance | null> => {
   try {
     const contract = new ethers.Contract(tokenAddress, ERC20_ABI, provider);
     const balance = await contract.balanceOf(userAddress);
-    const name = await contract.name();
-    const symbol = await contract.symbol();
-    const decimals = await contract.decimals();
     const network = NETWORKS[chainId];
     
     if (!balance || balance.isZero()) {
-      return null; // Don't return zero balances
+      return null;
     }
     
     if (!network) {
@@ -144,14 +154,14 @@ export const getERC20TokenBalance = async (
     
     return {
       type: 'ERC20',
-      name,
-      symbol,
+      name: tokenInfo.name,
+      symbol: tokenInfo.symbol,
       address: tokenAddress,
       balance: balance.toString(),
-      formattedBalance: ethers.utils.formatUnits(balance, decimals),
-      decimals,
+      formattedBalance: ethers.utils.formatUnits(balance, tokenInfo.decimals),
+      decimals: tokenInfo.decimals,
       chain: network.name,
-      logo: `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/${network.name.toLowerCase()}/assets/${tokenAddress}/logo.png`
+      logo: tokenInfo.logo
     };
   } catch (error) {
     console.error(`Error fetching ERC-20 balance for ${tokenAddress}:`, error);
@@ -159,172 +169,153 @@ export const getERC20TokenBalance = async (
   }
 };
 
-// Fetch NFTs (ERC-721 tokens)
-export const getERC721TokensForOwner = async (
-  provider: ethers.providers.Provider,
-  userAddress: string,
-  contractAddress: string,
-  chainId: number
+// Fetch Solana token balances for Phantom wallet
+export const getSolanaTokenBalances = async (
+  phantomProvider: any,
+  address: string
 ): Promise<TokenBalance[]> => {
   try {
-    const contract = new ethers.Contract(contractAddress, ERC721_ABI, provider);
-    const balance = await contract.balanceOf(userAddress);
-    
-    if (balance.eq(0)) {
+    if (!phantomProvider || !phantomProvider.isPhantom) {
       return [];
     }
-    
-    const name = await contract.name();
-    const symbol = await contract.symbol();
-    const network = NETWORKS[chainId];
-    
-    if (!network) {
-      throw new Error(`Unsupported chain ID: ${chainId}`);
-    }
-    
-    const nfts: TokenBalance[] = [];
-    
-    // Fetch each NFT token ID and metadata
-    for (let i = 0; i < balance.toNumber(); i++) {
-      try {
-        const tokenId = await contract.tokenOfOwnerByIndex(userAddress, i);
-        let metadata: any = {};
-        
-        try {
-          const tokenURI = await contract.tokenURI(tokenId);
-          // If it's IPFS URI, convert to HTTP
-          const metadataUrl = tokenURI.replace('ipfs://', 'https://ipfs.io/ipfs/');
-          
-          // Fetch metadata (will handle this in real implementation)
-          // For now just store the URL
-          metadata = { tokenURI: metadataUrl };
-        } catch (e) {
-          console.warn(`Could not fetch token URI for token ID ${tokenId}`, e);
-        }
-        
-        nfts.push({
-          type: 'ERC721',
-          name,
-          symbol,
-          address: contractAddress,
-          balance: '1', // NFTs are non-fungible, so you own 1 of each token ID
-          formattedBalance: '1',
-          decimals: 0,
-          chain: network.name,
-          tokenId: tokenId.toString(),
-          metadata
-        });
-      } catch (e) {
-        console.warn(`Error fetching NFT at index ${i}:`, e);
-      }
-    }
-    
-    return nfts;
-  } catch (error) {
-    console.error(`Error fetching ERC-721 tokens from ${contractAddress}:`, error);
-    return [];
-  }
-};
 
-// Utility function to fetch token balances from a public API
-// This is a fallback when we don't have a list of contract addresses
-export const fetchTokenBalancesFromAPI = async (
-  address: string,
-  chainId: number
-): Promise<TokenBalance[]> => {
-  try {
-    // We'll use the Covalent API as an example
-    // In a production app, you'd want to hide this key in an environment variable
-    // For the purposes of this demo, we're using their public API key
-    const apiKey = 'cqt_rQVQCkxfJqPMjkMqJWWQHGDKMvPX'; // Replace with your API key
-    const network = NETWORKS[chainId];
-    
-    if (!network) {
-      throw new Error(`Unsupported chain ID: ${chainId}`);
-    }
-    
-    const url = `https://api.covalenthq.com/v1/${chainId}/address/${address}/balances_v2/?key=${apiKey}`;
-    
-    const response = await fetch(url);
-    
-    if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}`);
-    }
-    
-    const data = await response.json();
-    
-    if (!data.data || !data.data.items) {
-      return [];
-    }
-    
     const tokens: TokenBalance[] = [];
     
-    // Process the response
-    for (const item of data.data.items) {
-      if (item.balance === '0') continue; // Skip zero balances
-      
-      const tokenType = item.type === 'nft' ? 'ERC721' :
-                       item.type === 'cryptocurrency' && item.native_token ? 'NATIVE' : 'ERC20';
-      
-      tokens.push({
-        type: tokenType as TokenType,
-        name: item.contract_name || 'Unknown',
-        symbol: item.contract_ticker_symbol || '???',
-        address: item.contract_address,
-        balance: item.balance,
-        formattedBalance: ethers.utils.formatUnits(item.balance, item.contract_decimals),
-        decimals: item.contract_decimals,
-        chain: network.name,
-        logo: item.logo_url,
-        tokenId: item.nft_data ? item.nft_data[0]?.token_id : undefined,
-        metadata: item.nft_data ? item.nft_data[0] : undefined
+    // Add SOL native token
+    try {
+      const response = await fetch(`https://api.mainnet-beta.solana.com`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'getBalance',
+          params: [address],
+        }),
       });
+      
+      const data = await response.json();
+      if (data.result) {
+        const balance = data.result.value / 1000000000; // Convert lamports to SOL
+        tokens.push({
+          type: 'SPL',
+          name: 'Solana',
+          symbol: 'SOL',
+          address: 'So11111111111111111111111111111111111111112',
+          balance: data.result.value.toString(),
+          formattedBalance: balance.toFixed(6),
+          decimals: 9,
+          chain: 'Solana',
+          logo: 'https://assets.coingecko.com/coins/images/4128/small/solana.png'
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching SOL balance:', error);
     }
-    
+
     return tokens;
   } catch (error) {
-    console.error(`Error fetching tokens from API for chain ${chainId}:`, error);
+    console.error('Error fetching Solana tokens:', error);
     return [];
   }
 };
 
-// Main function to fetch all tokens and NFTs for a user
-export const fetchUserTokens = async (
+// Fetch BTC balance (this would typically require a different API)
+export const getBitcoinBalance = async (address: string): Promise<TokenBalance | null> => {
+  try {
+    // For Bitcoin, we'd typically need to use a Bitcoin API
+    // For now, return a placeholder since we can't directly connect to Bitcoin from MetaMask
+    console.log('Bitcoin balance fetching not implemented for direct wallet connection');
+    return null;
+  } catch (error) {
+    console.error('Error fetching Bitcoin balance:', error);
+    return null;
+  }
+};
+
+// Main function to fetch live wallet tokens
+export const fetchLiveWalletTokens = async (
   address: string,
   provider?: ethers.providers.Web3Provider | null,
-  chainId: number = 1 // Default to Ethereum
+  chainId: number = 1,
+  walletType?: string
 ): Promise<{
   tokens: TokenBalance[];
   nfts: TokenBalance[];
-  loading?: boolean;
   error: string | null;
 }> => {
   try {
     if (!address) {
       return { tokens: [], nfts: [], error: 'No wallet address provided' };
     }
-    
-    let results: TokenBalance[] = [];
-    
-    // Get native token balance if provider is available
-    if (provider) {
+
+    let tokens: TokenBalance[] = [];
+
+    // Handle Phantom wallet (Solana)
+    if (walletType === 'phantom') {
+      const windowWithEthereum = window as any;
+      const phantomProvider = windowWithEthereum.phantom || windowWithEthereum.solana;
+      
+      if (phantomProvider) {
+        const solanaTokens = await getSolanaTokenBalances(phantomProvider, address);
+        tokens = [...tokens, ...solanaTokens];
+      }
+      
+      return { tokens, nfts: [], error: null };
+    }
+
+    // Handle Ethereum-based wallets (MetaMask, Coinbase, etc.)
+    if (provider && chainId) {
+      // Get native token (ETH, MATIC, etc.)
       const nativeToken = await getNativeTokenBalance(provider, address, chainId);
       if (nativeToken) {
-        results.push(nativeToken);
+        tokens.push(nativeToken);
+      }
+
+      // Get target ERC-20 tokens
+      const targetTokens = TARGET_TOKENS[chainId] || [];
+      
+      for (const tokenInfo of targetTokens) {
+        try {
+          const tokenBalance = await getERC20TokenBalance(
+            provider,
+            address,
+            tokenInfo.address,
+            tokenInfo,
+            chainId
+          );
+          if (tokenBalance) {
+            tokens.push(tokenBalance);
+          }
+        } catch (error) {
+          console.error(`Error fetching ${tokenInfo.symbol} balance:`, error);
+        }
       }
     }
-    
-    // Use public API to fetch token balances
-    const apiResults = await fetchTokenBalancesFromAPI(address, chainId);
-    results = [...results, ...apiResults];
-    
-    // Separate tokens and NFTs
-    const tokens = results.filter(token => token.type === 'NATIVE' || token.type === 'ERC20');
-    const nfts = results.filter(token => token.type === 'ERC721' || token.type === 'ERC1155');
-    
-    return { tokens, nfts, error: null };
+
+    // Note: BTC would require a separate API call since it's not directly accessible via MetaMask
+    // You'd need to use services like BlockCypher, Blockchain.info API, etc.
+
+    return { tokens, nfts: [], error: null };
   } catch (error: any) {
-    console.error('Error fetching user tokens:', error);
-    return { tokens: [], nfts: [], error: error.message || 'Failed to fetch tokens' };
+    console.error('Error fetching live wallet tokens:', error);
+    return { tokens: [], nfts: [], error: error.message || 'Failed to fetch live tokens' };
   }
+};
+
+// Legacy function for compatibility - now delegates to live wallet fetching
+export const fetchUserTokens = async (
+  address: string,
+  provider?: ethers.providers.Web3Provider | null,
+  chainId: number = 1
+): Promise<{
+  tokens: TokenBalance[];
+  nfts: TokenBalance[];
+  loading?: boolean;
+  error: string | null;
+}> => {
+  const result = await fetchLiveWalletTokens(address, provider, chainId);
+  return result;
 };
