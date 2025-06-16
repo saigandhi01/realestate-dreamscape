@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { LogIn, UserPlus, Phone, Facebook, Github, Twitter } from "lucide-react";
+import { LogIn, UserPlus, Phone, Facebook, Github, Twitter, Users } from "lucide-react";
 import WalletSelectionPopover from "@/components/WalletSelectionPopover";
 
 type MainLoginOptionsProps = {
@@ -27,6 +27,14 @@ const MainLoginOptions = ({ onSelectOption, onSocialLogin }: MainLoginOptionsPro
       >
         <UserPlus className="h-5 w-5" />
         Create New Account
+      </Button>
+      <Button 
+        variant="outline" 
+        onClick={() => onSelectOption("employee")}
+        className="flex items-center justify-center gap-2"
+      >
+        <Users className="h-5 w-5" />
+        Employee Login
       </Button>
       <WalletSelectionPopover triggerText="Connect with Wallet" variant="default" />
       <Button 

@@ -2,7 +2,7 @@
 import React from "react";
 import { DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
-type View = "main" | "email" | "social" | "wallet" | "create-account" | "phone" | "verify-otp";
+type View = "main" | "email" | "social" | "wallet" | "create-account" | "phone" | "verify-otp" | "employee";
 
 type LoginDialogHeaderProps = {
   view: View;
@@ -15,6 +15,7 @@ const LoginDialogHeader = ({ view, phoneNumber }: LoginDialogHeaderProps) => {
       case "main": return "Connect to TokenEstate";
       case "email": return "Sign In with Email";
       case "create-account": return "Create New Account";
+      case "employee": return "Employee Login";
       case "social": return "Connect with Social";
       case "wallet": return "Connect Wallet";
       case "phone": return "Phone Verification";
@@ -28,6 +29,7 @@ const LoginDialogHeader = ({ view, phoneNumber }: LoginDialogHeaderProps) => {
       case "main": return "Connect your wallet to access the TokenEstate platform and invest in tokenized real estate.";
       case "email": return "Sign in with your email and password.";
       case "create-account": return "Create a new account to join TokenEstate.";
+      case "employee": return "Sign in with your employee credentials to access the admin dashboard.";
       case "social": return "Connect with your social accounts.";
       case "wallet": return "Connect with your crypto wallet.";
       case "phone": return "Verify your phone number to continue.";

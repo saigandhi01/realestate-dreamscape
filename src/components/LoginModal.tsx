@@ -5,7 +5,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { z } from "zod";
 import { toast } from "@/hooks/use-toast";
 
-// Import our new component files
+// Import our component files
 import LoginDialogHeader from "@/components/auth/LoginDialogHeader";
 import MainLoginOptions from "@/components/auth/MainLoginOptions";
 import EmailSignInForm, { emailSignInSchema } from "@/components/auth/EmailSignInForm";
@@ -13,8 +13,9 @@ import CreateAccountForm, { createAccountSchema } from "@/components/auth/Create
 import PhoneVerificationForm, { phoneVerificationSchema } from "@/components/auth/PhoneVerificationForm";
 import OTPVerificationForm, { otpVerificationSchema } from "@/components/auth/OTPVerificationForm";
 import SocialLoginOptions from "@/components/auth/SocialLoginOptions";
+import EmployeeLoginForm, { employeeLoginSchema } from "@/components/auth/EmployeeLoginForm";
 
-type View = "main" | "email" | "social" | "wallet" | "create-account" | "phone" | "verify-otp";
+type View = "main" | "email" | "social" | "wallet" | "create-account" | "phone" | "verify-otp" | "employee";
 
 const LoginModal = () => {
   const { 
@@ -40,6 +41,16 @@ const LoginModal = () => {
       variant: "default",
     });
     connectWithEmail(values.email, values.password);
+  };
+
+  const handleEmployeeLogin = (values: z.infer<typeof employeeLoginSchema>) => {
+    // Simulate employee login
+    toast({
+      title: "Employee Login Successful",
+      description: `Welcome back, Employee ${values.employeeId}!`,
+      variant: "default",
+    });
+    closeLoginModal();
   };
 
   const handlePhoneVerification = (values: z.infer<typeof phoneVerificationSchema>) => {
@@ -106,6 +117,14 @@ const LoginModal = () => {
         {view === "create-account" && (
           <CreateAccountForm 
             onSubmit={handleCreateAccount}
+            isConnecting={isConnecting}
+            onBack={() => setView("main")}
+          />
+        )}
+
+        {view === "employee" && (
+          <EmployeeLoginForm 
+            onSubmit={handleEmployeeLogin}
             isConnecting={isConnecting}
             onBack={() => setView("main")}
           />
