@@ -1,6 +1,7 @@
+
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Wallet, LogOut, User, UserRound } from 'lucide-react';
+import { Menu, X, Wallet, LogOut, User, UserRound, Plus, Users } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
 import { truncateAddress } from '@/utils/wallet';
@@ -124,6 +125,14 @@ const Navbar = () => {
           
           {isLoggedIn ? (
             <div className="flex items-center space-x-2">
+              <Button variant="outline" className="gap-2">
+                <Plus className="h-4 w-4" />
+                List Property
+              </Button>
+              <Button variant="outline" className="gap-2">
+                <Users className="h-4 w-4" />
+                Employee Dashboard
+              </Button>
               <Link to="/profile" className="p-2 text-primary hover:text-primary/80 transition-colors">
                 <UserRound className="h-6 w-6" />
               </Link>
@@ -204,6 +213,14 @@ const Navbar = () => {
           ))}
           {isLoggedIn ? (
             <>
+              <Button variant="outline" className="justify-start gap-2 w-full">
+                <Plus className="h-4 w-4" />
+                List Property
+              </Button>
+              <Button variant="outline" className="justify-start gap-2 w-full">
+                <Users className="h-4 w-4" />
+                Employee Dashboard
+              </Button>
               <Link to="/profile" className="flex items-center py-2 font-medium text-primary hover:text-primary/80">
                 <UserRound className="mr-2 h-5 w-5" />
                 Profile
