@@ -7,32 +7,39 @@ import { MapPin, TrendingUp, Users, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import PropertyTransactionButton from './marketplace/PropertyTransactionButton';
 
-interface Property {
+export interface Property {
   id: string;
-  title: string;
+  name?: string;
+  title?: string;
   location: string;
-  price: string;
+  price: number;
   image: string;
-  roi: string;
+  roi?: string;
   investors: number;
-  description: string;
+  description?: string;
   type: string;
-  tokenPrice: string;
-  totalTokens: number;
-  availableTokens: number;
+  tokenPrice: number;
+  totalTokens?: number;
+  availableTokens?: number;
+  funded?: number;
+  target?: number;
 }
 
 interface PropertyCardProps {
   property: Property;
   view?: 'grid' | 'list';
+  index?: number;
 }
 
-const PropertyCard: React.FC<PropertyCardProps> = ({ property, view = 'grid' }) => {
+const PropertyCard: React.FC<PropertyCardProps> = ({ property, view = 'grid', index }) => {
   const navigate = useNavigate();
 
   const handleViewDetails = () => {
     navigate(`/property/${property.id}`);
   };
+
+  // Use either name or title for display
+  const displayName = property.name || property.title || 'Property';
 
   if (view === 'list') {
     return (
@@ -41,7 +48,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, view = 'grid' }) 
           <div className="md:w-1/3">
             <img 
               src={property.image} 
-              alt={property.title}
+              alt={displayName}
               className="w-full h-48 md:h-full object-cover"
             />
           </div>
@@ -49,7 +56,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, view = 'grid' }) 
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{property.title}</h3>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{displayName}</h3>
                   <div className="flex items-center text-gray-600 mb-2">
                     <MapPin className="h-4 w-4 mr-1" />
                     <span>{property.location}</span>
@@ -61,20 +68,24 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, view = 'grid' }) 
               </div>
             </CardHeader>
             <CardContent className="flex-grow">
-              <p className="text-gray-600 mb-4">{property.description}</p>
+              {property.description && (
+                <p className="text-gray-600 mb-4">{property.description}</p>
+              )}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
                   <p className="text-sm text-gray-500">Property Value</p>
-                  <p className="font-semibold text-lg">{property.price}</p>
+                  <p className="font-semibold text-lg">${property.price.toLocaleString()}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Token Price</p>
-                  <p className="font-semibold text-lg text-purple-600">{property.tokenPrice}</p>
+                  <p className="font-semibold text-lg text-purple-600">${property.tokenPrice}</p>
                 </div>
-                <div className="flex items-center">
-                  <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-                  <span className="font-semibold text-green-600">{property.roi}</span>
-                </div>
+                {property.roi && (
+                  <div className="flex items-center">
+                    <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+                    <span className="font-semibold text-green-600">{property.roi}</span>
+                  </div>
+                )}
                 <div className="flex items-center">
                   <Users className="h-4 w-4 text-blue-500 mr-1" />
                   <span className="font-semibold">{property.investors}</span>
@@ -108,7 +119,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, view = 'grid' }) 
       <div className="relative">
         <img 
           src={property.image} 
-          alt={property.title}
+          alt={displayName}
           className="w-full h-48 object-cover"
         />
         <Badge 
@@ -120,7 +131,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, view = 'grid' }) 
       </div>
       
       <CardHeader className="pb-3">
-        <h3 className="text-lg font-semibold text-gray-900 leading-tight">{property.title}</h3>
+        <h3 className="text-lg font-semibold text-gray-900 leading-tight">{displayName}</h3>
         <div className="flex items-center text-gray-600">
           <MapPin className="h-4 w-4 mr-1" />
           <span className="text-sm">{property.location}</span>
@@ -131,17 +142,19 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, view = 'grid' }) 
         <div className="space-y-3">
           <div className="flex justify-between">
             <span className="text-sm text-gray-500">Property Value</span>
-            <span className="font-semibold">{property.price}</span>
+            <span className="font-semibold">${property.price.toLocaleString()}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-gray-500">Token Price</span>
-            <span className="font-semibold text-purple-600">{property.tokenPrice}</span>
+            <span className="font-semibold text-purple-600">${property.tokenPrice}</span>
           </div>
           <div className="flex justify-between items-center">
-            <div className="flex items-center">
-              <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-              <span className="font-semibold text-green-600">{property.roi}</span>
-            </div>
+            {property.roi && (
+              <div className="flex items-center">
+                <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+                <span className="font-semibold text-green-600">{property.roi}</span>
+              </div>
+            )}
             <div className="flex items-center">
               <Users className="h-4 w-4 text-blue-500 mr-1" />
               <span className="font-semibold">{property.investors}</span>

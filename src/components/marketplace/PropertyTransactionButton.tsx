@@ -8,15 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Wallet, ShoppingCart, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { transactionToast } from '@/components/ui/transaction-toast';
-
-interface Property {
-  id: string;
-  title: string;
-  price: string;
-  tokenPrice: string;
-  totalTokens: number;
-  availableTokens: number;
-}
+import { Property } from '@/components/PropertyCard';
 
 interface PropertyTransactionButtonProps {
   property: Property;
@@ -33,8 +25,7 @@ const PropertyTransactionButton: React.FC<PropertyTransactionButtonProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
 
   const calculateTotal = () => {
-    const pricePerToken = parseFloat(property.tokenPrice.replace('$', ''));
-    return (pricePerToken * tokenAmount).toFixed(2);
+    return (property.tokenPrice * tokenAmount).toFixed(2);
   };
 
   const handlePurchase = async () => {
@@ -53,7 +44,7 @@ const PropertyTransactionButton: React.FC<PropertyTransactionButtonProps> = ({
       // Simulate transaction processing
       transactionToast({
         title: "Transaction Initiated",
-        description: `Processing purchase of ${tokenAmount} tokens for ${property.title}`,
+        description: `Processing purchase of ${tokenAmount} tokens for ${property.name || property.title}`,
         status: "pending"
       });
 
@@ -65,7 +56,7 @@ const PropertyTransactionButton: React.FC<PropertyTransactionButtonProps> = ({
 
       transactionToast({
         title: "Purchase Successful!",
-        description: `Successfully purchased ${tokenAmount} tokens of ${property.title}`,
+        description: `Successfully purchased ${tokenAmount} tokens of ${property.name || property.title}`,
         status: "success",
         txHash: mockTxHash
       });
@@ -83,7 +74,8 @@ const PropertyTransactionButton: React.FC<PropertyTransactionButtonProps> = ({
     }
   };
 
-  const maxTokens = Math.min(property.availableTokens, 100); // Limit max purchase
+  const maxTokens = Math.min(property.availableTokens || 100, 100); // Limit max purchase
+  const displayName = property.name || property.title || 'Property';
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -103,7 +95,7 @@ const PropertyTransactionButton: React.FC<PropertyTransactionButtonProps> = ({
             Purchase Property Tokens
           </DialogTitle>
           <DialogDescription>
-            Buy tokens for {property.title}
+            Buy tokens for {displayName}
           </DialogDescription>
         </DialogHeader>
 
@@ -111,9 +103,9 @@ const PropertyTransactionButton: React.FC<PropertyTransactionButtonProps> = ({
           {/* Property Info */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-lg">{property.title}</CardTitle>
+              <CardTitle className="text-lg">{displayName}</CardTitle>
               <CardDescription>
-                {property.tokenPrice} per token • {property.availableTokens} available
+                ${property.tokenPrice} per token • {property.availableTokens || 100} available
               </CardDescription>
             </CardHeader>
           </Card>
@@ -161,7 +153,7 @@ const PropertyTransactionButton: React.FC<PropertyTransactionButtonProps> = ({
                 </span>
               </div>
               <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
-                <span>{tokenAmount} tokens × {property.tokenPrice}</span>
+                <span>{tokenAmount} tokens × ${property.tokenPrice}</span>
                 <span>Network fee: ~$2.50</span>
               </div>
             </CardContent>
