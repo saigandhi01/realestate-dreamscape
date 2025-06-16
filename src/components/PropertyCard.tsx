@@ -1,105 +1,170 @@
 
-import { Link } from 'react-router-dom';
-import { Building2, MapPin, IndianRupee, Users } from 'lucide-react';
-import { Badge } from "@/components/ui/badge";
-import { ZoomIn } from '@/components/ui/animations';
+import React from 'react';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { MapPin, TrendingUp, Users, Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import PropertyTransactionButton from './marketplace/PropertyTransactionButton';
 
-export interface Property {
+interface Property {
   id: string;
-  name: string;
+  title: string;
   location: string;
-  price: number;
-  tokenPrice: number;
+  price: string;
   image: string;
-  type: string;
+  roi: string;
   investors: number;
-  funded: number;
-  target: number;
+  description: string;
+  type: string;
+  tokenPrice: string;
+  totalTokens: number;
+  availableTokens: number;
 }
 
 interface PropertyCardProps {
   property: Property;
-  index: number;
+  view?: 'grid' | 'list';
 }
 
-// INR conversion rate (1 USD = approximately 75 INR)
-const USD_TO_INR = 75;
+const PropertyCard: React.FC<PropertyCardProps> = ({ property, view = 'grid' }) => {
+  const navigate = useNavigate();
 
-const PropertyCard = ({ property, index }: PropertyCardProps) => {
-  const percentFunded = Math.round((property.funded / property.target) * 100);
-  
-  // Convert prices to INR
-  const priceInINR = property.price * USD_TO_INR;
-  const fundedInINR = property.funded * USD_TO_INR;
-  const tokenPriceInINR = property.tokenPrice * USD_TO_INR;
-  
-  return (
-    <ZoomIn delay={index * 0.1} className="h-full">
-      <Link 
-        to={`/property/${property.id}`} 
-        className="block h-full rounded-xl overflow-hidden bg-card border border-border shadow-sm card-hover"
-      >
-        <div className="relative">
-          {/* Property Image */}
-          <div className="aspect-[16/9] overflow-hidden">
+  const handleViewDetails = () => {
+    navigate(`/property/${property.id}`);
+  };
+
+  if (view === 'list') {
+    return (
+      <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white/80 backdrop-blur-sm border-white/20">
+        <div className="flex flex-col md:flex-row">
+          <div className="md:w-1/3">
             <img 
               src={property.image} 
-              alt={property.name}
-              loading="lazy"
-              className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+              alt={property.title}
+              className="w-full h-48 md:h-full object-cover"
             />
           </div>
-          
-          {/* Property Type Badge */}
-          <Badge className="absolute top-3 left-3 font-medium bg-background/80 backdrop-blur-sm">
-            {property.type}
-          </Badge>
-        </div>
-        
-        <div className="p-5">
-          {/* Property Details */}
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold mb-1 line-clamp-1">{property.name}</h3>
-            <div className="flex items-center text-muted-foreground">
-              <MapPin size={14} className="mr-1" />
-              <span className="text-sm line-clamp-1">{property.location}</span>
-            </div>
-          </div>
-          
-          {/* Funding Progress */}
-          <div className="mb-4">
-            <div className="flex justify-between text-sm mb-1.5">
-              <span>₹{fundedInINR.toLocaleString()} raised</span>
-              <span className="font-medium">{percentFunded}%</span>
-            </div>
-            <div className="w-full bg-muted rounded-full h-1.5">
-              <div 
-                className="bg-primary h-1.5 rounded-full" 
-                style={{ width: `${percentFunded}%` }}
-              ></div>
-            </div>
-          </div>
-          
-          {/* Investment Info */}
-          <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
-            <div className="flex items-center">
-              <IndianRupee size={16} className="mr-2 text-muted-foreground" />
-              <div>
-                <p className="text-xs text-muted-foreground">Token Price</p>
-                <p className="font-medium">₹{tokenPriceInINR}</p>
+          <div className="md:w-2/3 flex flex-col">
+            <CardHeader className="pb-3">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{property.title}</h3>
+                  <div className="flex items-center text-gray-600 mb-2">
+                    <MapPin className="h-4 w-4 mr-1" />
+                    <span>{property.location}</span>
+                  </div>
+                </div>
+                <Badge variant="secondary" className="bg-purple-100 text-purple-800">
+                  {property.type}
+                </Badge>
               </div>
+            </CardHeader>
+            <CardContent className="flex-grow">
+              <p className="text-gray-600 mb-4">{property.description}</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Property Value</p>
+                  <p className="font-semibold text-lg">{property.price}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Token Price</p>
+                  <p className="font-semibold text-lg text-purple-600">{property.tokenPrice}</p>
+                </div>
+                <div className="flex items-center">
+                  <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+                  <span className="font-semibold text-green-600">{property.roi}</span>
+                </div>
+                <div className="flex items-center">
+                  <Users className="h-4 w-4 text-blue-500 mr-1" />
+                  <span className="font-semibold">{property.investors}</span>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter className="pt-0">
+              <div className="flex gap-2 w-full">
+                <Button 
+                  variant="outline" 
+                  onClick={handleViewDetails}
+                  className="flex-1"
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  View Details
+                </Button>
+                <PropertyTransactionButton 
+                  property={property}
+                  className="flex-1"
+                />
+              </div>
+            </CardFooter>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white/80 backdrop-blur-sm border-white/20">
+      <div className="relative">
+        <img 
+          src={property.image} 
+          alt={property.title}
+          className="w-full h-48 object-cover"
+        />
+        <Badge 
+          variant="secondary" 
+          className="absolute top-3 right-3 bg-white/90 text-gray-800"
+        >
+          {property.type}
+        </Badge>
+      </div>
+      
+      <CardHeader className="pb-3">
+        <h3 className="text-lg font-semibold text-gray-900 leading-tight">{property.title}</h3>
+        <div className="flex items-center text-gray-600">
+          <MapPin className="h-4 w-4 mr-1" />
+          <span className="text-sm">{property.location}</span>
+        </div>
+      </CardHeader>
+      
+      <CardContent>
+        <div className="space-y-3">
+          <div className="flex justify-between">
+            <span className="text-sm text-gray-500">Property Value</span>
+            <span className="font-semibold">{property.price}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-sm text-gray-500">Token Price</span>
+            <span className="font-semibold text-purple-600">{property.tokenPrice}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <div className="flex items-center">
+              <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+              <span className="font-semibold text-green-600">{property.roi}</span>
             </div>
             <div className="flex items-center">
-              <Users size={16} className="mr-2 text-muted-foreground" />
-              <div>
-                <p className="text-xs text-muted-foreground">Investors</p>
-                <p className="font-medium">{property.investors}</p>
-              </div>
+              <Users className="h-4 w-4 text-blue-500 mr-1" />
+              <span className="font-semibold">{property.investors}</span>
             </div>
           </div>
         </div>
-      </Link>
-    </ZoomIn>
+      </CardContent>
+      
+      <CardFooter className="pt-0 space-y-2">
+        <Button 
+          variant="outline" 
+          className="w-full" 
+          onClick={handleViewDetails}
+        >
+          <Eye className="h-4 w-4 mr-2" />
+          View Details
+        </Button>
+        <PropertyTransactionButton 
+          property={property}
+          className="w-full"
+        />
+      </CardFooter>
+    </Card>
   );
 };
 
