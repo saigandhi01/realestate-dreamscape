@@ -5,7 +5,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MapPin, TrendingUp, Users, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import PropertyTransactionButton from './marketplace/PropertyTransactionButton';
 
 export interface Property {
   id: string;
@@ -93,20 +92,14 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, view = 'grid', in
               </div>
             </CardContent>
             <CardFooter className="pt-0">
-              <div className="flex gap-2 w-full">
-                <Button 
-                  variant="outline" 
-                  onClick={handleViewDetails}
-                  className="flex-1"
-                >
-                  <Eye className="h-4 w-4 mr-2" />
-                  View Details
-                </Button>
-                <PropertyTransactionButton 
-                  property={property}
-                  className="flex-1"
-                />
-              </div>
+              <Button 
+                variant="outline" 
+                onClick={handleViewDetails}
+                className="w-full"
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                View Details
+              </Button>
             </CardFooter>
           </div>
         </div>
@@ -163,7 +156,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, view = 'grid', in
         </div>
       </CardContent>
       
-      <CardFooter className="pt-0 space-y-2">
+      <CardFooter className="pt-0">
         <Button 
           variant="outline" 
           className="w-full" 
@@ -172,10 +165,6 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, view = 'grid', in
           <Eye className="h-4 w-4 mr-2" />
           View Details
         </Button>
-        <PropertyTransactionButton 
-          property={property}
-          className="w-full"
-        />
       </CardFooter>
     </Card>
   );
