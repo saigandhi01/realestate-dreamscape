@@ -1,5 +1,6 @@
 
 import { ethers } from 'ethers';
+import { fetchSOLBalance } from '@/utils/wallet/phantom';
 
 export class LiveWalletService {
   private provider: ethers.providers.Web3Provider | null;
@@ -24,31 +25,7 @@ export class LiveWalletService {
 
   async getSOLBalance(address: string): Promise<string> {
     try {
-      // Use Solana mainnet RPC endpoint
-      const response = await fetch('https://api.mainnet-beta.solana.com', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          id: 1,
-          method: 'getBalance',
-          params: [address]
-        })
-      });
-
-      const data = await response.json();
-      
-      if (data.error) {
-        throw new Error(data.error.message);
-      }
-
-      // Convert lamports to SOL (1 SOL = 1,000,000,000 lamports)
-      const lamports = data.result.value;
-      const solBalance = lamports / 1000000000;
-      
-      return solBalance.toString();
+      return await fetchSOLBalance(address);
     } catch (error) {
       console.error('Error fetching SOL balance:', error);
       throw new Error(`Failed to fetch SOL balance: ${error.message}`);
