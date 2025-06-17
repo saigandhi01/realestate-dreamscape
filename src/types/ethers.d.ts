@@ -52,11 +52,13 @@ declare module 'ethers' {
       export class Provider {
         getNetwork(): Promise<{ chainId: number; name: string }>;
         getBalance(address: string): Promise<any>;
+        getCode(address: string): Promise<string>;
       }
       
       export class Web3Provider extends Provider {
         constructor(provider: any);
         getSigner(): Signer;
+        getCode(address: string): Promise<string>;
       }
     }
     
@@ -77,6 +79,7 @@ declare module 'ethers' {
     
     export class Signer {
       getAddress(): Promise<string>;
+      provider?: Provider;
     }
   }
 }

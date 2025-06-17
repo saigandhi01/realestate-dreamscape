@@ -36,9 +36,11 @@ const USE_MOCK_RESPONSES = true;
 export class RealEstateContractService {
   private contract: ethers.Contract;
   private signer: ethers.Signer;
+  private provider: ethers.providers.Web3Provider;
   private isContractAvailable: boolean = false;
 
   constructor(provider: ethers.providers.Web3Provider) {
+    this.provider = provider;
     this.signer = provider.getSigner();
     this.contract = new ethers.Contract(
       REAL_ESTATE_CONTRACT_ADDRESS,
@@ -50,7 +52,7 @@ export class RealEstateContractService {
 
   private async checkContractAvailability(): Promise<void> {
     try {
-      const code = await this.signer.provider?.getCode(REAL_ESTATE_CONTRACT_ADDRESS);
+      const code = await this.provider.getCode(REAL_ESTATE_CONTRACT_ADDRESS);
       this.isContractAvailable = code !== "0x" && code !== null && code !== undefined;
       if (!this.isContractAvailable) {
         console.warn('Smart contract not deployed at address:', REAL_ESTATE_CONTRACT_ADDRESS);
