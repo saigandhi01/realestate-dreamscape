@@ -207,7 +207,7 @@ const PropertyTransactionButton: React.FC<PropertyTransactionButtonProps> = ({
                 <>
                   <CheckCircle2 className="h-4 w-4 mr-2" />
                   Confirm Purchase
-                </Button>
+                </>
               )}
             </Button>
           </div>
