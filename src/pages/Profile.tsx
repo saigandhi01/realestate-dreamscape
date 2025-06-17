@@ -3,7 +3,7 @@ import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Sparkles, Wallet, TrendingUp, AlertCircle, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Sparkles, Wallet, TrendingUp, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import WalletConnectionSection from '@/components/WalletConnectionSection';
 import TokensAndNFTs from '@/components/TokensAndNFTs';
@@ -11,8 +11,7 @@ import RecentTransactions from '@/components/RecentTransactions';
 import ROISection from '@/components/ROISection';
 import { useUserTokens } from '@/hooks/useUserTokens';
 import { useUserPortfolioData } from '@/hooks/useUserPortfolioData';
-import { useSmartContractWallet } from '@/hooks/useSmartContractWallet';
-import { ethers } from 'ethers';
+import { useLiveWalletData } from '@/hooks/useLiveWalletData';
 
 const Profile = () => {
   const { wallet } = useAuth();
@@ -25,18 +24,13 @@ const Profile = () => {
 
   const { transactionHistory, investmentData, isLoading: portfolioLoading } = useUserPortfolioData();
 
-  // Smart contract integration
+  // Live wallet data fetching
   const {
-    ethBalance,
-    investments,
-    isLoading: contractLoading,
-    error: contractError,
-    refreshData: refreshContractData
-  } = useSmartContractWallet(
-    wallet.provider as ethers.providers.Web3Provider,
-    wallet.address,
-    wallet.walletType
-  );
+    balance: liveBalance,
+    isLoading: balanceLoading,
+    error: balanceError,
+    refreshBalance
+  } = useLiveWalletData(wallet);
 
   const handleGoBack = () => {
     navigate(-1);
@@ -45,12 +39,12 @@ const Profile = () => {
   const handleRefreshAll = async () => {
     await Promise.all([
       refetch(),
-      refreshContractData()
+      refreshBalance()
     ]);
   };
 
-  // Use smart contract balance if available, fallback to wallet balance
-  const displayBalance = wallet.connected && ethBalance !== '0.0000' ? ethBalance : wallet.balance;
+  // Use live balance if available, fallback to wallet balance
+  const displayBalance = liveBalance || wallet.balance || '0.0000';
   const balanceLabel = wallet.networkName === 'Solana' ? 'SOL' : 'ETH';
 
   return (
@@ -85,40 +79,36 @@ const Profile = () => {
                   <Button 
                     variant="outline" 
                     onClick={handleRefreshAll}
-                    disabled={contractLoading || isLoading}
+                    disabled={balanceLoading || isLoading}
                     className="flex items-center gap-2"
                   >
-                    <RefreshCw className={`h-4 w-4 ${(contractLoading || isLoading) ? 'animate-spin' : ''}`} />
+                    <RefreshCw className={`h-4 w-4 ${(balanceLoading || isLoading) ? 'animate-spin' : ''}`} />
                     Refresh Data
                   </Button>
                 )}
               </div>
 
-              {/* Smart Contract Error Display */}
-              {contractError && (
+              {/* Balance Error Display */}
+              {balanceError && (
                 <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <AlertCircle className="h-5 w-5 text-red-600" />
-                    <span className="font-medium text-red-900 dark:text-red-100">Smart Contract Error</span>
-                  </div>
-                  <p className="text-sm text-red-700 dark:text-red-300 mt-1">{contractError}</p>
+                  <p className="text-sm text-red-700 dark:text-red-300">{balanceError}</p>
                 </div>
               )}
 
               {/* Quick Stats */}
               {wallet.connected && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                   <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/10 rounded-2xl p-4 border border-blue-200/20">
                     <div className="flex items-center gap-2">
                       <Wallet className="h-5 w-5 text-blue-600" />
-                      <span className="font-medium text-blue-900 dark:text-blue-100">Wallet Balance</span>
+                      <span className="font-medium text-blue-900 dark:text-blue-100">Live Wallet Balance</span>
                     </div>
                     <div className="text-2xl font-bold text-blue-800 dark:text-blue-200 mt-1">
                       {displayBalance ? `${parseFloat(displayBalance).toFixed(4)} ${balanceLabel}` : '0.0000'}
                     </div>
-                    {contractLoading && (
+                    {balanceLoading && (
                       <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                        Updating from blockchain...
+                        Fetching live balance...
                       </div>
                     )}
                   </div>
@@ -129,15 +119,6 @@ const Profile = () => {
                     </div>
                     <div className="text-2xl font-bold text-green-800 dark:text-green-200 mt-1">
                       {tokens.length}
-                    </div>
-                  </div>
-                  <div className="bg-gradient-to-br from-purple-500/10 to-purple-600/10 rounded-2xl p-4 border border-purple-200/20">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="h-5 w-5 text-purple-600" />
-                      <span className="font-medium text-purple-900 dark:text-purple-100">Property Investments</span>
-                    </div>
-                    <div className="text-2xl font-bold text-purple-800 dark:text-purple-200 mt-1">
-                      {investments.length}
                     </div>
                   </div>
                 </div>
@@ -152,42 +133,6 @@ const Profile = () => {
 
           {wallet.connected && (
             <div className="space-y-8">
-              {/* Smart Contract Investments */}
-              {investments.length > 0 && (
-                <div className="transform transition-all duration-300 hover:scale-[1.01]">
-                  <Card className="bg-gradient-to-br from-white/80 to-gray-50/80 dark:from-gray-900/80 dark:to-gray-800/80 backdrop-blur-xl border-white/20 dark:border-gray-700/20 shadow-2xl">
-                    <CardHeader className="bg-gradient-to-r from-purple-500/10 to-indigo-500/10 rounded-t-lg">
-                      <CardTitle className="flex items-center gap-2 text-xl">
-                        <TrendingUp className="h-6 w-6 text-purple-600" />
-                        Smart Contract Investments
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-6">
-                      <div className="space-y-4">
-                        {investments.map((investment, index) => (
-                          <div key={index} className="flex items-center justify-between bg-muted/50 p-4 rounded-lg">
-                            <div>
-                              <div className="font-medium">Property ID: {investment.propertyId.toString()}</div>
-                              <div className="text-sm text-muted-foreground">
-                                {investment.fractions.toString()} fractions owned
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="font-medium">
-                                {ethers.utils.formatEther(investment.investmentAmount)} ETH
-                              </div>
-                              <div className="text-sm text-muted-foreground">
-                                {new Date(investment.timestamp.toNumber() * 1000).toLocaleDateString()}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
-
               {/* Tokens and NFTs */}
               <div className="transform transition-all duration-300 hover:scale-[1.01]">
                 <TokensAndNFTs
