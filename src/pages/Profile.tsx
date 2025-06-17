@@ -3,7 +3,7 @@ import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Sparkles, Wallet, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Sparkles, Wallet, TrendingUp, AlertCircle, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import WalletConnectionSection from '@/components/WalletConnectionSection';
 import TokensAndNFTs from '@/components/TokensAndNFTs';
@@ -11,6 +11,8 @@ import RecentTransactions from '@/components/RecentTransactions';
 import ROISection from '@/components/ROISection';
 import { useUserTokens } from '@/hooks/useUserTokens';
 import { useUserPortfolioData } from '@/hooks/useUserPortfolioData';
+import { useSmartContractWallet } from '@/hooks/useSmartContractWallet';
+import { ethers } from 'ethers';
 
 const Profile = () => {
   const { wallet } = useAuth();
@@ -23,9 +25,33 @@ const Profile = () => {
 
   const { transactionHistory, investmentData, isLoading: portfolioLoading } = useUserPortfolioData();
 
+  // Smart contract integration
+  const {
+    ethBalance,
+    investments,
+    isLoading: contractLoading,
+    error: contractError,
+    refreshData: refreshContractData
+  } = useSmartContractWallet(
+    wallet.provider as ethers.providers.Web3Provider,
+    wallet.address,
+    wallet.walletType
+  );
+
   const handleGoBack = () => {
     navigate(-1);
   };
+
+  const handleRefreshAll = async () => {
+    await Promise.all([
+      refetch(),
+      refreshContractData()
+    ]);
+  };
+
+  // Use smart contract balance if available, fallback to wallet balance
+  const displayBalance = wallet.connected && ethBalance !== '0.0000' ? ethBalance : wallet.balance;
+  const balanceLabel = wallet.networkName === 'Solana' ? 'SOL' : 'ETH';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-indigo-900/20">
@@ -55,7 +81,29 @@ const Profile = () => {
                     Manage your digital assets and track your investment portfolio
                   </p>
                 </div>
+                {wallet.connected && (
+                  <Button 
+                    variant="outline" 
+                    onClick={handleRefreshAll}
+                    disabled={contractLoading || isLoading}
+                    className="flex items-center gap-2"
+                  >
+                    <RefreshCw className={`h-4 w-4 ${(contractLoading || isLoading) ? 'animate-spin' : ''}`} />
+                    Refresh Data
+                  </Button>
+                )}
               </div>
+
+              {/* Smart Contract Error Display */}
+              {contractError && (
+                <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="h-5 w-5 text-red-600" />
+                    <span className="font-medium text-red-900 dark:text-red-100">Smart Contract Error</span>
+                  </div>
+                  <p className="text-sm text-red-700 dark:text-red-300 mt-1">{contractError}</p>
+                </div>
+              )}
 
               {/* Quick Stats */}
               {wallet.connected && (
@@ -66,8 +114,13 @@ const Profile = () => {
                       <span className="font-medium text-blue-900 dark:text-blue-100">Wallet Balance</span>
                     </div>
                     <div className="text-2xl font-bold text-blue-800 dark:text-blue-200 mt-1">
-                      {wallet.balance ? `${parseFloat(wallet.balance).toFixed(4)} ${wallet.networkName === 'Solana' ? 'SOL' : 'ETH'}` : '0.0000'}
+                      {displayBalance ? `${parseFloat(displayBalance).toFixed(4)} ${balanceLabel}` : '0.0000'}
                     </div>
+                    {contractLoading && (
+                      <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                        Updating from blockchain...
+                      </div>
+                    )}
                   </div>
                   <div className="bg-gradient-to-br from-green-500/10 to-green-600/10 rounded-2xl p-4 border border-green-200/20">
                     <div className="flex items-center gap-2">
@@ -81,10 +134,10 @@ const Profile = () => {
                   <div className="bg-gradient-to-br from-purple-500/10 to-purple-600/10 rounded-2xl p-4 border border-purple-200/20">
                     <div className="flex items-center gap-2">
                       <Sparkles className="h-5 w-5 text-purple-600" />
-                      <span className="font-medium text-purple-900 dark:text-purple-100">Portfolio ROI</span>
+                      <span className="font-medium text-purple-900 dark:text-purple-100">Property Investments</span>
                     </div>
                     <div className="text-2xl font-bold text-purple-800 dark:text-purple-200 mt-1">
-                      {investmentData.roi || '+0.00%'}
+                      {investments.length}
                     </div>
                   </div>
                 </div>
@@ -99,6 +152,42 @@ const Profile = () => {
 
           {wallet.connected && (
             <div className="space-y-8">
+              {/* Smart Contract Investments */}
+              {investments.length > 0 && (
+                <div className="transform transition-all duration-300 hover:scale-[1.01]">
+                  <Card className="bg-gradient-to-br from-white/80 to-gray-50/80 dark:from-gray-900/80 dark:to-gray-800/80 backdrop-blur-xl border-white/20 dark:border-gray-700/20 shadow-2xl">
+                    <CardHeader className="bg-gradient-to-r from-purple-500/10 to-indigo-500/10 rounded-t-lg">
+                      <CardTitle className="flex items-center gap-2 text-xl">
+                        <TrendingUp className="h-6 w-6 text-purple-600" />
+                        Smart Contract Investments
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6">
+                      <div className="space-y-4">
+                        {investments.map((investment, index) => (
+                          <div key={index} className="flex items-center justify-between bg-muted/50 p-4 rounded-lg">
+                            <div>
+                              <div className="font-medium">Property ID: {investment.propertyId.toString()}</div>
+                              <div className="text-sm text-muted-foreground">
+                                {investment.fractions.toString()} fractions owned
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="font-medium">
+                                {ethers.utils.formatEther(investment.investmentAmount)} ETH
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                {new Date(investment.timestamp.toNumber() * 1000).toLocaleDateString()}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
               {/* Tokens and NFTs */}
               <div className="transform transition-all duration-300 hover:scale-[1.01]">
                 <TokensAndNFTs

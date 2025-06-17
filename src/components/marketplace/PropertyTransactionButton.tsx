@@ -9,6 +9,8 @@ import { Wallet, ShoppingCart, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext';
 import { transactionToast } from '@/components/ui/transaction-toast';
 import { Property } from '@/components/PropertyCard';
+import { useSmartContractWallet } from '@/hooks/useSmartContractWallet';
+import { ethers } from 'ethers';
 
 interface PropertyTransactionButtonProps {
   property: Property;
@@ -24,8 +26,14 @@ const PropertyTransactionButton: React.FC<PropertyTransactionButtonProps> = ({
   const [tokenAmount, setTokenAmount] = useState<number>(1);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const { purchaseProperty, isLoading: contractLoading } = useSmartContractWallet(
+    wallet.provider as ethers.providers.Web3Provider,
+    wallet.address,
+    wallet.walletType
+  );
+
   const calculateTotal = () => {
-    return (property.tokenPrice * tokenAmount).toFixed(2);
+    return (property.tokenPrice * tokenAmount).toFixed(4);
   };
 
   const handlePurchase = async () => {
@@ -41,32 +49,40 @@ const PropertyTransactionButton: React.FC<PropertyTransactionButtonProps> = ({
     setIsProcessing(true);
 
     try {
-      // Simulate transaction processing
       transactionToast({
         title: "Transaction Initiated",
         description: `Processing purchase of ${tokenAmount} tokens for ${property.name || property.title}`,
         status: "pending"
       });
 
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Convert property ID to number (assuming it's stored as string)
+      const propertyId = parseInt(property.id) || 1;
+      const totalCost = calculateTotal();
 
-      // Mock transaction hash
-      const mockTxHash = '0x' + Math.random().toString(16).substring(2, 66);
+      console.log('Purchasing property:', {
+        propertyId,
+        tokenAmount,
+        totalCost,
+        property: property.name || property.title
+      });
+
+      // Call smart contract purchase function
+      const tx = await purchaseProperty(propertyId, tokenAmount, totalCost);
 
       transactionToast({
         title: "Purchase Successful!",
         description: `Successfully purchased ${tokenAmount} tokens of ${property.name || property.title}`,
         status: "success",
-        txHash: mockTxHash
+        txHash: tx.hash
       });
 
       setIsOpen(false);
       setTokenAmount(1);
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Purchase failed:', error);
       transactionToast({
         title: "Transaction Failed",
-        description: "Failed to complete the purchase. Please try again.",
+        description: error.message || "Failed to complete the purchase. Please try again.",
         status: "error"
       });
     } finally {
@@ -74,7 +90,7 @@ const PropertyTransactionButton: React.FC<PropertyTransactionButtonProps> = ({
     }
   };
 
-  const maxTokens = Math.min(property.availableTokens || 100, 100); // Limit max purchase
+  const maxTokens = Math.min(property.availableTokens || 100, 100);
   const displayName = property.name || property.title || 'Property';
 
   return (
@@ -95,7 +111,7 @@ const PropertyTransactionButton: React.FC<PropertyTransactionButtonProps> = ({
             Purchase Property Tokens
           </DialogTitle>
           <DialogDescription>
-            Buy tokens for {displayName}
+            Buy tokens for {displayName} using smart contract
           </DialogDescription>
         </DialogHeader>
 
@@ -105,7 +121,7 @@ const PropertyTransactionButton: React.FC<PropertyTransactionButtonProps> = ({
             <CardHeader className="pb-3">
               <CardTitle className="text-lg">{displayName}</CardTitle>
               <CardDescription>
-                ${property.tokenPrice} per token • {property.availableTokens || 100} available
+                {property.tokenPrice} ETH per token • {property.availableTokens || 100} available
               </CardDescription>
             </CardHeader>
           </Card>
@@ -149,21 +165,21 @@ const PropertyTransactionButton: React.FC<PropertyTransactionButtonProps> = ({
               <div className="flex justify-between items-center mb-2">
                 <span className="font-medium">Total Cost</span>
                 <span className="text-xl font-bold text-green-700 dark:text-green-300">
-                  ${calculateTotal()}
+                  {calculateTotal()} ETH
                 </span>
               </div>
               <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
-                <span>{tokenAmount} tokens × ${property.tokenPrice}</span>
-                <span>Network fee: ~$2.50</span>
+                <span>{tokenAmount} tokens × {property.tokenPrice} ETH</span>
+                <span>+ Network fees</span>
               </div>
             </CardContent>
           </Card>
 
-          {/* Warning */}
-          <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-            <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
-            <p className="text-sm text-amber-800 dark:text-amber-200">
-              This is a demo transaction. No real funds will be transferred.
+          {/* Smart Contract Info */}
+          <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <CheckCircle2 className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+            <p className="text-sm text-blue-800 dark:text-blue-200">
+              This transaction will be processed through our secure smart contract on the blockchain.
             </p>
           </div>
 
@@ -173,14 +189,14 @@ const PropertyTransactionButton: React.FC<PropertyTransactionButtonProps> = ({
               variant="outline" 
               onClick={() => setIsOpen(false)}
               className="flex-1"
-              disabled={isProcessing}
+              disabled={isProcessing || contractLoading}
             >
               Cancel
             </Button>
             <Button 
               onClick={handlePurchase}
               className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-              disabled={isProcessing}
+              disabled={isProcessing || contractLoading}
             >
               {isProcessing ? (
                 <>
@@ -191,7 +207,7 @@ const PropertyTransactionButton: React.FC<PropertyTransactionButtonProps> = ({
                 <>
                   <CheckCircle2 className="h-4 w-4 mr-2" />
                   Confirm Purchase
-                </>
+                </Button>
               )}
             </Button>
           </div>
