@@ -12,7 +12,7 @@ interface SmartContractWalletResult {
   isLoading: boolean;
   error: string | null;
   refreshData: () => Promise<void>;
-  purchaseProperty: (propertyId: number, fractionAmount: number, totalCost: string) => Promise<void>;
+  purchaseProperty: (propertyId: number, fractionAmount: number, totalCost: string) => Promise<ethers.ContractTransaction>;
 }
 
 export const useSmartContractWallet = (
@@ -105,7 +105,7 @@ export const useSmartContractWallet = (
     propertyId: number,
     fractionAmount: number,
     totalCost: string
-  ) => {
+  ): Promise<ethers.ContractTransaction> => {
     if (!contractService) {
       throw new Error('Contract service not initialized');
     }
