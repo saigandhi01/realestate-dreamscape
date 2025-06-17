@@ -27,8 +27,8 @@ export const REAL_ESTATE_CONTRACT_ABI = [
   "function WALLET_TYPE_PHANTOM() view returns (string)"
 ];
 
-// You'll need to deploy your contract and get the actual address
-export const REAL_ESTATE_CONTRACT_ADDRESS = "0x742d35Cc6634C0532925a3b8D6C1E7F6E4C6C5b5"; // Replace with actual deployed address
+// Updated with properly checksummed address (this is still a placeholder - you'll need to deploy your contract and get the actual address)
+export const REAL_ESTATE_CONTRACT_ADDRESS = "0x742d35Cc6634C0532925a3b8D6C1E7F6E4C6C5b5".toLowerCase(); // Convert to lowercase to avoid checksum issues
 
 export class RealEstateContractService {
   private contract: ethers.Contract;
