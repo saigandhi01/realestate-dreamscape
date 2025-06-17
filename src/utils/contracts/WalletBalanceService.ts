@@ -42,6 +42,13 @@ export class WalletBalanceService {
 
   async getUserInvestments(userAddress: string): Promise<any[]> {
     try {
+      // Check if contract exists first
+      const code = await this.provider.getCode(REAL_ESTATE_CONTRACT_ADDRESS);
+      if (code === "0x") {
+        console.warn('Smart contract not deployed, returning empty investments');
+        return [];
+      }
+
       const contract = new ethers.Contract(
         REAL_ESTATE_CONTRACT_ADDRESS,
         REAL_ESTATE_CONTRACT_ABI,
@@ -58,6 +65,13 @@ export class WalletBalanceService {
 
   async getPropertyDetails(propertyId: number): Promise<any> {
     try {
+      // Check if contract exists first
+      const code = await this.provider.getCode(REAL_ESTATE_CONTRACT_ADDRESS);
+      if (code === "0x") {
+        console.warn('Smart contract not deployed, returning null for property details');
+        return null;
+      }
+
       const contract = new ethers.Contract(
         REAL_ESTATE_CONTRACT_ADDRESS,
         REAL_ESTATE_CONTRACT_ABI,
