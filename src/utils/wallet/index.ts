@@ -3,6 +3,7 @@ import { WalletType, WalletState, initialWalletState } from './types';
 import { web3Modal } from './constants';
 import { connectPhantomWallet } from './phantom';
 import { connectEVMWallet } from './evm';
+import { connectDemoWallet } from './demo';
 
 // Re-export types and constants
 export type { WalletType, WalletState };
@@ -13,13 +14,18 @@ export { isWalletAvailable } from './detection';
 
 export const connectWallet = async (walletType: WalletType = 'metamask'): Promise<WalletState> => {
   try {
+    // Handle Demo wallet
+    if (walletType === 'demo') {
+      return await connectDemoWallet();
+    }
+    
     // Handle Phantom wallet separately since it's Solana-based
     if (walletType === 'phantom') {
       return await connectPhantomWallet();
     }
     
     // Handle EVM-based wallets (MetaMask, Coinbase, Trust Wallet)
-    return await connectEVMWallet(walletType as Exclude<WalletType, 'phantom'>);
+    return await connectEVMWallet(walletType as Exclude<WalletType, 'phantom' | 'demo'>);
   } catch (error) {
     console.error(`Error connecting to ${walletType} wallet:`, error);
     throw error; // Re-throw the error so the UI can handle it properly

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -11,6 +10,7 @@ import { transactionToast } from '@/components/ui/transaction-toast';
 import { Property } from '@/components/PropertyCard';
 import { useSmartContractWallet } from '@/hooks/useSmartContractWallet';
 import { ethers } from 'ethers';
+import { DemoTransactionService } from '@/utils/contracts/DemoTransactionService';
 
 interface PropertyTransactionButtonProps {
   property: Property;
@@ -55,26 +55,41 @@ const PropertyTransactionButton: React.FC<PropertyTransactionButtonProps> = ({
         status: "pending"
       });
 
-      // Convert property ID to number (assuming it's stored as string)
-      const propertyId = parseInt(property.id) || 1;
       const totalCost = calculateTotal();
+      const displayName = property.name || property.title || 'Property';
 
-      console.log('Purchasing property:', {
-        propertyId,
-        tokenAmount,
-        totalCost,
-        property: property.name || property.title
-      });
+      if (wallet.walletType === 'demo') {
+        // Handle demo transaction
+        const result = await DemoTransactionService.purchaseProperty(
+          property.id,
+          displayName,
+          tokenAmount,
+          totalCost,
+          wallet.address!
+        );
 
-      // Call smart contract purchase function
-      const tx = await purchaseProperty(propertyId, tokenAmount, totalCost);
+        if (result.success) {
+          transactionToast({
+            title: "Demo Purchase Successful!",
+            description: `Successfully purchased ${tokenAmount} tokens of ${displayName}`,
+            status: "success",
+            txHash: result.transaction.transactionHash
+          });
+        } else {
+          throw new Error(result.error || 'Demo transaction failed');
+        }
+      } else {
+        // Handle real smart contract transaction
+        const propertyId = parseInt(property.id) || 1;
+        const tx = await purchaseProperty(propertyId, tokenAmount, totalCost);
 
-      transactionToast({
-        title: "Purchase Successful!",
-        description: `Successfully purchased ${tokenAmount} tokens of ${property.name || property.title}`,
-        status: "success",
-        txHash: tx.hash
-      });
+        transactionToast({
+          title: "Purchase Successful!",
+          description: `Successfully purchased ${tokenAmount} tokens of ${displayName}`,
+          status: "success",
+          txHash: tx.hash
+        });
+      }
 
       setIsOpen(false);
       setTokenAmount(1);
@@ -109,9 +124,15 @@ const PropertyTransactionButton: React.FC<PropertyTransactionButtonProps> = ({
           <DialogTitle className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5 text-purple-600" />
             Purchase Property Tokens
+            {wallet.walletType === 'demo' && (
+              <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">DEMO MODE</span>
+            )}
           </DialogTitle>
           <DialogDescription>
-            Buy tokens for {displayName} using smart contract
+            {wallet.walletType === 'demo' 
+              ? `Demo purchase for ${displayName} using test tokens`
+              : `Buy tokens for ${displayName} using smart contract`
+            }
           </DialogDescription>
         </DialogHeader>
 
@@ -127,16 +148,21 @@ const PropertyTransactionButton: React.FC<PropertyTransactionButtonProps> = ({
           </Card>
 
           {/* Wallet Info */}
-          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+          <Card className={`${wallet.walletType === 'demo' 
+            ? 'bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20' 
+            : 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20'
+          }`}>
             <CardContent className="pt-4">
               <div className="flex items-center gap-2 mb-2">
-                <Wallet className="h-4 w-4 text-blue-600" />
-                <span className="font-medium text-blue-900 dark:text-blue-100">Connected Wallet</span>
+                <Wallet className={`h-4 w-4 ${wallet.walletType === 'demo' ? 'text-orange-600' : 'text-blue-600'}`} />
+                <span className={`font-medium ${wallet.walletType === 'demo' ? 'text-orange-900 dark:text-orange-100' : 'text-blue-900 dark:text-blue-100'}`}>
+                  {wallet.walletType === 'demo' ? 'Demo Wallet' : 'Connected Wallet'}
+                </span>
               </div>
-              <p className="text-sm text-blue-700 dark:text-blue-300">
+              <p className={`text-sm ${wallet.walletType === 'demo' ? 'text-orange-700 dark:text-orange-300' : 'text-blue-700 dark:text-blue-300'}`}>
                 {wallet.address?.slice(0, 6)}...{wallet.address?.slice(-4)}
               </p>
-              <p className="text-sm text-blue-600 dark:text-blue-400">
+              <p className={`text-sm ${wallet.walletType === 'demo' ? 'text-orange-600 dark:text-orange-400' : 'text-blue-600 dark:text-blue-400'}`}>
                 Balance: {wallet.balance || '0'} {wallet.networkName === 'Solana' ? 'SOL' : 'ETH'}
               </p>
             </CardContent>
@@ -170,16 +196,29 @@ const PropertyTransactionButton: React.FC<PropertyTransactionButtonProps> = ({
               </div>
               <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
                 <span>{tokenAmount} tokens × {property.tokenPrice} ETH</span>
-                <span>+ Network fees</span>
+                <span>{wallet.walletType === 'demo' ? '+ Demo fees' : '+ Network fees'}</span>
               </div>
             </CardContent>
           </Card>
 
           {/* Smart Contract Info */}
-          <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-            <CheckCircle2 className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-            <p className="text-sm text-blue-800 dark:text-blue-200">
-              This transaction will be processed through our secure smart contract on the blockchain.
+          <div className={`flex items-start gap-2 p-3 rounded-lg border ${
+            wallet.walletType === 'demo' 
+              ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800'
+              : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+          }`}>
+            <CheckCircle2 className={`h-4 w-4 mt-0.5 flex-shrink-0 ${
+              wallet.walletType === 'demo' ? 'text-orange-600' : 'text-blue-600'
+            }`} />
+            <p className={`text-sm ${
+              wallet.walletType === 'demo' 
+                ? 'text-orange-800 dark:text-orange-200'
+                : 'text-blue-800 dark:text-blue-200'
+            }`}>
+              {wallet.walletType === 'demo' 
+                ? 'This is a demo transaction using test tokens. No real funds will be used.'
+                : 'This transaction will be processed through our secure smart contract on the blockchain.'
+              }
             </p>
           </div>
 
@@ -206,7 +245,7 @@ const PropertyTransactionButton: React.FC<PropertyTransactionButtonProps> = ({
               ) : (
                 <>
                   <CheckCircle2 className="h-4 w-4 mr-2" />
-                  Confirm Purchase
+                  {wallet.walletType === 'demo' ? 'Demo Purchase' : 'Confirm Purchase'}
                 </>
               )}
             </Button>

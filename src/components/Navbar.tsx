@@ -93,6 +93,23 @@ const Navbar = () => {
     }
   };
 
+  const handleDemoAccount = async () => {
+    try {
+      const { connectWallet } = await import('@/utils/wallet');
+      await connectWallet('demo');
+      toast({
+        title: "Demo Account Connected",
+        description: "You're now using a demo account with test tokens.",
+      });
+    } catch (error) {
+      toast({
+        title: "Demo Account Error",
+        description: "Failed to connect demo account.",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <header 
       className={`fixed top-0 left-0 w-full z-50 px-6 md:px-10 transition-all duration-300 ${
@@ -143,14 +160,20 @@ const Navbar = () => {
                       <Wallet className="h-4 w-4" />
                     )}
                     {truncateAddress(wallet.address || '')}
+                    {wallet.walletType === 'demo' && (
+                      <span className="ml-1 text-xs bg-orange-100 text-orange-800 px-1 rounded">DEMO</span>
+                    )}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <div className="p-2 text-sm font-medium">
                     {wallet.networkName}
+                    {wallet.walletType === 'demo' && (
+                      <span className="ml-2 text-xs bg-orange-100 text-orange-800 px-1 rounded">DEMO MODE</span>
+                    )}
                   </div>
                   <div className="p-2 text-sm">
-                    Balance: {wallet.balance ? `${parseFloat(wallet.balance).toFixed(4)} ETH` : '0 ETH'}
+                    Balance: {wallet.balance ? `${parseFloat(wallet.balance).toFixed(4)} ${wallet.networkName === 'Solana' ? 'SOL' : 'ETH'}` : '0 ETH'}
                   </div>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
@@ -169,6 +192,9 @@ const Navbar = () => {
             </div>
           ) : (
             <div className="flex items-center gap-2">
+              <Button variant="outline" onClick={handleDemoAccount} className="ml-2 bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100">
+                Demo Account
+              </Button>
               <Button variant="outline" onClick={openLoginModal} className="ml-2">
                 Sign In
               </Button>
@@ -225,9 +251,12 @@ const Navbar = () => {
                     </Avatar>
                   ) : null}
                   <span>{truncateAddress(wallet.address || '')}</span>
+                  {wallet.walletType === 'demo' && (
+                    <span className="text-xs bg-orange-100 text-orange-800 px-1 rounded">DEMO</span>
+                  )}
                 </div>
                 <div className="text-sm text-muted-foreground mt-1">
-                  {wallet.networkName} • {wallet.balance ? `${parseFloat(wallet.balance).toFixed(4)} ETH` : '0 ETH'}
+                  {wallet.networkName} • {wallet.balance ? `${parseFloat(wallet.balance).toFixed(4)} ${wallet.networkName === 'Solana' ? 'SOL' : 'ETH'}` : '0 ETH'}
                 </div>
               </div>
               <Button variant="outline" onClick={disconnect} className="justify-start">
@@ -237,6 +266,9 @@ const Navbar = () => {
             </>
           ) : (
             <div className="flex flex-col gap-3">
+              <Button variant="outline" onClick={handleDemoAccount} className="w-full justify-center bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100">
+                Demo Account
+              </Button>
               <Button variant="outline" onClick={openLoginModal} className="w-full justify-center">
                 Sign In
               </Button>

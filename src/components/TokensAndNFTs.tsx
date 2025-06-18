@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { ExternalLink, Copy, RefreshCw } from 'lucide-react';
 import { truncateAddress } from '@/utils/wallet';
 import { toast } from '@/hooks/use-toast';
+import { getDemoTokenBalances } from '@/utils/wallet/demo';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface TokensAndNFTsProps {
   tokens: TokenBalance[];
@@ -26,6 +28,11 @@ export const TokensAndNFTs: React.FC<TokensAndNFTsProps> = ({
   chainId,
   onRefresh
 }) => {
+  const { wallet } = useAuth();
+  
+  // If demo wallet, get demo tokens
+  const displayTokens = wallet.walletType === 'demo' ? getDemoTokenBalances() : tokens;
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast({
@@ -35,6 +42,10 @@ export const TokensAndNFTs: React.FC<TokensAndNFTsProps> = ({
   };
 
   const getExplorerUrl = (address: string, chain: string) => {
+    if (wallet.walletType === 'demo') {
+      return '#'; // Demo links don't go anywhere
+    }
+    
     if (chain === 'Solana') {
       return `https://solscan.io/account/${address}`;
     }
@@ -51,20 +62,7 @@ export const TokensAndNFTs: React.FC<TokensAndNFTsProps> = ({
     }
   };
 
-  const getNftExplorerUrl = (address: string, tokenId: string | undefined) => {
-    if (!tokenId) return getExplorerUrl(address, 'Ethereum');
-    
-    switch (chainId) {
-      case 1:
-        return `https://opensea.io/assets/ethereum/${address}/${tokenId}`;
-      case 137:
-        return `https://opensea.io/assets/matic/${address}/${tokenId}`;
-      default:
-        return `https://opensea.io/assets/ethereum/${address}/${tokenId}`;
-    }
-  };
-
-  if (error) {
+  if (error && wallet.walletType !== 'demo') {
     return (
       <Card className="w-full shadow-md bg-card/50 backdrop-blur-sm border-primary/10">
         <CardHeader>
@@ -92,10 +90,17 @@ export const TokensAndNFTs: React.FC<TokensAndNFTsProps> = ({
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Live Wallet Tokens</CardTitle>
-              <CardDescription>Your cryptocurrency tokens from connected wallet</CardDescription>
+              <CardTitle>
+                {wallet.walletType === 'demo' ? 'Demo Wallet Tokens' : 'Live Wallet Tokens'}
+              </CardTitle>
+              <CardDescription>
+                {wallet.walletType === 'demo' 
+                  ? 'Demo tokens for testing and development purposes'
+                  : 'Your cryptocurrency tokens from connected wallet'
+                }
+              </CardDescription>
             </div>
-            {onRefresh && (
+            {onRefresh && wallet.walletType !== 'demo' && (
               <Button variant="outline" size="sm" onClick={onRefresh} disabled={isLoading}>
                 <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
                 Refresh
@@ -104,7 +109,7 @@ export const TokensAndNFTs: React.FC<TokensAndNFTsProps> = ({
           </div>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
+          {isLoading && wallet.walletType !== 'demo' ? (
             <div className="space-y-4">
               {[...Array(4)].map((_, i) => (
                 <div key={i} className="flex items-center gap-4">
@@ -116,16 +121,19 @@ export const TokensAndNFTs: React.FC<TokensAndNFTsProps> = ({
                 </div>
               ))}
             </div>
-          ) : tokens.length === 0 ? (
+          ) : displayTokens.length === 0 ? (
             <div className="text-center py-6">
               <p className="text-muted-foreground">No tokens found in this wallet</p>
               <p className="text-sm text-muted-foreground mt-2">
-                Supported tokens: ETH, USDC, USDT, SOL
+                {wallet.walletType === 'demo' 
+                  ? 'Demo tokens should be available'
+                  : 'Supported tokens: ETH, USDC, USDT, SOL'
+                }
               </p>
             </div>
           ) : (
             <div className="space-y-4">
-              {tokens.map((token, index) => (
+              {displayTokens.map((token, index) => (
                 <div key={`${token.address}-${index}`} className="flex items-center justify-between bg-muted/50 p-4 rounded-lg">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10 rounded-full">
@@ -139,6 +147,9 @@ export const TokensAndNFTs: React.FC<TokensAndNFTsProps> = ({
                       <div className="text-sm text-muted-foreground flex items-center gap-1">
                         {token.symbol} 
                         <span className="text-xs opacity-70">({token.chain})</span>
+                        {wallet.walletType === 'demo' && (
+                          <span className="text-xs bg-orange-100 text-orange-800 px-1 rounded ml-1">DEMO</span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -158,16 +169,18 @@ export const TokensAndNFTs: React.FC<TokensAndNFTsProps> = ({
                       >
                         <Copy className="h-3 w-3" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6"
-                        asChild
-                      >
-                        <a href={getExplorerUrl(token.address, token.chain)} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                      </Button>
+                      {wallet.walletType !== 'demo' && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          asChild
+                        >
+                          <a href={getExplorerUrl(token.address, token.chain)} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>

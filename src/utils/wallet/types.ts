@@ -1,26 +1,23 @@
 
-import { ethers } from "ethers";
+export type WalletType = 'metamask' | 'coinbase' | 'trust' | 'phantom' | 'demo';
 
-export type WalletType = 'metamask' | 'coinbase' | 'trustwallet' | 'phantom' | null;
-
-export type WalletState = {
-  address: string | null;
+export interface WalletState {
+  address?: string;
   connected: boolean;
-  chainId: number | null;
-  provider: ethers.providers.Web3Provider | null;
-  signer: ethers.Signer | null;
-  balance: string | null;
-  networkName: string | null;
-  walletType: WalletType;
-};
+  chainId?: number;
+  provider?: any;
+  signer?: any;
+  balance?: string;
+  networkName?: string;
+  walletType?: WalletType;
+}
 
 export const initialWalletState: WalletState = {
-  address: null,
   connected: false,
-  chainId: null,
+  chainId: 1,
   provider: null,
   signer: null,
-  balance: null,
-  networkName: null,
-  walletType: null,
+  balance: '0',
+  networkName: 'Ethereum',
+  walletType: undefined
 };

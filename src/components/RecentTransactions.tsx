@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, ArrowUpRight, ArrowDownLeft, ArrowRightLeft } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useAuth } from '@/contexts/AuthContext';
+import { DemoTransactionService } from '@/utils/contracts/DemoTransactionService';
 
 interface Transaction {
   id: string;
@@ -25,6 +27,21 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
   transactions, 
   isLoading 
 }) => {
+  const { wallet } = useAuth();
+  
+  // If demo wallet, get demo transactions
+  const displayTransactions = wallet.walletType === 'demo' 
+    ? DemoTransactionService.getDemoTransactions().map(tx => ({
+        id: tx.id,
+        date: new Date(tx.timestamp).toLocaleDateString(),
+        type: 'buy' as const,
+        property: tx.propertyName,
+        amount: `${tx.totalCost} ETH`,
+        tokens: tx.tokenAmount.toString(),
+        hash: tx.transactionHash
+      }))
+    : transactions;
+
   const getTransactionIcon = (type: string) => {
     switch (type) {
       case 'buy':
@@ -55,7 +72,14 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
     return `${hash.slice(0, 6)}...${hash.slice(-4)}`;
   };
 
-  if (isLoading) {
+  const getExplorerUrl = (hash: string) => {
+    if (wallet.walletType === 'demo') {
+      return '#'; // Demo transactions don't have real explorer links
+    }
+    return `https://etherscan.io/tx/${hash}`;
+  };
+
+  if (isLoading && wallet.walletType !== 'demo') {
     return (
       <Card className="w-full shadow-md bg-card/50 backdrop-blur-sm border-primary/10">
         <CardHeader>
@@ -85,20 +109,33 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
   return (
     <Card className="w-full shadow-md bg-card/50 backdrop-blur-sm border-primary/10">
       <CardHeader>
-        <CardTitle>Recent Transactions</CardTitle>
-        <CardDescription>Your latest investment activities</CardDescription>
+        <CardTitle className="flex items-center gap-2">
+          Recent Transactions
+          {wallet.walletType === 'demo' && (
+            <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">DEMO</span>
+          )}
+        </CardTitle>
+        <CardDescription>
+          {wallet.walletType === 'demo' 
+            ? 'Your demo investment activities'
+            : 'Your latest investment activities'
+          }
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        {transactions.length === 0 ? (
+        {displayTransactions.length === 0 ? (
           <div className="text-center py-6">
             <p className="text-muted-foreground">No recent transactions found</p>
             <p className="text-sm text-muted-foreground mt-2">
-              Start investing to see your transaction history here
+              {wallet.walletType === 'demo' 
+                ? 'Start making demo purchases to see transaction history here'
+                : 'Start investing to see your transaction history here'
+              }
             </p>
           </div>
         ) : (
           <div className="space-y-3">
-            {transactions.slice(0, 5).map((transaction) => (
+            {displayTransactions.slice(0, 5).map((transaction) => (
               <div 
                 key={transaction.id} 
                 className="flex items-center justify-between p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors"
@@ -110,7 +147,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                   <div>
                     <div className="flex items-center gap-2">
                       <Badge className={`text-xs ${getTransactionColor(transaction.type)}`}>
-                        {transaction.type.toUpperCase()}
+                        {wallet.walletType === 'demo' ? 'DEMO-' : ''}{transaction.type.toUpperCase()}
                       </Badge>
                       <span className="font-medium">{transaction.property}</span>
                     </div>
@@ -126,15 +163,17 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                       {truncateHash(transaction.hash)}
                     </div>
                   </div>
-                  <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-                    <a 
-                      href={`https://etherscan.io/tx/${transaction.hash}`} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                    >
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                  </Button>
+                  {wallet.walletType !== 'demo' && (
+                    <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                      <a 
+                        href={getExplorerUrl(transaction.hash)} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </Button>
+                  )}
                 </div>
               </div>
             ))}
