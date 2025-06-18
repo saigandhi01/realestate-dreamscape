@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -24,7 +23,7 @@ const WalletSelectionPopover = ({
   // Check wallet availability
   const isMetaMaskAvailable = isWalletAvailable('metamask');
   const isCoinbaseWalletAvailable = isWalletAvailable('coinbase');
-  const isTrustWalletAvailable = isWalletAvailable('trustwallet');
+  const isTrustWalletAvailable = isWalletAvailable('trust');
   const isPhantomWalletAvailable = isWalletAvailable('phantom');
 
   const handleWalletConnection = (walletType: WalletType) => {
@@ -49,7 +48,7 @@ const WalletSelectionPopover = ({
     },
     {
       name: "Trust Wallet",
-      type: "trustwallet" as WalletType,
+      type: "trust" as WalletType,
       icon: "https://trustwallet.com/assets/images/favicon.svg",
       available: isTrustWalletAvailable
     },

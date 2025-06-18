@@ -19,7 +19,7 @@ export const isWalletAvailable = (walletType: WalletType): boolean => {
       return !!windowWithEthereum.ethereum?.isMetaMask;
     case 'coinbase':
       return !!windowWithEthereum.ethereum?.isCoinbaseWallet;
-    case 'trustwallet':
+    case 'trust':
       return !!windowWithEthereum.ethereum?.isTrust;
     case 'phantom':
       // Check for Phantom wallet more thoroughly
@@ -29,6 +29,8 @@ export const isWalletAvailable = (walletType: WalletType): boolean => {
         solana: windowWithEthereum.solana
       });
       return hasPhantom;
+    case 'demo':
+      return true; // Demo wallet is always available
     default:
       return false;
   }

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -13,7 +12,7 @@ const WalletConnectionSection = () => {
   // Check if any wallet is available
   const isMetaMaskAvailable = isWalletAvailable('metamask');
   const isCoinbaseWalletAvailable = isWalletAvailable('coinbase');
-  const isTrustWalletAvailable = isWalletAvailable('trustwallet');
+  const isTrustWalletAvailable = isWalletAvailable('trust');
   const isPhantomWalletAvailable = isWalletAvailable('phantom');
 
   const anyWalletAvailable = isMetaMaskAvailable || isCoinbaseWalletAvailable || 
@@ -26,7 +25,7 @@ const WalletConnectionSection = () => {
         return "https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/metamask-fox.svg";
       case 'coinbase':
         return "https://uploads-ssl.webflow.com/62146153fce32cc0ae204bb0/62146153fce32cd3ee204bec_coinbase-wallet-logo.svg";
-      case 'trustwallet':
+      case 'trust':
         return "https://trustwallet.com/assets/images/media/assets/trust_platform_logo.svg";
       case 'phantom':
         return "https://phantom.app/img/phantom-icon-purple.png";

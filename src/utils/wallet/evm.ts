@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import { WalletType, WalletState } from './types';
 import { web3Modal, networkNames } from './constants';
 
-export const connectEVMWallet = async (walletType: Exclude<WalletType, 'phantom'>): Promise<WalletState> => {
+export const connectEVMWallet = async (walletType: Exclude<WalletType, 'phantom' | 'demo'>): Promise<WalletState> => {
   const windowWithEthereum = window as unknown as { 
     ethereum?: any; 
   };
@@ -31,7 +31,7 @@ export const connectEVMWallet = async (walletType: Exclude<WalletType, 'phantom'
         throw new Error('Coinbase Wallet not available');
       }
       break;
-    case 'trustwallet':
+    case 'trust':
       // Request Trust Wallet provider specifically
       if (windowWithEthereum.ethereum?.isTrust) {
         provider = windowWithEthereum.ethereum;
