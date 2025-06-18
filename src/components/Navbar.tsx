@@ -22,7 +22,7 @@ const Navbar = () => {
   const [profileUrl, setProfileUrl] = useState<string | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
-  const { wallet, disconnect, isLoggedIn, openLoginModal, user } = useAuth();
+  const { wallet, disconnect, isLoggedIn, openLoginModal, user, connectWithWallet } = useAuth();
   
   useEffect(() => {
     const handleScroll = () => {
@@ -95,13 +95,13 @@ const Navbar = () => {
 
   const handleDemoAccount = async () => {
     try {
-      const { connectWallet } = await import('@/utils/wallet');
-      await connectWallet('demo');
+      await connectWithWallet('demo');
       toast({
         title: "Demo Account Connected",
         description: "You're now using a demo account with test tokens.",
       });
     } catch (error) {
+      console.error('Demo account connection error:', error);
       toast({
         title: "Demo Account Error",
         description: "Failed to connect demo account.",

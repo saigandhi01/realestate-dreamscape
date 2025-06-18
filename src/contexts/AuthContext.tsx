@@ -196,7 +196,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const connectWithWallet = async (walletType: WalletType) => {
     setIsConnecting(true);
     try {
+      console.log(`Connecting with wallet type: ${walletType}`);
       const walletState = await connectWallet(walletType);
+      
       if (walletState.connected) {
         const customWallet: Wallet = {
           connected: walletState.connected,
@@ -209,14 +211,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           provider: walletState.provider,
           signer: walletState.signer,
         };
+        
         setWallet(customWallet);
         setIsLoggedIn(true);
         
         localStorage.setItem('walletType', walletType || '');
 
+        // Generate mock user for wallet-based authentication
         const mockUser = {
           id: `wallet-${walletState.address}`,
-          email: `${walletState.address.substring(2, 8)}@wallet.user`,
+          email: `${walletState.address?.substring(2, 8) || 'demo'}@wallet.user`,
           aud: "authenticated",
           role: "authenticated"
         } as User;
@@ -229,6 +233,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         
         setUser(mockUser);
         setSession(mockSession);
+        
+        console.log('Wallet connected successfully:', {
+          walletType,
+          address: walletState.address,
+          balance: walletState.balance,
+          networkName: walletState.networkName
+        });
+        
+        toast({
+          title: "Wallet Connected",
+          description: `Successfully connected ${walletType} wallet.`,
+        });
       }
     } catch (error) {
       console.error('Wallet connection error:', error);
@@ -247,6 +263,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       await supabase.auth.signOut();
       localStorage.removeItem('walletType');
+      localStorage.removeItem('demoWalletAddress');
+      localStorage.removeItem('demoTokenBalances');
+      localStorage.removeItem('demoTransactions');
+      localStorage.removeItem('demoPortfolio');
+      
       setWallet(defaultWallet);
       setIsLoggedIn(false);
       setUser(null);
