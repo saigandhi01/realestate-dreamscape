@@ -35,8 +35,7 @@ export const useLiveWalletData = (wallet: WalletState): LiveWalletDataResult => 
       
       let fetchedBalance: string;
 
-      if (wallet.walletType === 'phantom' && wallet.networkName === '
-') {
+      if (wallet.walletType === 'phantom' && wallet.networkName === 'Solana') {
         fetchedBalance = await fetchSOLBalance(wallet.address);
       } else if (wallet.provider) {
         // For ETH-based wallets (MetaMask, Coinbase, Trust Wallet)
