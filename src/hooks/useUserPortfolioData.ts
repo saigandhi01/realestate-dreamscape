@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { DemoTransactionService } from '@/utils/contracts/DemoTransactionService';
 
 // Sample data for portfolio items
 const mockPortfolioItems = [
@@ -117,6 +118,39 @@ export const useUserPortfolioData = () => {
       setError(null);
       
       try {
+        // For demo wallet, use demo data
+        if (wallet.walletType === 'demo') {
+          // Get demo transactions
+          const demoTransactions = DemoTransactionService.getDemoTransactions();
+          const mappedDemoTransactions = demoTransactions.map(tx => ({
+            id: tx.id,
+            date: new Date(tx.timestamp).toLocaleDateString(),
+            type: 'buy' as const,
+            property: tx.propertyName,
+            amount: `${tx.totalCost} ETH`,
+            tokens: tx.tokenAmount.toString(),
+            hash: tx.transactionHash
+          }));
+
+          // Get demo portfolio
+          const demoPortfolio = DemoTransactionService.getDemoPortfolio();
+          const mappedDemoPortfolio = demoPortfolio.map((item: any) => ({
+            id: item.id,
+            name: item.propertyName,
+            type: 'demo',
+            value: `$${(parseFloat(item.totalInvested) * 1000).toLocaleString()}`, // Mock property value
+            tokens: item.tokensOwned.toString(),
+            ownership: `${item.ownershipPercentage.toFixed(1)}%`,
+            progress: Math.min(item.ownershipPercentage, 100)
+          }));
+
+          setTransactionHistory(demoTransactions.length > 0 ? mappedDemoTransactions : mockTransactionHistory);
+          setPortfolioItems(demoPortfolio.length > 0 ? mappedDemoPortfolio : mockPortfolioItems);
+          setPerformanceData(mockPerformanceData);
+          setInvestmentData(mockInvestmentData);
+          return;
+        }
+
         // If there's no user ID or wallet address, use mock data for demo purposes
         if (!user && !wallet.address) {
           throw new Error('No user ID or wallet address available');
@@ -222,7 +256,7 @@ export const useUserPortfolioData = () => {
     };
 
     fetchUserData();
-  }, [user, wallet.address, wallet.connected]);
+  }, [user, wallet.address, wallet.connected, wallet.walletType]);
 
   return {
     portfolioItems,

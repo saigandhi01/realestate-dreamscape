@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
@@ -12,6 +11,7 @@ import ROISection from '@/components/ROISection';
 import { useUserTokens } from '@/hooks/useUserTokens';
 import { useUserPortfolioData } from '@/hooks/useUserPortfolioData';
 import { useLiveWalletData } from '@/hooks/useLiveWalletData';
+import PropertyDocuments from '@/components/PropertyDocuments';
 
 const Profile = () => {
   const { wallet } = useAuth();
@@ -160,6 +160,11 @@ const Profile = () => {
                     isLoading={portfolioLoading}
                   />
                 </div>
+              </div>
+
+              {/* Property Documents Section */}
+              <div className="transform transition-all duration-300 hover:scale-[1.01]">
+                <PropertyDocuments />
               </div>
             </div>
           )}
