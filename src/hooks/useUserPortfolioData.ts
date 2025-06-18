@@ -118,10 +118,14 @@ export const useUserPortfolioData = () => {
       setError(null);
       
       try {
-        // For demo wallet, use demo data
+        // For demo wallet, ALWAYS use demo data from localStorage
         if (wallet.walletType === 'demo') {
-          // Get demo transactions
+          console.log('Loading demo wallet data...');
+          
+          // Get demo transactions from localStorage
           const demoTransactions = DemoTransactionService.getDemoTransactions();
+          console.log('Demo transactions found:', demoTransactions);
+          
           const mappedDemoTransactions = demoTransactions.map(tx => ({
             id: tx.id,
             date: new Date(tx.timestamp).toLocaleDateString(),
@@ -132,8 +136,10 @@ export const useUserPortfolioData = () => {
             hash: tx.transactionHash
           }));
 
-          // Get demo portfolio
+          // Get demo portfolio from localStorage
           const demoPortfolio = DemoTransactionService.getDemoPortfolio();
+          console.log('Demo portfolio found:', demoPortfolio);
+          
           const mappedDemoPortfolio = demoPortfolio.map((item: any) => ({
             id: item.id,
             name: item.propertyName,
@@ -144,10 +150,33 @@ export const useUserPortfolioData = () => {
             progress: Math.min(item.ownershipPercentage, 100)
           }));
 
-          setTransactionHistory(demoTransactions.length > 0 ? mappedDemoTransactions : mockTransactionHistory);
-          setPortfolioItems(demoPortfolio.length > 0 ? mappedDemoPortfolio : mockPortfolioItems);
+          // Calculate investment data from demo portfolio
+          let totalInvested = 0;
+          let currentValue = 0;
+          
+          demoPortfolio.forEach((item: any) => {
+            const invested = parseFloat(item.totalInvested);
+            totalInvested += invested;
+            currentValue += invested * 1.2; // Mock 20% growth
+          });
+
+          const roi = totalInvested > 0 ? ((currentValue - totalInvested) / totalInvested * 100).toFixed(1) : '0';
+          
+          const calculatedInvestmentData = {
+            totalInvested: `$${(totalInvested * 1000).toLocaleString()}`,
+            currentValue: `$${(currentValue * 1000).toLocaleString()}`,
+            roi: `+${roi}%`,
+            annualYield: '8.2%',
+            monthlyIncome: `$${(currentValue * 0.01 * 1000).toLocaleString()}`
+          };
+
+          // Use demo data if available, otherwise fallback to mock data
+          setTransactionHistory(mappedDemoTransactions.length > 0 ? mappedDemoTransactions : mockTransactionHistory);
+          setPortfolioItems(mappedDemoPortfolio.length > 0 ? mappedDemoPortfolio : mockPortfolioItems);
           setPerformanceData(mockPerformanceData);
-          setInvestmentData(mockInvestmentData);
+          setInvestmentData(demoPortfolio.length > 0 ? calculatedInvestmentData : mockInvestmentData);
+          
+          console.log('Demo data set successfully');
           return;
         }
 

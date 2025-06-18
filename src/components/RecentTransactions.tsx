@@ -29,17 +29,22 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
 }) => {
   const { wallet } = useAuth();
   
-  // If demo wallet, get demo transactions
+  // For demo wallet, prioritize localStorage data over props
   const displayTransactions = wallet.walletType === 'demo' 
-    ? DemoTransactionService.getDemoTransactions().map(tx => ({
-        id: tx.id,
-        date: new Date(tx.timestamp).toLocaleDateString(),
-        type: 'buy' as const,
-        property: tx.propertyName,
-        amount: `${tx.totalCost} ETH`,
-        tokens: tx.tokenAmount.toString(),
-        hash: tx.transactionHash
-      }))
+    ? (() => {
+        const demoTxs = DemoTransactionService.getDemoTransactions();
+        console.log('RecentTransactions - Demo transactions:', demoTxs);
+        
+        return demoTxs.map(tx => ({
+          id: tx.id,
+          date: new Date(tx.timestamp).toLocaleDateString(),
+          type: 'buy' as const,
+          property: tx.propertyName,
+          amount: `${tx.totalCost} ETH`,
+          tokens: tx.tokenAmount.toString(),
+          hash: tx.transactionHash
+        }));
+      })()
     : transactions;
 
   const getTransactionIcon = (type: string) => {
