@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Wallet, LogOut, User, UserRound, Plus } from 'lucide-react';
@@ -112,7 +111,10 @@ const Navbar = () => {
   };
 
   const handleListProperty = () => {
+    console.log('List Property button clicked. Auth state:', { isLoggedIn, user: user?.email });
+    
     if (!isLoggedIn) {
+      console.log('User not logged in, opening login modal');
       openLoginModal();
       toast({
         title: "Authentication Required",
@@ -120,6 +122,8 @@ const Navbar = () => {
       });
       return;
     }
+    
+    console.log('User is logged in, navigating to list-property');
     navigate('/list-property');
   };
 
@@ -154,7 +158,11 @@ const Navbar = () => {
           
           {isLoggedIn ? (
             <div className="flex items-center space-x-2">
-              <Button variant="outline" className="gap-2" onClick={handleListProperty}>
+              <Button 
+                variant="outline" 
+                className="gap-2 bg-gradient-to-r from-primary/10 to-purple-600/10 border-primary/20 hover:bg-gradient-to-r hover:from-primary/20 hover:to-purple-600/20 transition-all duration-200" 
+                onClick={handleListProperty}
+              >
                 <Plus className="h-4 w-4" />
                 List Property
               </Button>
@@ -247,7 +255,11 @@ const Navbar = () => {
           ))}
           {isLoggedIn ? (
             <>
-              <Button variant="outline" className="justify-start gap-2 w-full" onClick={handleListProperty}>
+              <Button 
+                variant="outline" 
+                className="justify-start gap-2 w-full bg-gradient-to-r from-primary/10 to-purple-600/10 border-primary/20" 
+                onClick={handleListProperty}
+              >
                 <Plus className="h-4 w-4" />
                 List Property
               </Button>
