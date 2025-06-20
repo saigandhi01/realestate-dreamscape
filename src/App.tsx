@@ -12,6 +12,7 @@ import Marketplace from "./pages/Marketplace";
 import HowItWorks from "./pages/HowItWorks";
 import ERCStandards from "./pages/ERCStandards";
 import PropertyDetail from "./pages/PropertyDetail";
+import PropertyListingSurvey from "./pages/PropertyListingSurvey";
 import CookieConsent from "./components/CookieConsent";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
@@ -70,6 +71,7 @@ function App() {
               <Route path="/erc-standards" element={<ERCStandards />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/list-property" element={<PropertyListingSurvey />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <CookieConsent />

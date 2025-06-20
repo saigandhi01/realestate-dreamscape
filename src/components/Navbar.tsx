@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Wallet, LogOut, User, UserRound, Plus } from 'lucide-react';
@@ -110,6 +111,18 @@ const Navbar = () => {
     }
   };
 
+  const handleListProperty = () => {
+    if (!isLoggedIn) {
+      openLoginModal();
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to list your property.",
+      });
+      return;
+    }
+    navigate('/list-property');
+  };
+
   return (
     <header 
       className={`fixed top-0 left-0 w-full z-50 px-6 md:px-10 transition-all duration-300 ${
@@ -141,7 +154,7 @@ const Navbar = () => {
           
           {isLoggedIn ? (
             <div className="flex items-center space-x-2">
-              <Button variant="outline" className="gap-2">
+              <Button variant="outline" className="gap-2" onClick={handleListProperty}>
                 <Plus className="h-4 w-4" />
                 List Property
               </Button>
@@ -234,7 +247,7 @@ const Navbar = () => {
           ))}
           {isLoggedIn ? (
             <>
-              <Button variant="outline" className="justify-start gap-2 w-full">
+              <Button variant="outline" className="justify-start gap-2 w-full" onClick={handleListProperty}>
                 <Plus className="h-4 w-4" />
                 List Property
               </Button>

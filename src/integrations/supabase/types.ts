@@ -9,6 +9,60 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      property_listing_surveys: {
+        Row: {
+          additional_notes: string | null
+          amenities: string[] | null
+          bathrooms: number
+          bedrooms: number
+          built_up_area: string
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          land_area: string
+          phone_number: string
+          property_location: string
+          property_type: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          additional_notes?: string | null
+          amenities?: string[] | null
+          bathrooms: number
+          bedrooms: number
+          built_up_area: string
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          land_area: string
+          phone_number: string
+          property_location: string
+          property_type: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          additional_notes?: string | null
+          amenities?: string[] | null
+          bathrooms?: number
+          bedrooms?: number
+          built_up_area?: string
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          land_area?: string
+          phone_number?: string
+          property_location?: string
+          property_type?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       seller_contact_requests: {
         Row: {
           created_at: string
