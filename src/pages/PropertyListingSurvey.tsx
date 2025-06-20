@@ -100,6 +100,16 @@ const PropertyListingSurvey = () => {
     setIsSubmitting(true);
     
     try {
+      // Check if user ID is a valid UUID format, if not set to null
+      let userId = null;
+      if (user?.id) {
+        // Simple UUID format check (36 characters with dashes)
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (uuidRegex.test(user.id)) {
+          userId = user.id;
+        }
+      }
+
       const surveyData = {
         full_name: data.fullName,
         email: data.email,
@@ -112,8 +122,10 @@ const PropertyListingSurvey = () => {
         bathrooms: data.bathrooms,
         amenities: selectedAmenities,
         additional_notes: data.additionalNotes || null,
-        user_id: user?.id || null,
+        user_id: userId,
       };
+
+      console.log('Submitting survey data:', surveyData);
 
       const { error } = await supabase
         .from('property_listing_surveys')
